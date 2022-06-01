@@ -5,7 +5,7 @@ import pytest
 from climate_index_collection.data_loading import load_data_set
 
 
-TEST_DATA_PATH = Path(__file__) / "../data/test_data/"
+TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
 
 
 @pytest.mark.parametrize("source_name", ["FOCI", "CESM"])
