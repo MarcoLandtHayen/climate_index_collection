@@ -1,4 +1,4 @@
-def southern_annular_mode(data_set, slp_name="SLP"):
+def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
     
     Parameters
@@ -6,7 +6,7 @@ def southern_annular_mode(data_set, slp_name="SLP"):
     data_set: xarray.DataSet
         Dataset containing a SLP field.
     slp_name: str
-        Name of the Sea-Level Pressure field. Defaults to "SLP".
+        Name of the Sea-Level Pressure field. Defaults to "sea-level-pressure".
     
     Returns
     -------
