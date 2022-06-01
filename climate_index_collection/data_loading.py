@@ -47,6 +47,21 @@ def load_data_set(data_path="data/test_data/", data_source_name="FOCI", **kwargs
     return data_set
 
 
+# this is dangerous...
+VARNAME_MAPPING = {
+    "FOCI": {
+        "slp": "sea-level-pressure",
+        "tsw": "sea-surface-temperature",
+        "geopoth": "geopotential-height",
+    },
+    "CESM": {
+        "PSL": "sea-level-pressure",
+        "SST": "sea-surface-temperature",
+        "Z3": "geopotential-height",
+    },
+}
+
+
 def standardize_metadata(raw_data_set=None, data_source_name="FOCI"):
     """Standardize metadata (dims, coords, attributes, varnames).
 
@@ -62,4 +77,6 @@ def standardize_metadata(raw_data_set=None, data_source_name="FOCI"):
         Dataset with standardised metadata.
 
     """
-    return raw_data_set
+
+    data_set = raw_data_set.rename_vars(VARNAME_MAPPING[data_source_name])
+    return data_set
