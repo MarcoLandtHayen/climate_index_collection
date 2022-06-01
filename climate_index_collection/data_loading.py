@@ -42,18 +42,20 @@ def load_data_set(data_path="data/test_data/", data_source_name="FOCI", **kwargs
     """
     data_files = find_data_files(data_path=data_path, data_source_name=data_source_name)
     raw_data_set = xr.open_mfdataset(data_files, **kwargs)
-    data_set = standardize_metadata(raw_data_set)
+    data_set = standardize_metadata(raw_data_set, data_source_name=data_source_name)
 
     return data_set
 
 
-def standardize_metadata(raw_data_set=None):
-    """Standardize metadata.
+def standardize_metadata(raw_data_set=None, data_source_name="FOCI"):
+    """Standardize metadata (dims, coords, attributes, varnames).
 
     Parameters
     ----------
     raw_data_set: xarray.Dataset
         Dataset with potentially non-standard metadata.
+    data_source_name: str
+        Name of the model dataset. Defaults to "FOCI".
 
     Returns
     xarray.Dataset
