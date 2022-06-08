@@ -30,7 +30,3 @@ def test_weighted_mean(example_dataset, example_weights):
     mean = mean_weighted(example_dataset, weights=example_weights, dim="t")
     np.testing.assert_allclose(np.array([3.0, 8 / 3, 3.0, 2.0]), mean.data)
 
-
-def test_weighted_var(example_dataset, example_weights):
-    mean = mean_weighted(example_dataset, weights=example_weights, dim="t")
-    np.testing.assert_allclose(np.array([3.0, 8 / 3, 3.0, 2.0]), mean.data)
