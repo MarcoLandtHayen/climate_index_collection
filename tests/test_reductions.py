@@ -3,7 +3,9 @@ from climate_index_collection.reductions import (
     mean_unweighted,
     mean_weighted,
     stddev_weighted,
+    stddev_unweighted,
     variance_weighted,
+    variance_unweighted,
 )
 
 import pytest
@@ -56,3 +58,13 @@ def test_weighted_var(example_dataset_01, example_weights_01):
 def test_weighted_std(example_dataset_01, example_weights_01):
     reduced = stddev_weighted(example_dataset_01, weights=example_weights_01, dim="t")
     np.testing.assert_allclose(np.array([2.0, 2 / 9, 0.0, 2.0]) ** 0.5, reduced.data)
+
+
+def test_unweighted_var(example_dataset_01):
+    reduced = variance_unweighted(example_dataset_01, dim="t")
+    np.testing.assert_allclose(np.array([2.25, 0.25, 0.0, 2.25]), reduced.data)
+
+
+def test_unweighted_std(example_dataset_01):
+    reduced = stddev_unweighted(example_dataset_01, dim="t")
+    np.testing.assert_allclose(np.array([2.25, 0.25, 0.0, 2.25]) ** 0.5, reduced.data)

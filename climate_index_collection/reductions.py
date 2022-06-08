@@ -59,13 +59,32 @@ def variance_weighted(dobj, weights=None, dim=None):
     Returns
     -------
     xarray.Dataset or xarray.DataArray
-        Stddev data. Has the same variable name(s) as dobj.
+        Variance data. Has the same variable name(s) as dobj.
     
     """
     mean_of_squares = mean_weighted(dobj ** 2, weights=weights, dim=dim)
     square_of_means = mean_weighted(dobj, weights=weights, dim=dim) ** 2
     variance = mean_of_squares - square_of_means
     return variance
+
+
+def variance_unweighted(dobj, dim=None):
+    """Calculate an unweighted variance.
+
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    dim: str or list
+        Dimension name or list of dimension names.
+
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Variance data. Has the same variable name(s) as dobj.
+    
+    """
+    return dobj.var(dim)
 
 
 def stddev_weighted(dobj, weights=None, dim=None):
@@ -93,3 +112,21 @@ def stddev_weighted(dobj, weights=None, dim=None):
     std_dev = variance ** 0.5
     return std_dev
 
+
+def stddev_unweighted(dobj, dim=None):
+    """Calculate an unweighted stddev.
+    
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    dim: str or list
+        Dimension name or list of dimension names.
+
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Stddev data. Has the same variable name(s) as dobj.
+    
+    """
+    return dobj.std(dim)
