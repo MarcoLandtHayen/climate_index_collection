@@ -89,7 +89,7 @@ def stddev_weighted(dobj, weights=None, dim=None):
         Stddev data. Has the same variable name(s) as dobj.
     
     """
-    variance = variance_weighted(dobj ** 2, weights=weights, dim=dim)
+    variance = variance_weighted(dobj, weights=weights, dim=dim)
     std_dev = variance ** 0.5
     return std_dev
 
