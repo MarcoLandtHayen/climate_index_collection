@@ -1,5 +1,6 @@
-import xarray as xr
 from pathlib import Path
+
+import xarray as xr
 
 
 def find_data_files(data_path="data/test_data/", data_source_name="FOCI"):

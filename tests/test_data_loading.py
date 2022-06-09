@@ -2,10 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from climate_index_collection.data_loading import (
-    load_data_set,
-    VARNAME_MAPPING,
-)
+from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 
 
 TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"

@@ -1,17 +1,17 @@
 import weakref
+
+import numpy as np
+import pytest
+import xarray as xr
+
 from climate_index_collection.reductions import (
     mean_unweighted,
     mean_weighted,
-    stddev_weighted,
     stddev_unweighted,
-    variance_weighted,
+    stddev_weighted,
     variance_unweighted,
+    variance_weighted,
 )
-
-import pytest
-
-import xarray as xr
-import numpy as np
 
 
 # Test data
@@ -29,14 +29,23 @@ import numpy as np
 @pytest.fixture
 def example_dataset_01():
     data = xr.DataArray(
-        [[1, 2, 3, 4], [4, 3, np.nan, 1]], dims=("t", "x"), name="data",
+        [[1, 2, 3, 4], [4, 3, np.nan, 1]],
+        dims=("t", "x"),
+        name="data",
     )
     return data
 
 
 @pytest.fixture
 def example_weights_01():
-    weights = xr.DataArray([1, 2,], dims=("t"), name="weights",)
+    weights = xr.DataArray(
+        [
+            1,
+            2,
+        ],
+        dims=("t"),
+        name="weights",
+    )
     return weights
 
 

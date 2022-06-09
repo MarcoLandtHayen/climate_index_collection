@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import pytest
 import xarray as xr
+
 from numpy.testing import assert_almost_equal
-from pathlib import Path
-from climate_index_collection.indices import southern_annular_mode
+
 from climate_index_collection.data_loading import load_data_set
+from climate_index_collection.indices import southern_annular_mode
 
 
 @pytest.mark.parametrize("source_name", ["FOCI", "CESM"])
@@ -47,4 +50,3 @@ def test_SAM_naming(source_name):
     SAM = southern_annular_mode(data_set)
 
     assert SAM.name == "SAM"
-
