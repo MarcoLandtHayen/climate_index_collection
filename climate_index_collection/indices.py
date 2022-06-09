@@ -1,3 +1,6 @@
+from .reductions import mean_unweighted
+
+
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
     
@@ -15,13 +18,13 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
         
     """
     slp = data_set[slp_name]
-    
-    slp40S = slp.sel(lat=-40, method="nearest").mean("lon")
-    slp65S = slp.sel(lat=-65, method="nearest").mean("lon")
-    
-    slp_diff = (slp40S - slp65S)
-    
+
+    slp40S = mean_unweighted(slp.sel(lat=-40, method="nearest"), dim="lon")
+    slp65S = mean_unweighted(slp.sel(lat=-65, method="nearest"), dim="lon")
+
+    slp_diff = slp40S - slp65S
+
     SAM_index = (slp_diff - slp_diff.mean("time")) / slp_diff.std("time")
     SAM_index = SAM_index.rename("SAM")
-    
+
     return SAM_index
