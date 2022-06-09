@@ -1,10 +1,9 @@
 from pathlib import Path
 
 import pytest
+import xarray as xr
 
 from numpy.testing import assert_almost_equal
-
-import xarray as xr
 
 from climate_index_collection.data_loading import load_data_set
 from climate_index_collection.indices import southern_annular_mode
