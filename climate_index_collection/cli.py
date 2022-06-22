@@ -2,7 +2,7 @@ from pathlib import Path
 
 import click
 
-from climate_index_collection.data_loading import VARNAME_MAPPING
+from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import ClimateIndexFunctions
 
 
@@ -29,7 +29,15 @@ def run_complete_workflow(
         Path to the output data file.
 
     """
-    output_file = Path(output_path) / f"{model_name}_{index_name}.csv"
+    output_file = Path(output_path) / f"{model_name}_{index_name}.nc"
+
+    index_function = ClimateIndexFunctions[index_name].value
+    model_data_set = load_data_set(data_path=input_path, data_source_name=model_name)
+
+    index_data_set = index_function(model_data_set)
+
+    index_data_set.compute().to_netcdf(output_file)
+
     return output_file
 
 
