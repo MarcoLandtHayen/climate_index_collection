@@ -10,7 +10,7 @@ def test_cli_run_defaults():
     assert result.exit_code == 0
     assert "Will look for input data in: ." in result.output
     assert "Will write outputs to: ." in result.output
-    assert "Will calculate indices for: FOCI" in result.output
+    assert "Will calculate indices for: FOCI,CESM" in result.output
 
 
 def test_cli_run_set_args():
@@ -23,11 +23,14 @@ def test_cli_run_set_args():
             "inpath/",
             "--output-path",
             "outpath/",
-            "--model-name",
-            "CESM",
+            "--model-names",
+            "FOCI,CESM",
+            "--index-names",
+            "southern_annular_mode"
         ],
     )
     assert result.exit_code == 0
     assert "Will look for input data in: inpath/" in result.output
     assert "Will write outputs to: outpath/" in result.output
-    assert "Will calculate indices for: CESM" in result.output
+    assert "Will calculate indices for: FOCI,CESM" in result.output
+    assert "Will calculate following indices: southern_annular_mode" in result.output
