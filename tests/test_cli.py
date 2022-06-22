@@ -26,7 +26,7 @@ def test_cli_run_set_args():
             "--model-names",
             "FOCI,CESM",
             "--index-names",
-            "southern_annular_mode"
+            "southern_annular_mode",
         ],
     )
     assert result.exit_code == 0

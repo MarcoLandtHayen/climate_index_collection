@@ -5,10 +5,8 @@ import xarray as xr
 
 from numpy.testing import assert_almost_equal
 
-from climate_index_collection.data_loading import load_data_set, VARNAME_MAPPING
-from climate_index_collection.indices import (
-    southern_annular_mode,
-)
+from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
+from climate_index_collection.indices import southern_annular_mode
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
