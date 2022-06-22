@@ -1,20 +1,7 @@
+from ipaddress import collapse_addresses
 from .reductions import mean_unweighted
 from enum import Enum
 from functools import partial
-
-
-class ClimateIndexFunctions(Enum):
-    """Enumeration of all index functions.
-    
-    We can use this to, e.g., iterate over all defined indices.
-
-    >>> for index_func in ClimateIndexFunctions:
-    ...     print(index_func.name) 
-    southern_annular_mode
-    ...    
-
-    """
-    southern_annular_mode = partial(southern_annular_mode)
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -44,3 +31,22 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     SAM_index = SAM_index.rename("SAM")
 
     return SAM_index
+
+
+class ClimateIndexFunctions(Enum):
+    """Enumeration of all index functions.
+    
+    We can use this to, e.g., iterate over all defined indices.
+
+    >>> for index_func in ClimateIndexFunctions:
+    ...     print(index_func.name) 
+    southern_annular_mode
+    ...    
+
+    """
+    southern_annular_mode = partial(southern_annular_mode)
+
+    @classmethod
+    def get_all_names(cls):
+        """Return tuple with all known index names."""
+        return tuple(cls.__members__.keys())
