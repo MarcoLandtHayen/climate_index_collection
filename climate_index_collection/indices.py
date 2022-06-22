@@ -1,6 +1,5 @@
 from enum import Enum
 from functools import partial
-from ipaddress import collapse_addresses
 
 from .reductions import mean_unweighted
 
