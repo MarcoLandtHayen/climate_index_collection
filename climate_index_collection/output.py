@@ -93,7 +93,7 @@ def concat_indices(
     return pd.concat(df_list, axis=0, ignore_index=True)
 
 
-def create_csv(
+def run_full_workflow_csv(
     data_path="../data/test_data/",
     file_name="output.csv",
     data_source_names=None,
@@ -117,6 +117,10 @@ def create_csv(
     No return value.
 
     """
+    # ensure output dir exists
+    output_dir = Path(file_name).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     df = concat_indices(
         data_path=data_path,
         data_source_names=data_source_names,
