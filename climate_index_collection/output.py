@@ -48,7 +48,7 @@ def index_dataarray_to_dataframe(index_data_array=None, data_source_name="FOCI")
     index_df = index_data_array.to_dataframe().reset_index()
     index_df['model']=data_source_name
     index_df['index']=index_data_array.name
-    index_df.rename(columns={index_data_array.name: "value" }, inplace = True)
+    index_df = index_df.rename(columns={index_data_array.name: "value" })
     index_df = index_df.reindex(columns=['time', 'model', 'index', 'value'])
     
     return index_df
