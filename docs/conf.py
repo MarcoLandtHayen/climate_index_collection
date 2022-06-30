@@ -14,6 +14,12 @@ import os
 import pathlib
 import sys
 
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+# see https://pypi.org/project/setuptools-scm/ for details
+from pkg_resources import get_distribution
+
 
 print("python exec:", sys.executable)
 print("sys.path:", sys.path)
@@ -29,14 +35,9 @@ project = "climate_index_collection"
 copyright = "2021, Marco Landt-Hayen"
 author = "Marco Landt-Hayen"
 
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-# see https://pypi.org/project/setuptools-scm/ for details
-from pkg_resources import get_distribution
-release = get_distribution('climate_index_collection').version
+release = get_distribution("climate_index_collection").version
 # for example take major/minor
-version = '.'.join(release.split('.')[:2])
+version = ".".join(release.split(".")[:2])
 
 # -- General configuration ---------------------------------------------------
 
