@@ -62,8 +62,6 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
         slp_southern_station - slp_southern_station.mean("time")
     ) / slp_southern_station.std("time")
 
-    slp_diff = slp_northern_station - slp_southern_station
-
     NAO_index = slp_northern_station_norm - slp_southern_station_norm
     NAO_index = NAO_index.rename("NAO")
 
@@ -78,11 +76,13 @@ class ClimateIndexFunctions(Enum):
     >>> for index_func in ClimateIndexFunctions:
     ...     print(index_func.name)
     southern_annular_mode
+    north_atlantic_oscillation
     ...
 
     """
 
     southern_annular_mode = partial(southern_annular_mode)
+    north_atlantic_oscillation = partial(north_atlantic_oscillation)
 
     @classmethod
     def get_all_names(cls):
