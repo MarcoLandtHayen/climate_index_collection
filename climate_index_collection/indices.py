@@ -33,6 +33,41 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     return SAM_index
 
 
+def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
+    """Calculate the North Atlantic Oscillation (NAO) index station-based using grid points closest to
+    Reykjavik (64°9'N, 21°56'W) and Ponta Delgada (37°45'N, 25°40'W).
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SLP field.
+    slp_name: str
+        Name of the Sea-Level Pressure field. Defaults to "sea-level-pressure".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the NAO index.
+
+    """
+    slp = data_set[slp_name]
+
+    slp_northern_station = slp.sel(lat=64, lon=338, method="nearest")
+    slp_southern_station = slp.sel(lat=38, lon=334, method="nearest")
+
+    slp_northern_station_norm = (
+        slp_northern_station - slp_northern_station.mean("time")
+    ) / slp_northern_station.std("time")
+    slp_southern_station_norm = (
+        slp_southern_station - slp_southern_station.mean("time")
+    ) / slp_southern_station.std("time")
+
+    NAO_index = slp_northern_station_norm - slp_southern_station_norm
+    NAO_index = NAO_index.rename("NAO")
+
+    return NAO_index
+
+
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
 
@@ -41,11 +76,13 @@ class ClimateIndexFunctions(Enum):
     >>> for index_func in ClimateIndexFunctions:
     ...     print(index_func.name)
     southern_annular_mode
+    north_atlantic_oscillation
     ...
 
     """
 
     southern_annular_mode = partial(southern_annular_mode)
+    north_atlantic_oscillation = partial(north_atlantic_oscillation)
 
     @classmethod
     def get_all_names(cls):
