@@ -71,6 +71,20 @@ def test_NAO_metadata(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NAO_zeromean(source_name):
+    """Ensure that NAO has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NAO index
+    NAO = north_atlantic_oscillation(data_set)
+
+    # Check, if calculated NAO index has zero mean:
+    assert_almost_equal(actual=NAO.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NAO_naming(source_name):
     """Ensure that the index is named correctly."""
     # Load test data
