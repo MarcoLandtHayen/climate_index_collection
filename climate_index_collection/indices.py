@@ -6,13 +6,13 @@ from .reductions import mean_unweighted
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
-    
+
     This follows [Gong and Wang, 1999] <https://doi.org/10.1029/1999GL900003> in defining
     the southern annular mode index using zonally averaged sea-level pressure at 65°S and
     40°S.
-    
+
     It differs from the definition of [Gong and Wang, 1999] in that it uses the raw time
-    series of zonally averaged sea-level pressure and then only normalizes (zero mean, 
+    series of zonally averaged sea-level pressure and then only normalizes (zero mean,
     unit standard deviation) of the difference of zonally avearged sea-level pressure at
     65°S and 40°S.
 
@@ -44,8 +44,8 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
 
 def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
     """Calculate the station based North Atlantic Oscillation (NAO) index
-    
-    This uses station-based sea-level pressure closest to Reykjavik (64°9'N, 21°56'W) and 
+
+    This uses station-based sea-level pressure closest to Reykjavik (64°9'N, 21°56'W) and
     Ponta Delgada (37°45'N, 25°40'W) and, largely following [Hurrel, 1995]
     <https://doi.org/10.1126/science.269.5224.676>, defines the north-atlantic oscillation index
     as the difference of normalized in Reykjavik and Ponta Delgada without normalizing the
