@@ -6,6 +6,15 @@ from .reductions import mean_unweighted
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
+    
+    This follows [Gong and Wang, 1999] <https://doi.org/10.1029/1999GL900003> in defining
+    the southern annular mode index using zonally averaged sea-level pressure at 65°S and
+    40°S.
+    
+    It differs from the definition of [Gong and Wang, 1999] in that it uses the raw time
+    series of zonally averaged sea-level pressure and then only normalizes (zero mean, 
+    unit standard deviation) of the difference of zonally avearged sea-level pressure at
+    65°S and 40°S.
 
     Parameters
     ----------
