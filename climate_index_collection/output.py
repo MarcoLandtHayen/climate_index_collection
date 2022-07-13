@@ -69,8 +69,8 @@ def concat_indices(
         Location of the data files. Defaults to "data/test_data/".
     data_source_names: list of strings
         List of model names. Defaults to None.
-    index_functions: list of strings
-        List of indices to be computed. Defaults to None.
+    index_functions: iterable
+        Iterable of index functions to be computed. Defaults to None.
 
     Returns
     -------
@@ -109,8 +109,8 @@ def run_full_workflow_csv(
         File name for desired output. Default: output.csv
     data_source_names: list of strings
         List of model names. Defaults to None.
-    index_functions: list of strings
-        List of indices to be computed. Defaults to None.
+    index_functions: iterable
+        Iterable of index functions to be computed. Defaults to None.s
 
     Returns
     -------
