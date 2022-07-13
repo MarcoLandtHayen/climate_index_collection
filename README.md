@@ -10,6 +10,9 @@
 Collection of climate indices derived from climate model outputs.
 
 
+_See [notebooks/Turorial.ipynb](notebooks/Turorial.ipynb) for details._
+
+
 ## Development
 
 For now, we're developing in the Pangeo notebook containter. More details: https://github.com/pangeo-data/pangeo-docker-images
