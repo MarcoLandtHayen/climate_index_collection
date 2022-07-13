@@ -10,7 +10,7 @@
 Collection of climate indices derived from climate model outputs.
 
 
-_See [notebooks/Turorial.ipynb](notebooks/Turorial.ipynb) for details._
+_See [notebooks/Tutorial.ipynb](notebooks/Tutorial.ipynb) for details._
 
 
 ## Development
