@@ -43,8 +43,15 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
 
 
 def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
-    """Calculate the North Atlantic Oscillation (NAO) index station-based using grid points closest to
-    Reykjavik (64°9'N, 21°56'W) and Ponta Delgada (37°45'N, 25°40'W).
+    """Calculate the station based North Atlantic Oscillation (NAO) index
+    
+    This uses station-based sea-level pressure closest to Reykjavik (64°9'N, 21°56'W) and 
+    Ponta Delgada (37°45'N, 25°40'W) and, largely following [Hurrel, 1995]
+    <https://doi.org/10.1126/science.269.5224.676>, defines the north-atlantic oscillation index
+    as the difference of normalized in Reykjavik and Ponta Delgada without normalizing the
+    resulting timeseries again. (This means that the north atlantic oscillation presented here
+    has vanishing mean because both minuend and subtrahend have zero mean, but no unit
+    standard deviation.)
 
     Parameters
     ----------
