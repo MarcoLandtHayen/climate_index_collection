@@ -71,11 +71,11 @@ def test_conversion_to_dataframe(example_data_array):
         ].values
         == np.array(["SAM", "SAM", "SAM", "SAM"])
     )
-    assert all(
+    np.testing.assert_allclose(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
             "value"
-        ].values
-        == np.array([0.5, 1, -0.3, -0.7])
+        ].values,
+        np.array([0.5, 1, -0.3, -0.7]),
     )
 
 
