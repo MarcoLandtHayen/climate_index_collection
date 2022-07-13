@@ -118,25 +118,21 @@ def test_concat_indices():
     assert not (any(df.duplicated()))
 
 
-def test_run_full_workflow_csv():
+def test_run_full_workflow_csv(tmp_path):
     """Ensure that output is written as csv file."""
     # Path to test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
 
-    # Check, if desired output file already exists. If yes, remove it.
-    if os.path.exists("../tests/climate_indices.csv"):
-        os.remove("../tests/climate_indices.csv")
+    # Path to output data
+    outfile = tmp_path / "climate_indices.csv"
 
     # Compute indices from sources, concatenate resulting dataframes and output csv file
     run_full_workflow_csv(
         data_path=TEST_DATA_PATH,
-        file_name="../tests/climate_indices.csv",
+        file_name=outfile,
         data_source_names=["FOCI", "CESM"],
         index_functions=[southern_annular_mode, north_atlantic_oscillation],
     )
 
     # Check, if csv output file exists
-    assert os.path.exists("../tests/climate_indices.csv")
-
-    # Remove test output
-    os.remove("../tests/climate_indices.csv")
+    assert outfile.exists()
