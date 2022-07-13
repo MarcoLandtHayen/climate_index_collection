@@ -72,3 +72,23 @@ def test_conversion_to_dataframe(example_data_array):
         ].values
         == np.array([0.5, 1, -0.3, -0.7])
     )
+
+    
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_returntype_of_conversion_to_dataframe(source_name):
+    """Ensure that function index_dataarray_to_dataframe returns pandas dataframe."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+
+    # Compute SAM index
+    SAM_data_array = compute_index(
+        data_path=TEST_DATA_PATH,
+        data_source_name=source_name,
+        index_function=southern_annular_mode,
+    )
+    
+    # Convert to pandas DataFrame
+    SAM_df = index_dataarray_to_dataframe(index_data_array=SAM_data_array)
+
+    # Check, if calculated SAM index has type pandas.DataFrame
+    assert type(SAM_df) is pd.DataFrame
