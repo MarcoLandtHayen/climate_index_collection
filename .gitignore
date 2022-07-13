@@ -90,3 +90,4 @@ target/
 # Mypy cache
 .mypy_cache/
 climate_index_collection/_version.py
+notebooks/climate_indices.csv
