@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import partial
 
-from .reductions import mean_unweighted
+from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_weighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -83,6 +83,41 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
 
     return NAO_index
 
+def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the area based El Nino Southern Oscillation 3.4 index (ENSO 3.4)
+
+    This uses equatorial pacific sea-surface temperature anomalies in a box 
+    borderd by 5°S, 5°N, 120°W and 170°W.
+    !!!!!!
+    Further describtion needed here
+    !!!!!!
+ 
+    The procedure is as follows:
+    1. A spacial mean is calculated for the SST inside the box described above
+    2. The monthly mean is removed from the previous result
+    
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SST field.
+    sst_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the ENSO 3.4 index.
+
+    """
+    lat_slice = slice(5, -5)
+    lon_slice = slice(360 - 170, 360 - 120) # we need to transform zonal borders to the lon grid needed.
+    sst = data_set[sst_name]
+    print(sst.shape)
+    sst_mean = mean_unweighted(dobj = sst.sel(lat = lat_slice, lon = lon_slice), 
+                                           dim = {'lat', 'lon'})
+    ENSO_index = monthly_anomalies_weighted(sst_mean) 
+    return ENSO_index
+
 
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
@@ -99,6 +134,7 @@ class ClimateIndexFunctions(Enum):
 
     southern_annular_mode = partial(southern_annular_mode)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
+    el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
 
     @classmethod
     def get_all_names(cls):

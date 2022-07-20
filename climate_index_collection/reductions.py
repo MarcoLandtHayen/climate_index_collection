@@ -1,3 +1,6 @@
+import numpy as np
+   
+    
 def mean_unweighted(dobj, dim=None):
     """Calculate an unweighted mean for one or more dimensions.
 
@@ -130,3 +133,82 @@ def stddev_unweighted(dobj, dim=None):
 
     """
     return dobj.std(dim)
+
+def monthly_mean(dobj):
+    """Calculates the monthly mean values of a dataset.
+
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Monthly mean data. Has the same variable name(s) as dobj. 
+        Dimension 'time' will be removed.
+        Dimension 'month' is gained. Int values, starting with 1 for January.
+    """
+    return dobj.groupby("time.month").mean()
+
+def monthly_mean_weighted(dobj):
+    """Calculates the weighted monthly mean values of a dataset.
+    Takes care of leap years and thus differs from "monthl_mean"
+    Adapted from: https://docs.xarray.dev/en/stable/examples/monthly-means.html
+    
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Monthly mean data. Has the same variable name(s) as dobj. 
+        Dimension 'time' will be removed.
+        Dimension 'month' is gained. Int values, starting with 1 for January.
+    """
+    temporal_grouper = "time.month"
+    
+    month_length = dobj.time.dt.days_in_month
+    num_months = 12
+
+    weights = (
+        month_length.groupby(temporal_grouper) / month_length.groupby(temporal_grouper).sum()
+    )
+    
+    # Test that the sum of the weights for each season is 1.0
+    np.testing.assert_allclose(weights.groupby(temporal_grouper).sum().values, np.ones(num_months))
+
+    return (dobj * weights).groupby(temporal_grouper).sum()
+
+def monthly_anomalies(dobj):
+    """Calculates the monthly anomalies from the monthly climatology of a dataset.
+    The monthly climatology is calculated using "monthly_mean"
+
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Monthly anomalies from the monthly climatology of the original data. 
+        Has the same variable name(s) as dobj.
+    """
+    return (dobj - monthly_mean(dobj)).isel(month = 0).drop('month') 
+
+def monthly_anomalies_weighted(dobj):
+    """Calculates the weighted monthly anomalies from the weighted monthly climatology of a dataset.
+    The weighted monthly climatology is calculated using "monthly_mean_weighted"
+    Takes care of leap years and thus differs from "monthly_anomalies"
+
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Weighted monthly anomalies from the weighted monthly climatology of the original data. 
+        Has the same variable name(s) as dobj.
+    """
+    return (dobj - monthly_mean_weighted(dobj)).isel(month = 0).drop('month') 
