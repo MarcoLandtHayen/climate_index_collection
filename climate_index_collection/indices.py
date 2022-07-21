@@ -2,7 +2,7 @@ from enum import Enum
 from functools import partial
 
 from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_weighted
-
+from .data_specs import latitude_longitude_specs
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
@@ -109,12 +109,32 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
         Time series containing the ENSO 3.4 index.
 
     """
-    lat_slice = slice(5, -5)
-    lon_slice = slice(360 - 170, 360 - 120) # we need to transform zonal borders to the lon grid needed.
-    sst = data_set[sst_name]
-    print(sst.shape)
-    sst_mean = mean_unweighted(dobj = sst.sel(lat = lat_slice, lon = lon_slice), 
-                                           dim = {'lat', 'lon'})
+    LatBounds = (-5,5)      #°N which are 5°S and 5°N
+    LonBounds = (190, 250)  #°E which are 170°W and 120°W
+    
+    LatLondSpecs = latitude_longitude_specs(dobj = data_set)
+    
+    # check if the latitude is stricktly increasing or decreasing
+    if LatLondSpecs['lat']['diff_sign'] == True : 
+        LatSlice = slice(LatBounds[0], LatBounds[1])
+    elif LatLondSpecs['lat']['diff_sign'] == False :
+        LatSlice = slice(LatBounds[1], LatBounds[0])
+    # if the slope changes sign, this needs to be corrected
+    elif LatLondSpecs['lat']['diff_sign'] == None :
+        raise Exception('It seems the Latitude is not strictly increasing or decreasing \nNeed fix this!')
+
+    # check if the longitude is stricktly increasing or decreasing
+
+    if LatLondSpecs['lon']['diff_sign'] == True : 
+        LonSlice = slice(LonBounds[0], LonBounds[1])
+    elif LatLondSpecs['lon']['diff_sign'] == False :
+        LonSlice = slice(LonBounds[1], LonBounds[0])
+    elif LatLondSpecs['lon']['diff_sign'] == None :
+        raise Exception('It seems the Longitude is not strictly increasing or decreasing \nNeed fix this!')
+        
+    sst = data_set[sst_name].sel(lat = LatSlice, lon = LonSlice)
+    sst_mean = mean_unweighted(dobj = sst, 
+                                dim = {'lat', 'lon'})
     ENSO_index = monthly_anomalies_weighted(sst_mean) 
     return ENSO_index
 
