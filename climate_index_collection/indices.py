@@ -2,7 +2,7 @@ from enum import Enum
 from functools import partial
 
 from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_weighted
-from .data_specs import latitude_longitude_specs
+from .data_specs import sel_latitude_longitude_slice
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
@@ -83,7 +83,7 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
 
     return NAO_index
 
-def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"):
+def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature", weighted = True):
     """Calculate the area based El Nino Southern Oscillation 3.4 index (ENSO 3.4)
 
     This uses equatorial pacific sea-surface temperature anomalies in a box 
@@ -102,7 +102,10 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
         Dataset containing an SST field.
     sst_name: str
         Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
-
+    weighted: bool
+        True: The weighted monthly anomalies will be calculated, taking care of leap years.
+        False: Leap years will not be accounted for.
+        Default to True
     Returns
     -------
     xarray.DataArray
@@ -111,31 +114,16 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
     """
     LatBounds = (-5,5)      #°N which are 5°S and 5°N
     LonBounds = (190, 250)  #°E which are 170°W and 120°W
-    
-    LatLondSpecs = latitude_longitude_specs(dobj = data_set)
-    
-    # check if the latitude is stricktly increasing or decreasing
-    if LatLondSpecs['lat']['diff_sign'] == True : 
-        LatSlice = slice(LatBounds[0], LatBounds[1])
-    elif LatLondSpecs['lat']['diff_sign'] == False :
-        LatSlice = slice(LatBounds[1], LatBounds[0])
-    # if the slope changes sign, this needs to be corrected
-    elif LatLondSpecs['lat']['diff_sign'] == None :
-        raise Exception('It seems the Latitude is not strictly increasing or decreasing \nNeed fix this!')
-
-    # check if the longitude is stricktly increasing or decreasing
-
-    if LatLondSpecs['lon']['diff_sign'] == True : 
-        LonSlice = slice(LonBounds[0], LonBounds[1])
-    elif LatLondSpecs['lon']['diff_sign'] == False :
-        LonSlice = slice(LonBounds[1], LonBounds[0])
-    elif LatLondSpecs['lon']['diff_sign'] == None :
-        raise Exception('It seems the Longitude is not strictly increasing or decreasing \nNeed fix this!')
-        
+    # use the sel_latitude_longitude_slice function to derive the correct slice order.
+    LatSlice, LonSlice = sel_latitude_longitude_slice(dobj = data_set, LatBounds=LatBounds, LonBounds= LonBounds)
     sst = data_set[sst_name].sel(lat = LatSlice, lon = LonSlice)
-    sst_mean = mean_unweighted(dobj = sst, 
+    
+    if weighted: 
+        sst_anomalies = monthly_anomalies_weighted(sst)
+    else : 
+        sst_anomalies = monthly_anomalies_unweighted(sst)
+    ENSO_index = mean_unweighted(dobj = sst_anomalies, 
                                 dim = {'lat', 'lon'})
-    ENSO_index = monthly_anomalies_weighted(sst_mean) 
     return ENSO_index
 
 
