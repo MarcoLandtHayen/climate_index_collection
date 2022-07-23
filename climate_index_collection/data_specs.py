@@ -11,14 +11,14 @@ def get_spacial_dimension_specs(data) :
     
     NOTE: The difference is defined for latitude and longitude in the same manner:
         diff = np.diff(data)
-        - data is a np.array() containing values of latitude or longitude
-        - diff is a np.array() containing the differnce betẃeen neighboring values of l
+        - data is a np.ndarray containing values of latitude or longitude
+        - diff is a np.ndarray containing the differnce betẃeen neighboring values of l
     
     # Parts are based on the idea by kith: https://stackoverflow.com/questions/19125661/find-index-where-elements-change-value-numpy
     
     Parameters
     ----------
-    data: np.array()
+    data: np.ndarray
         Contains the dimension for which informations shall be given.
 
     Returns
@@ -27,11 +27,11 @@ def get_spacial_dimension_specs(data) :
         This containes the following keys:
         minimum : float 
             Minumum value of data
-        minimum_position : int
+        minimum_position : np.ndarray
             Position where the minumum is found
         maximum : float
             Maximum value of data
-        maximum_position : int
+        maximum_position : np.ndarray
             Position where the maximum is found
         size : int
             length of data
@@ -41,36 +41,33 @@ def get_spacial_dimension_specs(data) :
             True:   if all differences are positive, 
             False:  if all are negative,
             None:   if mixed signs occure              
-        diff_change_postition : bool or list
-            False:  if differences are constant (diff_is_constant is True), 
-            True:   if differences are changing betweeen all postitions in l,
-            List:   else, containing all positions in the diff array where the following value is different from the value at position n
-        diff_change_values : bool or list
-            Analog to diff_change_position.
-            List:   containing all vallues at the position given by diff_change_position
-        diff : np.array()
-            List containing 
+        diff_change_postition : np.ndarray
+            containing all positions where the previous differences is another value
+        diff_change_values : np.ndarray
+            containing all vallues at the position given by diff_change_position
+        diff : np.ndarray
+            containing all differences 
     
     Example:
     -------    
     data = [0,1,2,4,6,8,11,12,13]
     diff = [1,1,2,2,2,3,1,1] will result in 
     dict(
-        mini = 0,
-        mini_pos = 0,
-        maxi = 13,
-        maxi_pos = 8,
-        size = 9, 
-        diff_constant = False,
-        diff_sign = True,
-        diff = [1,1,2,2,2,3,1,1],
-        diff_change_position = [0,2,5,6],
-        diff_change_values = [1,2,3,1]
+        mini                 = 0,
+        mini_pos             = np.array([0]),
+        maxi                 = np.array(13),
+        maxi_pos             = np.array([8]),
+        size                 = 9, 
+        diff_constant        = False,
+        diff_sign            = True,
+        diff_change_position = np.array([0,2,5,6]),
+        diff_change_values   = np.array([1,2,3,1]),
+        diff                 = np.array([1,1,2,2,2,3,1,1]),
         )
     """
     # calculate minimum and maximum based on numpy.
-    minimum = np.min(data)
-    maximum = np.max(data)
+    minimum = np.nanmin(data)
+    maximum = np.nanmax(data)
     # calculate the diff between each dimension value.
     diff = np.diff(data)
     # the diff is constant, if all diff values are the same as first value. 
@@ -80,37 +77,29 @@ def get_spacial_dimension_specs(data) :
     # Directly calculate the sign of change
     # And set other parameters to False 
     if diff_is_constant:
-        diff = diff[0]
-        diff_change_values = False
-        diff_change_position = False
-        diff_sign = diff > 0
+        diff_change_values = np.array([])
+        diff_change_position = np.array([])
     # Else, calulate the positions where diff changes values.
     else :
-        pos = np.where(diff[:-1] != diff[1:])[0]
-        pos = np.array(pos)
-        # if change in every position:
-        if np.size(pos) == np.size(diff) -1 :
-            diff_change_values  = True
-            diff_change_position = True
-        # otherwise set values and position to corresponding keywords
-        # diff_change_values and diff_change_position
-        else :
-            diff_change_values = diff[pos]
-            diff_change_position = pos
+        # note that we need to add 1 to get the index where the change occured.
+        pos = np.nonzero(diff[:-1] != diff[1:])[0] + 1
+        pos = np.append([0], pos)
+        diff_change_values = diff[pos]
+        diff_change_position = pos
         # check if all signs are either positive or negative or mixed 
         # and set corresponding values
-        if np.all(diff > 0) :
-            diff_sign = True
-        elif np.all(diff < 0) :
-            diff_sign = False
-        else :
-            diff_sign = None
+    if np.all(diff > 0) :
+        diff_sign = True
+    elif np.all(diff < 0) :
+        diff_sign = False
+    else :
+        diff_sign = None
 
     return dict(
             mini = minimum,
-            mini_pos = np.where(data == minimum)[0][0],
-            maxi = np.max(data),
-            maxi_pos = np.where(data == maximum)[0][0],
+            mini_pos = np.where(data == minimum)[0],
+            maxi = maximum,
+            maxi_pos = np.where(data == maximum)[0],
             size = np.size(data), 
             diff_constant = diff_is_constant,
             diff_sign = diff_sign,
