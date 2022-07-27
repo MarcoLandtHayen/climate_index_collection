@@ -198,7 +198,7 @@ def monthly_weights(dobj, normalize = True):
     dim = 'time'
     groupby_dim = "time.month"
     month_length = dobj.time.dt.days_in_month
-    num_groups = 12
+    num_groups = len(np.unique(dobj.time.dt.month))
     
     # Check if weights shall be normalized
     if normalize :
