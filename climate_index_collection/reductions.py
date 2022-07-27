@@ -270,7 +270,7 @@ def monthly_anomalies_unweighted(dobj):
         Has the same variable name(s) as dobj.
     """
     # Note: the dobj needs to be grouped by the same group_dim as the DataArray returned by monthly_mean_unweighted!
-    return (dobj.groupby('time.month') - monthly_mean_unweighted(dobj)).drop('month') 
+    return (dobj.groupby('time.month') - monthly_mean_unweighted(dobj)).drop_vars('month') 
 
 
 def monthly_anomalies_weighted(dobj):
@@ -289,4 +289,4 @@ def monthly_anomalies_weighted(dobj):
         Has the same variable name(s) as dobj.
     """
     # Note: the dobj needs to be grouped by the same group_dim as the DataArray returned by monthly_mean_weighted!
-    return (dobj.groupby('time.month') - monthly_mean_weighted(dobj)).drop('month')
+    return (dobj.groupby('time.month') - monthly_mean_weighted(dobj)).drop_vars('month')

@@ -83,7 +83,7 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
 
     return NAO_index
 
-def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature", weighted = True):
+def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature", weighted = False):
     """Calculate the area based El Nino Southern Oscillation 3.4 index (ENSO 3.4)
 
     This uses equatorial pacific sea-surface temperature anomalies in a box 
@@ -105,7 +105,7 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
     weighted: bool
         True: The weighted monthly anomalies will be calculated, taking care of leap years.
         False: Leap years will not be accounted for.
-        Default to True
+        Default to False
     Returns
     -------
     xarray.DataArray
