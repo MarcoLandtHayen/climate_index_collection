@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import partial
 
-from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_weighted
+from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_unweighted
 from .data_specs import sel_latitude_longitude_slice
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -124,6 +124,7 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
         sst_anomalies = monthly_anomalies_unweighted(sst)
     ENSO_index = mean_unweighted(dobj = sst_anomalies, 
                                 dim = {'lat', 'lon'})
+    ENSO_index = ENSO_index.rename("ENSO34")
     return ENSO_index
 
 
