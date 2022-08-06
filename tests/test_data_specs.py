@@ -1,13 +1,8 @@
 from pathlib import Path
-
 import numpy as np
 from xarray import DataArray
-import matplotlib.pyplot as plt
 import itertools
-
 import pytest
-import ipytest
-ipytest.autoconfig()
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.data_specs import get_spacial_dimension_specs, latitude_longitude_specs, sel_latitude_longitude_slice
@@ -92,31 +87,6 @@ lat_bounds_1 = (2,5)
 lon_bounds_1 = (-10,2)
 lat_slice_should_1 = slice(5,2)
 lon_slice_should_1 = slice(-10, 2)
-
-"""
-uncomment to plot the DataSets
-import matplotlib.cm as cm
-cmap1 = cm.get_cmap("Reds",lut=9)
-
-plt.figure()
-data = data_0
-x = data.lat
-y = data.lon
-xx, yy = np.meshgrid(x, y)
-plt.pcolor(x, y, data.transpose(), cmap = cmap1)
-plt.colorbar()
-plt.scatter(xx, yy, s = 50, c = "k")
-
-plt.figure()
-
-data = data_1
-x = data.lat
-y = data.lon
-xx, yy = np.meshgrid(x, y)
-plt.pcolor(x, y, data.transpose(), cmap = cmap1)
-plt.colorbar()
-plt.scatter(xx, yy, s = 50, c = "k")
-""";
 
 # ------------
 # Comparison dict function
