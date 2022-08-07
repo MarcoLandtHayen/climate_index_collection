@@ -277,7 +277,11 @@ def monthly_anomalies_weighted(dobj):
     """Calculates the weighted monthly anomalies from the weighted monthly climatology of a dataset.
     The weighted monthly climatology is calculated using "monthly_mean_weighted"
     Takes care of leap years and thus differs from "monthly_anomalies"
-
+    
+    NOTE: 
+        As this is a weighted mean, the values of the anomalies will not sum up to zero with a convenient .mean("time").
+        One should better check if the monthly_mean_weighted of the anomalies sums up to zero for each month.
+    
     Parameters
     ----------
     dobj: xarray.Dataset or xarray.DataArray
