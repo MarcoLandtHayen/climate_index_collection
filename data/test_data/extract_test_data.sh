@@ -20,7 +20,7 @@ ncks -O -d time,1,120,1 \
 ncks -O -d time,1,120,1 \
         /gxfs_work1/geomar/smomw235/data_user/data_mlandt/CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0999.TS.nc \
         CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0010.TS.nc
-ncks -O -d time,1,60,1 \
+ncks -O -d time,1,60,1 -v SALT \
         /gxfs_work1/geomar/smomw235/data_user/data_mlandt/CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0999.SSS.nc \
         CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0005.SSS.nc
 ncks -O -d time,1,120,1 \
@@ -48,4 +48,3 @@ ncks -O -d time_counter,1,60,1 -v sosaline \
 ncks -O -d time,1,120,1 \
         /gxfs_work1/geomar/smomw235/data_user/data_mlandt/FOCI/FOCI1.3-SW038_echam6_BOT_mm_2350-3349_precip_monthly_1.nc \
         FOCI/FOCI1.3-SW038_echam6_BOT_mm_2350-2359_precip_monthly_1.nc
-
