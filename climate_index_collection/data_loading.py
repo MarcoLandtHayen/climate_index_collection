@@ -54,11 +54,17 @@ VARNAME_MAPPING = {
         "slp": "sea-level-pressure",
         "tsw": "sea-surface-temperature",
         "geopoth": "geopotential-height",
+        "temp2": "sea-air-temperature",
+        "sosaline": "sea-surface-salinity",
+        "precip": "precipitation",
     },
     "CESM": {
         "PSL": "sea-level-pressure",
         "SST": "sea-surface-temperature",
         "Z3": "geopotential-height",
+        "TS": "sea-air-temperature",
+        "SALT": "sea-surface-salinity",
+        "PRECT": "precipitation",
     },
 }
 
