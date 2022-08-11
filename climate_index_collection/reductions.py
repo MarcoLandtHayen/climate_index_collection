@@ -302,3 +302,89 @@ def monthly_anomalies_weighted(dobj):
     """
     # Note: the dobj needs to be grouped by the same group_dim as the DataArray returned by monthly_mean_weighted!
     return (dobj.groupby("time.month") - monthly_mean_weighted(dobj)).drop_vars("month")
+
+
+def area_mean_weighted(
+    dobj,
+    lat_south=None,
+    lat_north=None,
+    lon_west=None,
+    lon_east=None,
+    lon_name="lon",
+    lat_name="lat",
+    lat_extent_name=None,
+    lon_extent_name=None,
+):
+    """Area average over lat and lon range.
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Data for which the area average will be computed.
+    lat_south: float
+        Southern latitude bound.
+    lat_north: float
+        Northern latitude bound.
+    lon_west: float
+        Western longitude bound.
+    lon_east: float
+        Eastern longitude bound.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+    lat_extent_name: str
+        Name of the lat extent. Defaults to None.
+    lon_extent_name: str
+        Name of the lon extent. Defaults to None.
+
+    Returns
+    -------
+    dobj:
+        Area averaged input data.
+
+    """
+    # extract coords
+    lat = dobj.coords[lat_name]
+    lon = dobj.coords[lon_name]
+
+    # standardize lon
+    lon = lon % 360
+    lon_west = lon_west % 360
+    lon_east = lon_east % 360
+
+    # coords
+    mask = (
+        (lat >= lat_south) & (lat <= lat_north) & (lon >= lon_west) & (lon <= lon_east)
+    )
+
+    # do we have dimensional coords?
+    have_dimensional_coords = (tuple(lat.dims.keys())[0] == lat_name) & (
+        tuple(lon.dims.keys())[0] == lon_name
+    )
+
+    # prepare spatial coords for final sum
+    if have_dimensional_coords:
+        spatial_dims = [lat_name, lon_name]
+    else:
+        spatial_dims = list(set(lat.dims.keys()) + set(lon.dims.keys()))
+
+    # prepare weights
+    if have_dimensional_coords:
+        # will only handle equidistant lons and lats here...
+        dlon = abs(lon.diff(lon_name).mean())
+        dlat = abs(lat.diff(lat_name).mean())
+        dx = dlon * np.cos(np.deg2rad(lat))
+        dy = dlat
+        weights = dx * dy
+    else:
+        lat_extent = dobj.coords[lat_extent_name]
+        lon_extent = dobj.coords[lon_extent_name]
+        weights = lat_extent * lon_extent
+
+    # weighted averaging
+    averaged = (dobj * weights).where(mask).sum(spatial_dims) / weights.where(mask).sum(
+        spatial_dims
+    )
+
+    return averaged
