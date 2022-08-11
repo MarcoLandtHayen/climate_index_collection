@@ -11,6 +11,7 @@ from climate_index_collection.indices import (
     el_nino_southern_oscillation_34,
     north_atlantic_oscillation,
     southern_annular_mode,
+    north_atlantic_sea_surface_salinity,
 )
 
 
@@ -124,3 +125,45 @@ def test_ENSO34_naming(source_name):
     result = el_nino_southern_oscillation_34(data_set)
 
     assert result.name == "ENSO34"
+
+
+@pytest.mark.parametrize("source_name", ["FOCI",])
+def test_NASSS_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index only has one dimension: 'time'
+    assert NASSS.dims[0] == "time"
+    assert len(NASSS.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", ["FOCI",])
+def test_NASSS_zeromean(source_name):
+    """Ensure that NASSS has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index has zero mean:
+    assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", ["FOCI",])
+def test_NASSS_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    assert NASSS.name == "NASSS"
