@@ -1,8 +1,10 @@
-import xarray as xr
-from xhistogram.xarray import histogram as xhist
-import numpy as np
-
 from pathlib import Path
+
+import numpy as np
+import xarray as xr
+
+from xhistogram.xarray import histogram as xhist
+
 
 # find input files and create output file names
 original_data_files = [
@@ -19,7 +21,9 @@ target_grid_files = [
 ]
 
 for infile, outfile, gridfile in zip(
-    original_data_files, regridded_data_files, target_grid_files,
+    original_data_files,
+    regridded_data_files,
+    target_grid_files,
 ):
     if not (Path(infile).exists() and Path(gridfile).exists()):
         print(f"Cannot work on {infile}. Skipping.")
