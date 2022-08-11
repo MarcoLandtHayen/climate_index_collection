@@ -3,7 +3,7 @@ from functools import partial
 
 import numpy as np
 
-from .reductions import mean_unweighted
+from .reductions import area_mean_weighted, mean_unweighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -117,17 +117,13 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
         Time series containing the ENSO 3.4 index.
 
     """
-
-    mask = (
-        (data_set[sst_name].coords["lat"] >= -5)
-        & (data_set[sst_name].coords["lat"] <= 5)
-        & (data_set[sst_name].coords["lon"] >= 190)
-        & (data_set[sst_name].coords["lat"] <= 240)
+    sst_nino34 = area_mean_weighted(
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=190,
+        lon_east=240,
     )
-
-    weights = np.cos(np.deg2rad(data_set[sst_name].lat))
-
-    sst_nino34 = data_set[sst_name].where(mask).weighted(weights).mean(("lat", "lon"))
 
     climatology = sst_nino34.groupby("time.month").mean("time")
 

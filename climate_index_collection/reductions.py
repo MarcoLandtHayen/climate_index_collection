@@ -359,15 +359,13 @@ def area_mean_weighted(
     )
 
     # do we have dimensional coords?
-    have_dimensional_coords = (tuple(lat.dims.keys())[0] == lat_name) & (
-        tuple(lon.dims.keys())[0] == lon_name
-    )
+    have_dimensional_coords = (lat.dims[0] == lat_name) & (lon.dims[0] == lon_name)
 
     # prepare spatial coords for final sum
     if have_dimensional_coords:
         spatial_dims = [lat_name, lon_name]
     else:
-        spatial_dims = list(set(lat.dims.keys()) + set(lon.dims.keys()))
+        spatial_dims = list(set(lat.dims) + set(lon.dims))
 
     # prepare weights
     if have_dimensional_coords:
