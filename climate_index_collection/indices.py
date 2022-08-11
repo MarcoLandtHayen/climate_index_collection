@@ -1,8 +1,9 @@
 from enum import Enum
 from functools import partial
 
-from .data_specs import sel_latitude_longitude_slice
-from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_unweighted
+import numpy as np
+
+from .reductions import mean_unweighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -85,20 +86,23 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
     return NAO_index
 
 
-def el_nino_southern_oscillation_34(
-    data_set, sst_name="sea-surface-temperature", weighted=False
-):
-    """Calculate the area based El Nino Southern Oscillation 3.4 index (ENSO 3.4)
+def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the El Nino Southern Oscillation 3.4 index (ENSO 3.4)
 
-    This uses equatorial pacific sea-surface temperature anomalies in a box
+    Following https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
+    the index is derived from equatorial pacific sea-surface temperature anomalies in a box
     borderd by 5°S, 5°N, 120°W and 170°W.
-    !!!!!!
-    Further describtion needed here
-    !!!!!!
 
-    The procedure is as follows:
-    1. A spacial mean is calculated for the SST inside the box described above
-    2. The monthly mean is removed from the previous result
+    Computation is done as follows:
+    1. Compute area averaged total SST from Niño 3.4 region.
+    2. Compute monthly climatology for area averaged total SST from Niño 3.4 region.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+    Note: Usually the index is smoothed by taking some rolling mean over 5 months before
+    normalizing. We omit the rolling mean here and directly take sst anomaly index instead,
+    to preserve the information in full detail. And as climatology we use the complete time span,
+    since we deal with model data.
 
     Parameters
     ----------
@@ -106,31 +110,33 @@ def el_nino_southern_oscillation_34(
         Dataset containing an SST field.
     sst_name: str
         Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
-    weighted: bool
-        True: The weighted monthly anomalies will be calculated, taking care of leap years.
-        False: Leap years will not be accounted for.
-        Default to False
+
     Returns
     -------
     xarray.DataArray
         Time series containing the ENSO 3.4 index.
 
     """
-    LatBounds = (-5, 5)  # °N which are 5°S and 5°N
-    LonBounds = (190, 250)  # °E which are 170°W and 120°W
-    # use the sel_latitude_longitude_slice function to derive the correct slice order.
-    LatSlice, LonSlice = sel_latitude_longitude_slice(
-        dobj=data_set, LatBounds=LatBounds, LonBounds=LonBounds
-    )
-    sst = data_set[sst_name].sel(lat=LatSlice, lon=LonSlice)
 
-    if weighted:
-        sst_anomalies = monthly_anomalies_weighted(sst)
-    else:
-        sst_anomalies = monthly_anomalies_unweighted(sst)
-    ENSO_index = mean_unweighted(dobj=sst_anomalies, dim={"lat", "lon"})
-    ENSO_index = ENSO_index.rename("ENSO34")
-    return ENSO_index
+    mask = (
+        (data_set[sst_name].coords["lat"] >= -5)
+        & (data_set[sst_name].coords["lat"] <= 5)
+        & (data_set[sst_name].coords["lon"] >= 190)
+        & (data_set[sst_name].coords["lat"] <= 240)
+    )
+
+    weights = np.cos(np.deg2rad(data_set[sst_name].lat))
+
+    sst_nino34 = data_set[sst_name].where(mask).weighted(weights).mean(("lat", "lon"))
+
+    climatology = sst_nino34.groupby("time.month").mean("time")
+
+    std_dev = sst_nino34.std("time")
+
+    ENSO34_index = (sst_nino34.groupby("time.month") - climatology) / std_dev
+    ENSO34_index = ENSO34_index.rename("ENSO34")
+
+    return ENSO34_index
 
 
 class ClimateIndexFunctions(Enum):
