@@ -91,3 +91,6 @@ target/
 .mypy_cache/
 climate_index_collection/_version.py
 notebooks/climate_indices.csv
+
+# exclude files Nils needs to set up docker properly
+.nils_docker_connection/*
