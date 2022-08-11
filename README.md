@@ -17,8 +17,8 @@ For now, we're developing in the Pangeo notebook containter. More details: https
 
 To start a JupyterLab within this container, run
 ```shell
-$ docker pull pangeo/pangeo-notebook:2022.05.10
-$ docker run -p 8888:8888 --rm -it -v $PWD:/work -w /work pangeo/pangeo-notebook:2022.05.10 jupyter lab --ip=0.0.0.0
+$ docker pull pangeo/pangeo-notebook:2022.07.27
+$ docker run -p 8888:8888 --rm -it -v $PWD:/work -w /work pangeo/pangeo-notebook:2022.07.27 jupyter lab --ip=0.0.0.0
 ```
 and open the URL starting on `http://127.0.0.1...`.
 
