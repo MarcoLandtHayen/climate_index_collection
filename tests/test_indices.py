@@ -100,38 +100,17 @@ def test_NAO_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_enso34_zeromean(source_name, rtol=1e-8):
-    """Checks if the mean of the ENSO3.4 anomalies are close to 0 using numpy.allclose()
-    rtol : float
-        relative accuracy Default of 1e-6.
-
-    Absolute accuracy is calculated with (max(data_set) - min(data_set)) * rtol
-    For further information look at numpy.allclose()
-    From numpy:
-    "The tolerance values are positive, typically very small numbers.
-    The relative difference (rtol * abs(b)) and the absolute difference atol are added together
-    to compare against the absolute difference between a and b."
-    """
+def test_enso34_zeromean(source_name):
+    """Ensure that ENSO 3.4 has zero mean."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
 
     # Calculate ENSO 3.4 index
-    result = el_nino_southern_oscillation_34(data_set=data_set)
-    # to calculate the absolute tolerance, we use :
-    # ( max(data_set) - min(data_set) ) * rtol
-    min_value = data_set["sea-surface-temperature"].min().values
-    max_value = data_set["sea-surface-temperature"].max().values
-    atol = (max_value - min_value) * rtol
-    result_mean = result.mean("time")
-    # note that rtol has have no effect on the final values, because desired is 0
-    assert_allclose(
-        actual=result_mean,
-        desired=result_mean * 0,
-        rtol=rtol,
-        atol=atol,
-        equal_nan=True,
-    )
+    ENSO34 = el_nino_southern_oscillation_34(data_set)
+
+    # Check, if calculated ENSO 3.4 index has zero mean:
+    assert_almost_equal(actual=ENSO34.mean("time").values[()], desired=0, decimal=3)
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
