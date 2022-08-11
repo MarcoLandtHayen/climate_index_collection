@@ -118,11 +118,7 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
 
     """
     sst_nino34 = area_mean_weighted(
-        dobj=data_set[sst_name],
-        lat_south=-5,
-        lat_north=5,
-        lon_west=190,
-        lon_east=240,
+        dobj=data_set[sst_name], lat_south=-5, lat_north=5, lon_west=190, lon_east=240,
     )
 
     climatology = sst_nino34.groupby("time.month").mean("time")
@@ -133,6 +129,32 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
     ENSO34_index = ENSO34_index.rename("ENSO34")
 
     return ENSO34_index
+
+
+def atlantic_sea_surface_salinity_anomaly(data_set, sss_name="sea-surface-salinity"):
+    """Calculate (Atlantic) Sea-Surface Anomay Index.
+
+    Following https://doi.org/10.1126/sciadv.1501588
+    the index is derived from Atlantic sea-surface salinity anomalies in XXXXXXXXXXXXX
+
+    Computation is done as follows:
+    1. XXXXXXXXX
+    2. XXXXXXXXX
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SST field.
+    sss_name: str
+        Name of the Sea-Surface Salinity field. Defaults to "sea-surface-salinity".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the SSSA index.
+
+    """
+    pass
 
 
 class ClimateIndexFunctions(Enum):
@@ -151,6 +173,9 @@ class ClimateIndexFunctions(Enum):
     southern_annular_mode = partial(southern_annular_mode)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
+    atlantic_sea_surface_salinity_anomaly = partial(
+        atlantic_sea_surface_salinity_anomaly
+    )
 
     @classmethod
     def get_all_names(cls):
