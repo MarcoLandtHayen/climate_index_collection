@@ -1,8 +1,9 @@
 from enum import Enum
 from functools import partial
 
-from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_unweighted
 from .data_specs import sel_latitude_longitude_slice
+from .reductions import mean_unweighted, mean_weighted, monthly_anomalies_unweighted
+
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode index.
@@ -83,19 +84,22 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
 
     return NAO_index
 
-def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature", weighted = False):
+
+def el_nino_southern_oscillation_34(
+    data_set, sst_name="sea-surface-temperature", weighted=False
+):
     """Calculate the area based El Nino Southern Oscillation 3.4 index (ENSO 3.4)
 
-    This uses equatorial pacific sea-surface temperature anomalies in a box 
+    This uses equatorial pacific sea-surface temperature anomalies in a box
     borderd by 5°S, 5°N, 120°W and 170°W.
     !!!!!!
     Further describtion needed here
     !!!!!!
- 
+
     The procedure is as follows:
     1. A spacial mean is calculated for the SST inside the box described above
     2. The monthly mean is removed from the previous result
-    
+
     Parameters
     ----------
     data_set: xarray.DataSet
@@ -112,18 +116,19 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
         Time series containing the ENSO 3.4 index.
 
     """
-    LatBounds = (-5,5)      #°N which are 5°S and 5°N
-    LonBounds = (190, 250)  #°E which are 170°W and 120°W
+    LatBounds = (-5, 5)  # °N which are 5°S and 5°N
+    LonBounds = (190, 250)  # °E which are 170°W and 120°W
     # use the sel_latitude_longitude_slice function to derive the correct slice order.
-    LatSlice, LonSlice = sel_latitude_longitude_slice(dobj = data_set, LatBounds=LatBounds, LonBounds= LonBounds)
-    sst = data_set[sst_name].sel(lat = LatSlice, lon = LonSlice)
-    
-    if weighted: 
+    LatSlice, LonSlice = sel_latitude_longitude_slice(
+        dobj=data_set, LatBounds=LatBounds, LonBounds=LonBounds
+    )
+    sst = data_set[sst_name].sel(lat=LatSlice, lon=LonSlice)
+
+    if weighted:
         sst_anomalies = monthly_anomalies_weighted(sst)
-    else : 
+    else:
         sst_anomalies = monthly_anomalies_unweighted(sst)
-    ENSO_index = mean_unweighted(dobj = sst_anomalies, 
-                                dim = {'lat', 'lon'})
+    ENSO_index = mean_unweighted(dobj=sst_anomalies, dim={"lat", "lon"})
     ENSO_index = ENSO_index.rename("ENSO34")
     return ENSO_index
 

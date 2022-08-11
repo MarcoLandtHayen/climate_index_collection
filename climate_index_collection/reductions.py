@@ -4,7 +4,8 @@ import numpy as np
 # -----------------------------
 # Basic statistical moments
 # -----------------------------
-    
+
+
 def mean_unweighted(dobj, dim=None):
     """Calculate an unweighted mean for one or more dimensions.
 
@@ -139,7 +140,6 @@ def stddev_unweighted(dobj, dim=None):
     return dobj.std(dim)
 
 
-
 def grouped_mean_weighted(dobj, weights=None, dim=None, groupby_dim=None):
     """Calculate a weighted mean depending on a xarray.groupby call
     and the corresponding groupby dimension.
@@ -169,13 +169,13 @@ def grouped_mean_weighted(dobj, weights=None, dim=None, groupby_dim=None):
     weighted_mean = numerator / denominator
     return weighted_mean
 
+
 # -----------------------------
 # Monthly climatology analysis
 # -----------------------------
 
 
-
-def monthly_weights(dobj, normalize = True):
+def monthly_weights(dobj, normalize=True):
     """Calculate the monthly weights including leap years.
 
     Parameters
@@ -192,32 +192,36 @@ def monthly_weights(dobj, normalize = True):
         Weight for each timestep depending on the month.
         If normalized is True: normalized length of the month,
         else : length of the month as int.
-        
+
     """
     # The following setting will allow to calculate the monthly mean weighted
-    dim = 'time'
+    dim = "time"
     groupby_dim = "time.month"
     month_length = dobj.time.dt.days_in_month
     num_groups = len(np.unique(dobj.time.dt.month))
-    
+
     # Check if weights shall be normalized
-    if normalize :
-        weights = month_length.groupby(groupby_dim) / month_length.groupby(groupby_dim).sum('time')
+    if normalize:
+        weights = month_length.groupby(groupby_dim) / month_length.groupby(
+            groupby_dim
+        ).sum("time")
         # Test that the sum of the weights for each season is 1.0
-        np.testing.assert_allclose(weights.groupby(groupby_dim).sum().values, np.ones(num_groups))
-    else :
+        np.testing.assert_allclose(
+            weights.groupby(groupby_dim).sum().values, np.ones(num_groups)
+        )
+    else:
         weights = month_length
-    
+
     return weights
 
 
 def monthly_mean_weighted(dobj):
     """Calculates the weighted monthly mean values of a dataset.
-    It will make use of the grouped_mean_weighted function, which is similar to the mean_weigthed function, 
+    It will make use of the grouped_mean_weighted function, which is similar to the mean_weigthed function,
     but additionally allow to include a dimension to group the data by.
     It takes care of leap years and thus differs from "monthly_mean_unweighted"
     Adapted from: https://docs.xarray.dev/en/stable/examples/monthly-means.html
-    
+
     Parameters
     ----------
     dobj: xarray.Dataset or xarray.DataArray
@@ -225,17 +229,19 @@ def monthly_mean_weighted(dobj):
     Returns
     -------
     xarray.Dataset or xarray.DataArray
-        Monthly mean data. Has the same variable name(s) as dobj. 
+        Monthly mean data. Has the same variable name(s) as dobj.
         Dimension 'time' will be removed.
-        Dimension 'month' is gained. 
+        Dimension 'month' is gained.
             Int values, starting with 1 for January and ending with 12 for December.
     """
     # The following setting will allow to calculate the monthly mean weighted
-    dim = 'time'
+    dim = "time"
     groupby_dim = "time.month"
     weights = monthly_weights(dobj)
-    
-    return grouped_mean_weighted(dobj = dobj, weights = weights, dim = dim, groupby_dim= groupby_dim)
+
+    return grouped_mean_weighted(
+        dobj=dobj, weights=weights, dim=dim, groupby_dim=groupby_dim
+    )
 
 
 def monthly_mean_unweighted(dobj):
@@ -248,11 +254,11 @@ def monthly_mean_unweighted(dobj):
     Returns
     -------
     xarray.Dataset or xarray.DataArray
-        Monthly mean data. Has the same variable name(s) as dobj. 
+        Monthly mean data. Has the same variable name(s) as dobj.
         Dimension 'time' will be removed.
         Dimension 'month' is gained. Int values, starting with 1 for January.
     """
-    return mean_unweighted(dobj = dobj.groupby("time.month"), dim = 'time')
+    return mean_unweighted(dobj=dobj.groupby("time.month"), dim="time")
 
 
 def monthly_anomalies_unweighted(dobj):
@@ -266,22 +272,24 @@ def monthly_anomalies_unweighted(dobj):
     Returns
     -------
     xarray.Dataset or xarray.DataArray
-        Monthly anomalies from the monthly climatology of the original data. 
+        Monthly anomalies from the monthly climatology of the original data.
         Has the same variable name(s) as dobj.
     """
     # Note: the dobj needs to be grouped by the same group_dim as the DataArray returned by monthly_mean_unweighted!
-    return (dobj.groupby('time.month') - monthly_mean_unweighted(dobj)).drop_vars('month') 
+    return (dobj.groupby("time.month") - monthly_mean_unweighted(dobj)).drop_vars(
+        "month"
+    )
 
 
 def monthly_anomalies_weighted(dobj):
     """Calculates the weighted monthly anomalies from the weighted monthly climatology of a dataset.
     The weighted monthly climatology is calculated using "monthly_mean_weighted"
     Takes care of leap years and thus differs from "monthly_anomalies"
-    
-    NOTE: 
+
+    NOTE:
         As this is a weighted mean, the values of the anomalies will not sum up to zero with a convenient .mean("time").
         One should better check if the monthly_mean_weighted of the anomalies sums up to zero for each month.
-    
+
     Parameters
     ----------
     dobj: xarray.Dataset or xarray.DataArray
@@ -289,8 +297,8 @@ def monthly_anomalies_weighted(dobj):
     Returns
     -------
     xarray.Dataset or xarray.DataArray
-        Weighted monthly anomalies from the weighted monthly climatology of the original data. 
+        Weighted monthly anomalies from the weighted monthly climatology of the original data.
         Has the same variable name(s) as dobj.
     """
     # Note: the dobj needs to be grouped by the same group_dim as the DataArray returned by monthly_mean_weighted!
-    return (dobj.groupby('time.month') - monthly_mean_weighted(dobj)).drop_vars('month')
+    return (dobj.groupby("time.month") - monthly_mean_weighted(dobj)).drop_vars("month")
