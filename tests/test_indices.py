@@ -10,8 +10,8 @@ from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
     el_nino_southern_oscillation_34,
     north_atlantic_oscillation,
-    southern_annular_mode,
     north_atlantic_sea_surface_salinity,
+    southern_annular_mode,
 )
 
 

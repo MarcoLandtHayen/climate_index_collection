@@ -118,7 +118,11 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
 
     """
     sst_nino34 = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-5, lat_north=5, lon_west=190, lon_east=240,
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=190,
+        lon_east=240,
     )
 
     climatology = sst_nino34.groupby("time.month").mean("time")
@@ -137,7 +141,7 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     Following https://doi.org/10.1126/sciadv.1501588
     the index is derived from Atlantic sea-surface salinity (SSS) anomalies in a box
     spanning 50W-15W, 25N-50N.
-    
+
     Note that in the original ref, there was a smaller box spanning 50W-40W, 37.5N-50N
     cut away from the one used here. We skip this here, for now.
 
@@ -161,7 +165,11 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     sss = data_set[sss_name]
 
     sss_box_ave = area_mean_weighted(
-        sss, lat_south=25, lat_north=50, lon_west=-50, lon_east=-15,
+        sss,
+        lat_south=25,
+        lat_north=50,
+        lon_west=-50,
+        lon_east=-15,
     )
 
     NASSS = (sss_box_ave - sss_box_ave.mean("time")) / sss_box_ave.std("time")
