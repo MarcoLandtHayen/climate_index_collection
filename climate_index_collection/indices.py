@@ -2,6 +2,8 @@ from enum import Enum
 from functools import partial
 
 import numpy as np
+import scipy as sp
+import xarray as xr
 
 from .reductions import area_mean_weighted, mean_unweighted
 
@@ -91,7 +93,7 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
 
     Following
     https://climatedataguide.ucar.edu/climate-data/hurrell-north-atlantic-oscillation-nao-index-pc-based
-    this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF) 
+    this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
     of monthly sea-level pressure anomalies over the Atlantic sector, 20°-80°N, 90°W-40°E.
 
     Computation is done as follows:
@@ -114,36 +116,26 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
         Time series containing the NAO index.
 
     """
-    
+
     mask = (
         (data_set.coords["lat"] >= 20)
         & (data_set.coords["lat"] <= 80)
-        & (
-            (data_set.coords["lon"] >= 270) |
-            (data_set.coords["lon"] <= 40)
-        )
+        & ((data_set.coords["lon"] >= 270) | (data_set.coords["lon"] <= 40))
     )
-    
-    slp = data_set[slp_name].where(mask)    
-    climatology = slp.groupby("time.month").mean("time")
-    slp = (slp.groupby('time.month') - climatology).drop('month')
 
-    slp_flat = slp.stack(tmp_space=('lat','lon')).dropna(dim='tmp_space')
-    
-    pc, s, eof = sp.linalg.svd(
-        slp_flat - slp_flat.mean(axis=0),
-        full_matrices=False
-    )
-    
+    slp = data_set[slp_name].where(mask)
+    climatology = slp.groupby("time.month").mean("time")
+    slp = (slp.groupby("time.month") - climatology).drop("month")
+
+    slp_flat = slp.stack(tmp_space=("lat", "lon")).dropna(dim="tmp_space")
+
+    pc, s, eof = sp.linalg.svd(slp_flat - slp_flat.mean(axis=0), full_matrices=False)
+
     pc_std = pc.std(axis=0)
     pc /= pc_std
-    
-    NAO_index = xr.DataArray(
-        pc[:,0],
-        dims=('time'),
-        coords={'time': slp_flat['time']}
-    )     
-    
+
+    NAO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+
     NAO_index = NAO_index.rename("NAO_PC")
 
     return NAO_index
