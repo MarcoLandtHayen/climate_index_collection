@@ -26,9 +26,9 @@ def find_data_files(data_path="data/test_data/", data_source_name="FOCI"):
 def load_and_preprocess_single_data_file(file_name, **kwargs):
     """Load and preprocess individual data file.
 
-    Currently, there's no preprocessing done. But we'll use this function to
-    inject preprocessing such as homogenisation of the time axis, dropping unwanted
-    dimensions, etc.
+    Current pre-processing steps:
+    - squeeze (to get rid of, e.g., some of the vertical degenerate dims)
+    - ...
 
     Parameters
     ----------
@@ -43,7 +43,12 @@ def load_and_preprocess_single_data_file(file_name, **kwargs):
         Dataset.
 
     """
-    return xr.open_dataset(file_name, **kwargs)
+    ds = xr.open_dataset(file_name, **kwargs)
+
+    # get rid of singleton dims
+    ds = ds.squeeze()
+
+    return ds
 
 
 def load_and_preprocess_multiple_data_files(file_names, **kwargs):
