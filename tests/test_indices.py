@@ -10,6 +10,7 @@ from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
     el_nino_southern_oscillation_34,
     north_atlantic_oscillation,
+    north_atlantic_sea_surface_salinity,
     southern_annular_mode,
 )
 
@@ -124,3 +125,46 @@ def test_ENSO34_naming(source_name):
     result = el_nino_southern_oscillation_34(data_set)
 
     assert result.name == "ENSO34"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index only has one dimension: 'time'
+    assert NASSS.dims[0] == "time"
+    assert len(NASSS.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    assert NASSS.name == "NASSS"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_standardisation(source_name):
+    """Ensure that standardisation works correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index has zero mean and unit std dev:
+    assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
+    assert_almost_equal(actual=NASSS.std("time").values[()], desired=1, decimal=3)

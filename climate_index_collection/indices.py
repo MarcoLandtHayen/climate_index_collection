@@ -135,6 +135,50 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
     return ENSO34_index
 
 
+def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity"):
+    """Calculate North-Atlantic Sea-Surface Salinity index.
+
+    Following https://doi.org/10.1126/sciadv.1501588
+    the index is derived from Atlantic sea-surface salinity (SSS) anomalies in a box
+    spanning 50W-15W, 25N-50N.
+
+    Note that in the original ref, there was a smaller box spanning 50W-40W, 37.5N-50N
+    cut away from the one used here. We skip this here, for now.
+
+    Computation is done as follows:
+    1. Calculate the weighted area average of SSS over 50W-15W, 25N-50N.
+    2. Standardize time series.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SSS field.
+    sss_name: str
+        Name of the Sea-Surface Salinity field. Defaults to "sea-surface-salinity".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the NASSS index.
+
+    """
+    sss = data_set[sss_name]
+
+    sss_box_ave = area_mean_weighted(
+        sss,
+        lat_south=25,
+        lat_north=50,
+        lon_west=-50,
+        lon_east=-15,
+    )
+
+    NASSS = (sss_box_ave - sss_box_ave.mean("time")) / sss_box_ave.std("time")
+
+    NASSS = NASSS.rename("NASSS")
+
+    return NASSS
+
+
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
 
@@ -151,6 +195,7 @@ class ClimateIndexFunctions(Enum):
     southern_annular_mode = partial(southern_annular_mode)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
+    north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
 
     @classmethod
     def get_all_names(cls):
