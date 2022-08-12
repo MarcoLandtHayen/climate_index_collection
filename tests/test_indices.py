@@ -143,20 +143,6 @@ def test_NASSS_metadata(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_NASSS_zeromean(source_name):
-    """Ensure that NASSS has zero mean."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate NASSS index
-    NASSS = north_atlantic_sea_surface_salinity(data_set)
-
-    # Check, if calculated NASSS index has zero mean:
-    assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NASSS_naming(source_name):
     """Ensure that the index is named correctly."""
     # Load test data
@@ -167,3 +153,18 @@ def test_NASSS_naming(source_name):
     NASSS = north_atlantic_sea_surface_salinity(data_set)
 
     assert NASSS.name == "NASSS"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_standardisation(source_name):
+    """Ensure that standardisation works correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS = north_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index has zero mean and unit std dev:
+    assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
+    assert_almost_equal(actual=NASSS.std("time").values[()], desired=1, decimal=3)
