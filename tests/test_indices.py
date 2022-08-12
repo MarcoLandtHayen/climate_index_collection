@@ -127,7 +127,7 @@ def test_ENSO34_naming(source_name):
     assert result.name == "ENSO34"
 
 
-@pytest.mark.parametrize("source_name", ["FOCI",])
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NASSS_metadata(source_name):
     """Ensure that index only contains time dimension."""
     # Load test data
@@ -142,7 +142,7 @@ def test_NASSS_metadata(source_name):
     assert len(NASSS.dims) == 1
 
 
-@pytest.mark.parametrize("source_name", ["FOCI",])
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NASSS_zeromean(source_name):
     """Ensure that NASSS has zero mean."""
     # Load test data
@@ -156,7 +156,7 @@ def test_NASSS_zeromean(source_name):
     assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
 
 
-@pytest.mark.parametrize("source_name", ["FOCI",])
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NASSS_naming(source_name):
     """Ensure that the index is named correctly."""
     # Load test data
