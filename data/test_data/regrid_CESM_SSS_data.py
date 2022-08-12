@@ -5,6 +5,7 @@ import xarray as xr
 
 from xhistogram.xarray import histogram as xhist
 
+
 # find input files and create output file names
 original_data_files = [
     "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0005.SSS.nc",
@@ -20,7 +21,9 @@ target_grid_files = [
 ]
 
 for infile, outfile, gridfile in zip(
-    original_data_files, regridded_data_files, target_grid_files,
+    original_data_files,
+    regridded_data_files,
+    target_grid_files,
 ):
     if not (Path(infile).exists() and Path(gridfile).exists()):
         print(f"Cannot work on {infile}. Skipping.")
