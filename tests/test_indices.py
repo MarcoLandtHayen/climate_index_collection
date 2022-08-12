@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import scipy as sp
 import xarray as xr
 
 from numpy.testing import assert_allclose, assert_almost_equal
@@ -10,6 +11,7 @@ from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
     el_nino_southern_oscillation_34,
     north_atlantic_oscillation,
+    north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
     southern_annular_mode,
 )
@@ -98,6 +100,49 @@ def test_NAO_naming(source_name):
     NAO = north_atlantic_oscillation(data_set)
 
     assert NAO.name == "NAO"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NAO_PC_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NAO index PC-based
+    NAO_PC = north_atlantic_oscillation_pc(data_set)
+
+    # Check, if calculated NAO index only has one dimension: 'time'
+    assert NAO_PC.dims[0] == "time"
+    assert len(NAO_PC.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NAO_PC_standardisationn(source_name):
+    """Ensure that NAO has zero mean and unit std dev."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NAO index PC-based
+    NAO_PC = north_atlantic_oscillation_pc(data_set)
+
+    # Check, if calculated NAO index has zero mean:
+    assert_almost_equal(actual=NAO_PC.mean("time").values[()], desired=0, decimal=3)
+    assert_almost_equal(actual=NAO_PC.std("time").values[()], desired=1, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NAO_PC_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NAO index PC-based
+    NAO_PC = north_atlantic_oscillation_pc(data_set)
+
+    assert NAO_PC.name == "NAO_PC"
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
