@@ -23,6 +23,50 @@ def find_data_files(data_path="data/test_data/", data_source_name="FOCI"):
     return data_files
 
 
+def load_and_preprocess_single_data_file(file_name, **kwargs):
+    """Load and preprocess individual data file.
+
+    Currently, there's no preprocessing done. But we'll use this function to
+    inject preprocessing such as homogenisation of the time axis, dropping unwanted
+    dimensions, etc.
+
+    Parameters
+    ----------
+    file_name: str or pathlike
+        File name.
+
+    All kwargs will be passed on to xarray.open_dataset().
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset.
+
+    """
+    return xr.open_dataset(file_name, **kwargs)
+
+
+def load_and_preprocess_multiple_data_files(file_names, **kwargs):
+    """Loads and preprocesses multiple files.
+
+    Parameters
+    ---------
+    file_names: iterable
+        File names (str or pathlike).
+
+    All kwargs will be passed on to load_and_preprocess_single_data_file().
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset.
+
+    """
+    return xr.merge(
+        (load_and_preprocess_single_data_file(fname, **kwargs) for fname in file_names)
+    )
+
+
 def load_data_set(data_path="data/test_data/", data_source_name="FOCI", **kwargs):
     """Load dataset.
 
@@ -42,7 +86,7 @@ def load_data_set(data_path="data/test_data/", data_source_name="FOCI", **kwargs
 
     """
     data_files = find_data_files(data_path=data_path, data_source_name=data_source_name)
-    raw_data_set = xr.open_mfdataset(data_files, **kwargs)
+    raw_data_set = load_and_preprocess_multiple_data_files(data_files, **kwargs)
     data_set = standardize_metadata(raw_data_set, data_source_name=data_source_name)
 
     return data_set
