@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
+from datetime import datetime
+import cftime
 
 
 def _is_start_of_next_month(timestamp):
@@ -34,10 +36,12 @@ def _get_fixed_year_month(timestamp):
         return timestamp.year, timestamp.month
 
 
-def _get_mid_of_month(year=None, month=None):
+def _get_mid_of_month(
+    year=None, month=None, datetime_type=cftime.DatetimeProlepticGregorian
+):
     year_upper, month_upper = _get_next_month(year=year, month=month)
-    lower = np.datetime64(f"{year:04d}-{month:02d}-01T00:00:00")
-    upper = np.datetime64(f"{year_upper:04d}-{month_upper:02d}-01T00:00:00")
+    lower = datetime_type(year, month, 1, 0, 0, 0)
+    upper = datetime_type(year_upper, month_upper, 1, 0, 0, 0)
     return lower + (upper - lower) / 2
 
 
@@ -46,6 +50,8 @@ def fix_monthly_time_stamps(dobj, time_name="time"):
     
     There's a few input data sets which label monthly data at the turn of months.
     Let's unify the convention to mid month everywhere.
+
+    Currently, only cftime Datetimes are supported.
     
     Parameters
     ----------
@@ -62,10 +68,16 @@ def fix_monthly_time_stamps(dobj, time_name="time"):
     """
     # extract time axis
     orig_time = dobj.coords[time_name]
+    datetime_type = type(dobj.coords[time_name].data[0])
+
+    # check for not implemented numpy datetimes
+    if datetime_type is np.datetime64:
+        raise NotImplementedError("Currently only works for cftime Datetimes.")
 
     # construct new time axis
     fixed_time = [
-        _get_mid_of_month(*_get_fixed_year_month(ts)) for ts in orig_time.data
+        _get_mid_of_month(*_get_fixed_year_month(ts), datetime_type)
+        for ts in orig_time.data
     ]
 
     # assign coord
