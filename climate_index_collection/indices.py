@@ -2,6 +2,8 @@ from enum import Enum
 from functools import partial
 
 import numpy as np
+import scipy as sp
+import xarray as xr
 
 from .reductions import area_mean_weighted, mean_unweighted
 
@@ -82,6 +84,59 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
 
     NAO_index = slp_northern_station_norm - slp_southern_station_norm
     NAO_index = NAO_index.rename("NAO")
+
+    return NAO_index
+
+
+def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
+    """Calculate the principal component based North Atlantic Oscillation (NAO) index
+
+    Following
+    https://climatedataguide.ucar.edu/climate-data/hurrell-north-atlantic-oscillation-nao-index-pc-based
+    this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
+    of monthly sea-level pressure anomalies over the Atlantic sector, 20°-80°N, 90°W-40°E.
+
+    Computation is done as follows:
+    1. Compute sea level pressure anomalies over Atlantic sector.
+    2. Flatten spatial dimensions and subtract mean in time.
+    3. Perform Singular Value Decomposition.
+    4. Normalize Principal Components.
+    5. Obtain NAO index as PC time series related to leading EOF.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SLP field.
+    slp_name: str
+        Name of the Sea-Level Pressure field. Defaults to "sea-level-pressure".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the NAO index.
+
+    """
+
+    mask = (
+        (data_set.coords["lat"] >= 20)
+        & (data_set.coords["lat"] <= 80)
+        & ((data_set.coords["lon"] >= 270) | (data_set.coords["lon"] <= 40))
+    )
+
+    slp = data_set[slp_name].where(mask)
+    climatology = slp.groupby("time.month").mean("time")
+    slp = (slp.groupby("time.month") - climatology).drop("month")
+
+    slp_flat = slp.stack(tmp_space=("lat", "lon")).dropna(dim="tmp_space")
+
+    pc, s, eof = sp.linalg.svd(slp_flat - slp_flat.mean(axis=0), full_matrices=False)
+
+    pc_std = pc.std(axis=0)
+    pc /= pc_std
+
+    NAO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+
+    NAO_index = NAO_index.rename("NAO_PC")
 
     return NAO_index
 
@@ -194,6 +249,7 @@ class ClimateIndexFunctions(Enum):
 
     southern_annular_mode = partial(southern_annular_mode)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
+    north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
 
