@@ -1,8 +1,9 @@
+from datetime import datetime
+
+import cftime
 import numpy as np
 import pandas as pd
 import xarray as xr
-from datetime import datetime
-import cftime
 
 
 def _is_start_of_next_month(timestamp):
@@ -47,12 +48,12 @@ def _get_mid_of_month(
 
 def fix_monthly_time_stamps(dobj, time_name="time"):
     """Fix monthly time stamps to be exactly the middle of months.
-    
+
     There's a few input data sets which label monthly data at the turn of months.
     Let's unify the convention to mid month everywhere.
 
     Currently, only cftime Datetimes are supported.
-    
+
     Parameters
     ----------
     dobj: xarray.Dataset or xarray.DataArray
@@ -64,7 +65,7 @@ def fix_monthly_time_stamps(dobj, time_name="time"):
     -------
     xarray.Dataset or xarray.DataArray
         Same as dobj but with fixed time axis.
-    
+
     """
     # extract time axis
     orig_time = dobj.coords[time_name]

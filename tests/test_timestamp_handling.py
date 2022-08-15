@@ -1,8 +1,8 @@
-import xarray as xr
-import cftime
-import numpy as np
 import datetime
 
+import cftime
+import numpy as np
+import xarray as xr
 
 from climate_index_collection.timestamp_handling import fix_monthly_time_stamps
 
@@ -52,4 +52,3 @@ def test_time_stamp_fixing_to_mid_month():
         desired=0,
         decimal=3,
     )
-
