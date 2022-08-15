@@ -14,6 +14,7 @@ from climate_index_collection.indices import (
     north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
     southern_annular_mode,
+    southern_annular_mode_pc,
 )
 
 
@@ -58,6 +59,49 @@ def test_SAM_naming(source_name):
     SAM = southern_annular_mode(data_set)
 
     assert SAM.name == "SAM"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SAM_PC_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SAM index
+    SAM = southern_annular_mode_pc(data_set)
+
+    # Check, if calculated SAM index only has one dimension: 'time'
+    assert SAM.dims[0] == "time"
+    assert len(SAM.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SAM_PC_standardisation(source_name):
+    """Ensure that standardisation works correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SAM index
+    SAM = southern_annular_mode_pc(data_set)
+
+    # Check, if calculated SAM index has zero mean and unit std dev:
+    assert_almost_equal(actual=SAM.mean("time").values[()], desired=0, decimal=3)
+    assert_almost_equal(actual=SAM.std("time").values[()], desired=1, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SAM_PC_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SAM index
+    SAM = southern_annular_mode_pc(data_set)
+
+    assert SAM.name == "SAM_PC"
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
