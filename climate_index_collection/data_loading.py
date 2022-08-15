@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from .timestamp_handling import fix_monthly_time_stamps
+from .timestamp_handling import fix_monthly_time_stamps, fix_year_in_CESM_files
 
 
 def find_data_files(data_path="data/test_data/", data_source_name="FOCI"):
@@ -33,6 +33,7 @@ def load_and_preprocess_single_data_file(file_name, **kwargs):
     Current pre-processing steps:
     - squeeze (to get rid of, e.g., some of the vertical degenerate dims)
     - fixing monthly timestamps
+    - fixing start years
 
     Parameters
     ----------
@@ -54,6 +55,9 @@ def load_and_preprocess_single_data_file(file_name, **kwargs):
 
     # fix time stamps to always be mid month
     ds = fix_monthly_time_stamps(ds)
+
+    # fix start years
+    ds = fix_year_in_CESM_files(dataset=ds, filename=file_name)
 
     return ds
 

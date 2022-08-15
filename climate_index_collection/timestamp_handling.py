@@ -1,4 +1,6 @@
 from datetime import datetime
+from pathlib import Path
+from tracemalloc import start
 
 import cftime
 import numpy as np
@@ -88,3 +90,74 @@ def fix_monthly_time_stamps(dobj, time_name="time"):
     )
 
     return fixed_dobj
+
+
+def fix_year_in_CESM_files(dataset=None, filename=None):
+    """Makes sure the time axis starts in the year given in the file name.
+
+    Note that this will be obsolete once we've fixed the data at the source.
+
+    Parameters
+    ----------
+    dataset: xr.Dataset
+        Contains a potentially broken time axis.
+    filename: str or pathlike
+        Contains info on the desired time stamp.
+
+    Returns
+    -------
+    dataset
+        With fixed time axis.
+
+    """
+    # example filenames
+    # - B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0010.PRECT.nc
+    # - B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0010.PSL.nc
+    # - B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0010.SST.nc
+    # - B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0010.TS.nc
+    # - B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.cam2.h0.0001-0010.Z500.nc
+    # - B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0005.SSS.atmos_grid.nc
+    #
+    # SO we
+    # - check that the filename starts with "B1850WCN"
+    # - extract the 5th (index 4) part separated by a dot and then get the first part
+
+    # make sure we have a string
+    try:
+        filename = str(Path(filename).name)
+    except Exception as e:
+        pass
+
+    # skip if filename not from CESM
+    if not filename.startswith("B1850WCN"):
+        return dataset
+
+    # if we're still here
+    start_year = int(filename.split(".")[4].split("-")[0])
+
+    # fix offsets
+    #
+    # Note that we're taking a winded route here which in the end substracts all the same
+    # offset from all the time steps, because we want to avoid to completely re-create the
+    # time axis Data Array from scratch.
+    #
+    old_time_axis = dataset.coords["time"].data
+    year_offset = old_time_axis[0].year - start_year  # calc offset from first item only
+    datetime_type = type(old_time_axis[0])
+    new_time_axis = np.array(
+        [
+            datetime_type(
+                year=odt.year - year_offset,
+                month=odt.month,
+                day=odt.day,
+                hour=odt.hour,
+                minute=odt.minute,
+                second=odt.second,
+            )
+            for odt in old_time_axis
+        ]
+    )
+    all_offsets = old_time_axis - new_time_axis
+    dataset.coords["time"] = dataset.coords["time"] - all_offsets
+
+    return dataset
