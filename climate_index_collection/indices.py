@@ -9,7 +9,7 @@ from .reductions import area_mean_weighted, mean_unweighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
-    """Calculate the southern annular mode index.
+    """Calculate the southern annular mode (SAM) index.
 
     This follows [Gong and Wang, 1999] <https://doi.org/10.1029/1999GL900003> in defining
     the southern annular mode index using zonally averaged sea-level pressure at 65°S and
@@ -42,6 +42,51 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
 
     SAM_index = (slp_diff - slp_diff.mean("time")) / slp_diff.std("time")
     SAM_index = SAM_index.rename("SAM")
+
+    return SAM_index
+
+
+def southern_annular_mode_pc(data_set, slp_name="sea-level-pressure"):
+    """Calculate the principal component based southern annular mode (SAM) index.
+
+    This index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
+    of monthly sea-level pressure over the Southern hemisphere.
+
+    Computation is done as follows:
+    1. Take sea level pressure over Southern hemisphere.
+    2. Flatten spatial dimensions and subtract mean in time.
+    3. Perform Singular Value Decomposition.
+    4. Normalize Principal Components.
+    5. Obtain SAM index as PC time series related to leading EOF.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing a SLP field.
+    slp_name: str
+        Name of the Sea-Level Pressure field. Defaults to "sea-level-pressure".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the SAM index.
+
+    """
+
+    mask = data_set.coords["lat"] <= 0
+
+    slp = data_set[slp_name].where(mask)
+
+    slp_flat = slp.stack(tmp_space=("lat", "lon")).dropna(dim="tmp_space")
+
+    pc, s, eof = sp.linalg.svd(slp_flat - slp_flat.mean(axis=0), full_matrices=False)
+
+    pc_std = pc.std(axis=0)
+    pc /= pc_std
+
+    SAM_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+
+    SAM_index = SAM_index.rename("SAM_PC")
 
     return SAM_index
 
@@ -248,6 +293,7 @@ class ClimateIndexFunctions(Enum):
     """
 
     southern_annular_mode = partial(southern_annular_mode)
+    southern_annular_mode_pc = partial(southern_annular_mode_pc)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
