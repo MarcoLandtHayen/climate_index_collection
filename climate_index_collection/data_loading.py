@@ -51,6 +51,8 @@ def load_and_preprocess_single_data_file(file_name, **kwargs):
 
     # get rid of singleton dims
     ds = ds.squeeze()
+
+    # fix time stamps to always be mid month
     ds = fix_monthly_time_stamps(ds)
 
     return ds
