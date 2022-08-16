@@ -1,10 +1,12 @@
 from enum import Enum
 from functools import partial
+from operator import ge
 
 import numpy as np
 import scipy as sp
 import xarray as xr
 
+from .grid_handling import scale_field_xy_weights
 from .reductions import area_mean_weighted, mean_unweighted
 
 
@@ -79,7 +81,9 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
 
     mask = data_set.coords["lat"] <= -20
 
-    geopoth = data_set[geopoth_name].where(mask)
+    geopoth = data_set[geopoth_name]
+    geopoth = scale_field_xy_weights(geopoth)
+    geopoth = geopoth.where(mask)
     climatology = geopoth.groupby("time.month").mean("time")
     geopoth = (geopoth.groupby("time.month") - climatology).drop("month")
 
