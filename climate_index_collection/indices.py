@@ -182,7 +182,9 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
         & ((data_set.coords["lon"] >= 270) | (data_set.coords["lon"] <= 40))
     )
 
-    slp = data_set[slp_name].where(mask)
+    slp = data_set[slp_name]
+    slp = scale_field_xy_weights(slp)
+    slp = slp.where(mask)
     climatology = slp.groupby("time.month").mean("time")
     slp = (slp.groupby("time.month") - climatology).drop("month")
 
