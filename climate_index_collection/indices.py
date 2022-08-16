@@ -66,7 +66,7 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     Parameters
     ----------
     data_set: xarray.DataSet
-        Dataset containing a SLP field.
+        Dataset containing a geopotential height field.
     geopoth_name: str
         Name of the geopotential height field. Defaults to "geopotential-height".
 
@@ -77,7 +77,7 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
 
     """
 
-    mask = data_set.coords["lat"] <= 0
+    mask = data_set.coords["lat"] <= -20
 
     geopoth = data_set[geopoth_name].where(mask)
     climatology = geopoth.groupby("time.month").mean("time")
