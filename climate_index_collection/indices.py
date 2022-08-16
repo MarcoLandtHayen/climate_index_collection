@@ -46,14 +46,18 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     return SAM_index
 
 
-def southern_annular_mode_pc(data_set, slp_name="sea-level-pressure"):
+def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     """Calculate the principal component based southern annular mode (SAM) index.
 
-    This index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
-    of monthly sea-level pressure over the Southern hemisphere.
+    Following https://climatedataguide.ucar.edu/climate-data/marshall-southern-annular-mode-sam-index-station-based
+    this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
+    of monthly geopotential height anomalies over parts of the Southern hemisphere.
+
+    Note: There is no unique definition for pc-based SAM index. Here we use geopotential height for 500 hPa and take
+    Southern hemisphere from 20°S to 90°S.
 
     Computation is done as follows:
-    1. Take sea level pressure over Southern hemisphere.
+    1. Compute geopotential height anomalies over parts of the Southern hemisphere.
     2. Flatten spatial dimensions and subtract mean in time.
     3. Perform Singular Value Decomposition.
     4. Normalize Principal Components.
@@ -63,8 +67,8 @@ def southern_annular_mode_pc(data_set, slp_name="sea-level-pressure"):
     ----------
     data_set: xarray.DataSet
         Dataset containing a SLP field.
-    slp_name: str
-        Name of the Sea-Level Pressure field. Defaults to "sea-level-pressure".
+    geopoth_name: str
+        Name of the geopotential height field. Defaults to "geopotential-height".
 
     Returns
     -------
@@ -75,16 +79,22 @@ def southern_annular_mode_pc(data_set, slp_name="sea-level-pressure"):
 
     mask = data_set.coords["lat"] <= 0
 
-    slp = data_set[slp_name].where(mask)
+    geopoth = data_set[geopoth_name].where(mask)
+    climatology = geopoth.groupby("time.month").mean("time")
+    geopoth = (geopoth.groupby("time.month") - climatology).drop("month")
 
-    slp_flat = slp.stack(tmp_space=("lat", "lon")).dropna(dim="tmp_space")
+    geopoth_flat = geopoth.stack(tmp_space=("lat", "lon")).dropna(dim="tmp_space")
 
-    pc, s, eof = sp.linalg.svd(slp_flat - slp_flat.mean(axis=0), full_matrices=False)
+    pc, s, eof = sp.linalg.svd(
+        geopoth_flat - geopoth_flat.mean(axis=0), full_matrices=False
+    )
 
     pc_std = pc.std(axis=0)
     pc /= pc_std
 
-    SAM_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+    SAM_index = xr.DataArray(
+        pc[:, 0], dims=("time"), coords={"time": geopoth_flat["time"]}
+    )
 
     SAM_index = SAM_index.rename("SAM_PC")
 
