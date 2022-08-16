@@ -54,7 +54,9 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     of monthly geopotential height anomalies over parts of the Southern hemisphere.
 
     Note: There is no unique definition for pc-based SAM index. Here we use geopotential height for 500 hPa and take
-    Southern hemisphere from 20°S to 90°S.
+    Southern hemisphere from 20°S to 90°S. And to have the EOFs truly orthogonal, we need to take the area of the grid cells
+    into account. For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition, input data is multiplied with the square root of the weights.
 
     Computation is done as follows:
     1. Compute geopotential height anomalies over parts of the Southern hemisphere.
@@ -79,7 +81,9 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
 
     mask = data_set.coords["lat"] <= -20
 
-    geopoth = data_set[geopoth_name].where(mask)
+    geopoth = data_set[geopoth_name]
+    geopoth = geopoth * np.sqrt(np.cos(np.deg2rad(geopoth.lat)))
+    geopoth = geopoth.where(mask)
     climatology = geopoth.groupby("time.month").mean("time")
     geopoth = (geopoth.groupby("time.month") - climatology).drop("month")
 
@@ -151,6 +155,10 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
     of monthly sea-level pressure anomalies over the Atlantic sector, 20°-80°N, 90°W-40°E.
 
+    Note: To have the EOFs truly orthogonal, we need to take the area of the grid cells into account.
+    For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition, input data is multiplied with the square root of the weights.
+
     Computation is done as follows:
     1. Compute sea level pressure anomalies over Atlantic sector.
     2. Flatten spatial dimensions and subtract mean in time.
@@ -178,7 +186,9 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
         & ((data_set.coords["lon"] >= 270) | (data_set.coords["lon"] <= 40))
     )
 
-    slp = data_set[slp_name].where(mask)
+    slp = data_set[slp_name]
+    slp = slp * np.sqrt(np.cos(np.deg2rad(slp.lat)))
+    slp = slp.where(mask)
     climatology = slp.groupby("time.month").mean("time")
     slp = (slp.groupby("time.month") - climatology).drop("month")
 
