@@ -8,11 +8,11 @@ from xhistogram.xarray import histogram as xhist
 
 # find input files and create output file names
 original_data_files = [
-    "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0005.SSS.nc",
+    "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0010.SSS.nc",
     "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0999.SSS.nc",
 ]
 regridded_data_files = [
-    "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0005.SSS.atmos_grid.nc",
+    "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0010.SSS.atmos_grid.nc",
     "CESM/B1850WCN_f19g16_1000y_v3.2_mod-S15-G16.pop.h.0001-0999.SSS.atmos_grid.nc",
 ]
 target_grid_files = [

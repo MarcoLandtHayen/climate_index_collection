@@ -8,11 +8,11 @@ from xhistogram.xarray import histogram as xhist
 
 # find input files and create output file names
 original_data_files = [
-    "FOCI/FOCI1.3-SW038_1m_23500101_23541231_grid_T.nc",
+    "FOCI/FOCI1.3-SW038_1m_23500101_23591231_grid_T.nc",
     "FOCI/FOCI1.3-SW038_1m_23500101_33491231_grid_T.nc",
 ]
 regridded_data_files = [
-    "FOCI/FOCI1.3-SW038_1m_23500101_23541231_grid_T_atmos_grid.nc",
+    "FOCI/FOCI1.3-SW038_1m_23500101_23591231_grid_T_atmos_grid.nc",
     "FOCI/FOCI1.3-SW038_1m_23500101_33491231_grid_T_atmos_grid.nc",
 ]
 target_grid_files = [
