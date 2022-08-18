@@ -64,6 +64,8 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     3. Perform Singular Value Decomposition.
     4. Normalize Principal Components.
     5. Obtain SAM index as PC time series related to leading EOF.
+    6. Restore EOF patterns.
+    7. Use positive pole of leading EOF to invert index values - if necessary.
 
     Parameters
     ----------
@@ -99,6 +101,14 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     SAM_index = xr.DataArray(
         pc[:, 0], dims=("time"), coords={"time": geopoth_flat["time"]}
     )
+
+    eofs = geopoth.stack(tmp_space=("lat", "lon")).copy()
+    eofs[:, eofs[0].notnull().values] = eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
+
+    mask_pos = (eofs[0].coords["lat"] <= -20) & (eofs[0].coords["lat"] >= -40)
+    if eofs[0].where(mask_pos).mean(("lat", "lon")) < 0:
+        SAM_index.values = -SAM_index.values
 
     SAM_index = SAM_index.rename("SAM_PC")
 
