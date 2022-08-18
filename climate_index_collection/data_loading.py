@@ -100,6 +100,7 @@ def load_data_set(data_path="data/test_data/", data_source_name="FOCI", **kwargs
     data_files = find_data_files(data_path=data_path, data_source_name=data_source_name)
     raw_data_set = load_and_preprocess_multiple_data_files(data_files, **kwargs)
     data_set = standardize_metadata(raw_data_set, data_source_name=data_source_name)
+    data_set = mask_ocean_only_vars(data_set)
 
     return data_set
 
@@ -124,6 +125,12 @@ VARNAME_MAPPING = {
     },
 }
 
+OCEAN_ONLY_VARS = (
+    "sea-surface-temperature",
+    "sea-air-temperature",
+    "sea-surface-salinity",
+)
+
 
 def standardize_metadata(raw_data_set=None, data_source_name="FOCI"):
     """Standardize metadata (dims, coords, attributes, varnames).
@@ -142,4 +149,28 @@ def standardize_metadata(raw_data_set=None, data_source_name="FOCI"):
     """
 
     data_set = raw_data_set.rename_vars(VARNAME_MAPPING[data_source_name])
+    return data_set
+
+
+def mask_ocean_only_vars(data_set, get_mask_from="sea-surface-salinity"):
+    """Mask those fields which are only defined over water.
+    
+    Parameters
+    ----------
+    data_set: xarray.Dataset
+        Contains all variables.
+    get_mask_from: str
+        Bootstrap the mask from this var. Defaults to "sea-surface-salinity".
+
+    Returns
+    -------
+    xarray.Dataset
+        Same as data_set but with the respective vars masked out over land.
+
+    """
+    valid_over_ocean = ~data_set[get_mask_from].isel(time=0, drop=True).isnull()
+
+    for mask_me in OCEAN_ONLY_VARS:
+        data_set[mask_me] = data_set[mask_me].where(valid_over_ocean)
+
     return data_set
