@@ -4,11 +4,10 @@ from pathlib import Path
 import cftime
 import numpy as np
 import pytest
-import xarray as xr
 
 from climate_index_collection.data_loading import (
-    VARNAME_MAPPING,
     OCEAN_ONLY_VARS,
+    VARNAME_MAPPING,
     load_data_set,
 )
 
@@ -37,10 +36,11 @@ def test_missing_data_constant_in_time(source_name):
     """Make sure validity of all grid points is constant in time."""
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
     for dv in data_set.data_vars.values():
-        time_variability_of_masking = dv.isnull().std("time")
-        np.testing.assert_almost_equal(
-            time_variability_of_masking.data, desired=0, decimal=5
-        )
+        if "time" in dv.dims:
+            time_variability_of_masking = dv.isnull().std("time")
+            np.testing.assert_almost_equal(
+                time_variability_of_masking.data, desired=0, decimal=5
+            )
 
 
 @pytest.mark.parametrize("source_name", ["FOCI", "CESM"])
@@ -52,3 +52,10 @@ def test_missing_data_only_in_desired_vars(source_name):
             assert 0 < var.isnull().sum().data[()]
         else:
             assert 0 == var.isnull().sum().data[()]
+
+
+@pytest.mark.parametrize("source_name", ["FOCI", "CESM"])
+def test_ensure_there_is_ocean_mask(source_name):
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+    assert "is_over_ocean" in data_set.data_vars
+    assert np.issubdtype(data_set["is_over_ocean"].dtype, np.bool_)

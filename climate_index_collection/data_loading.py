@@ -154,7 +154,7 @@ def standardize_metadata(raw_data_set=None, data_source_name="FOCI"):
 
 def mask_ocean_only_vars(data_set, get_mask_from="sea-surface-salinity"):
     """Mask those fields which are only defined over water.
-    
+
     Parameters
     ----------
     data_set: xarray.Dataset
@@ -168,9 +168,10 @@ def mask_ocean_only_vars(data_set, get_mask_from="sea-surface-salinity"):
         Same as data_set but with the respective vars masked out over land.
 
     """
-    valid_over_ocean = ~data_set[get_mask_from].isel(time=0, drop=True).isnull()
+    is_over_ocean = ~data_set[get_mask_from].isel(time=0, drop=True).isnull()
+    data_set["is_over_ocean"] = is_over_ocean.rename("is_over_ocean")
 
     for mask_me in OCEAN_ONLY_VARS:
-        data_set[mask_me] = data_set[mask_me].where(valid_over_ocean)
+        data_set[mask_me] = data_set[mask_me].where(is_over_ocean)
 
     return data_set
