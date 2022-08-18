@@ -20,7 +20,7 @@ jobs:
         run: |
           CALVER="$( date -u '+%Y.%m.%d' )"
           SHA7="${GITHUB_SHA::7}"
-          CALVER="v${CALVER}"
+          CALVER="${CALVER}"
           CALVER_TARGET=${DOCKERHUB_TARGET_REPO}:v${CALVER}-${SHA7}
           LATEST_TARGET=${DOCKERHUB_TARGET_REPO}:latest
           echo "CALVER=${CALVER}" >> $GITHUB_ENV
