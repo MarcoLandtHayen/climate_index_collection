@@ -7,6 +7,7 @@ RUN apt-get update
 RUN apt-get install -y git
 
 COPY . .
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.1
 RUN python -m pip wheel .
 # RUN python -m pip install clim*.whl
 
