@@ -5,7 +5,11 @@ import numpy as np
 import scipy as sp
 import xarray as xr
 
-from .reductions import area_mean_weighted, mean_unweighted
+from .reductions import (
+    area_mean_weighted,
+    mean_unweighted,
+    monthly_anomalies_unweighted,
+)
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -289,6 +293,78 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     return NASSS
 
 
+def sea_air_surface_temperature_anomaly_north(data_set, sat_name="sea-air-temperature"):
+    """Sea Air Surface Temperature Anomaly (SASTA) index ,
+    for the northern hemisphere.
+
+    This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
+    Land and Sea temperature data is used.
+    The Anomalies are climatoligical anomalies (monthly) relative to the whole time period of the data_set.
+
+    Computation is done as follows:
+    1. Compute area averaged total SAT for the hemisphere.
+    2. Compute monthly climatology for area averaged SAT for the hemisphere.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing a SAT field.
+    slp_name: str
+        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the SASTA index for northern hemisphere.
+
+    """
+    sea_air_temperature = area_mean_weighted(
+        dobj=data_set[sat_name], lat_south=0, lat_north=90, lon_west=0, lon_east=360
+    )
+
+    sea_air_temp_anom = monthly_anomalies_unweighted(sea_air_temperature)
+    SASTAI_North = sea_air_temp_anom.rename("SASTAI-north")
+
+    return SASTAI_North
+
+
+def sea_air_surface_temperature_anomaly_south(data_set, sat_name="sea-air-temperature"):
+    """Sea Air Surface Temperature Anomaly (SASTA) index ,
+    for the southern hemisphere.
+
+    This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
+    Land and Sea temperature data is used.
+    The Anomalies are climatoligical anomalies (monthly) relative to the whole time period of the data_set.
+
+    Computation is done as follows:
+    1. Compute area averaged total SAT for the hemisphere.
+    2. Compute monthly climatology for area averaged SAT for the hemisphere.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing a SAT field.
+    slp_name: str
+        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the SASTA index for northern hemisphere.
+
+    """
+    sea_air_temperature = area_mean_weighted(
+        dobj=data_set[sat_name], lat_south=-90, lat_north=0, lon_west=0, lon_east=360
+    )
+
+    sea_air_temp_anom = monthly_anomalies_unweighted(sea_air_temperature)
+    SASTAI_South = sea_air_temp_anom.rename("SASTAI-south")
+
+    return SASTAI_South
+
+
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
 
@@ -308,6 +384,12 @@ class ClimateIndexFunctions(Enum):
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
+    sea_air_surface_temperature_anomaly_north = partial(
+        sea_air_surface_temperature_anomaly_north
+    )
+    sea_air_surface_temperature_anomaly_south = partial(
+        sea_air_surface_temperature_anomaly_south
+    )
 
     @classmethod
     def get_all_names(cls):
