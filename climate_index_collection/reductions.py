@@ -215,35 +215,6 @@ def monthly_weights(dobj, normalize=True):
     return weights
 
 
-def monthly_mean_weighted(dobj):
-    """Calculates the weighted monthly mean values of a dataset.
-    It will make use of the grouped_mean_weighted function, which is similar to the mean_weigthed function,
-    but additionally allow to include a dimension to group the data by.
-    It takes care of leap years and thus differs from "monthly_mean_unweighted"
-    Adapted from: https://docs.xarray.dev/en/stable/examples/monthly-means.html
-
-    Parameters
-    ----------
-    dobj: xarray.Dataset or xarray.DataArray
-        Contains the original data.
-    Returns
-    -------
-    xarray.Dataset or xarray.DataArray
-        Monthly mean data. Has the same variable name(s) as dobj.
-        Dimension 'time' will be removed.
-        Dimension 'month' is gained.
-            Int values, starting with 1 for January and ending with 12 for December.
-    """
-    # The following setting will allow to calculate the monthly mean weighted
-    dim = "time"
-    groupby_dim = "time.month"
-    weights = monthly_weights(dobj)
-
-    return grouped_mean_weighted(
-        dobj=dobj, weights=weights, dim=dim, groupby_dim=groupby_dim
-    )
-
-
 def monthly_mean_unweighted(dobj):
     """Calculates the monthly mean values of a dataset.
 
@@ -279,29 +250,6 @@ def monthly_anomalies_unweighted(dobj):
     return (dobj.groupby("time.month") - monthly_mean_unweighted(dobj)).drop_vars(
         "month"
     )
-
-
-def monthly_anomalies_weighted(dobj):
-    """Calculates the weighted monthly anomalies from the weighted monthly climatology of a dataset.
-    The weighted monthly climatology is calculated using "monthly_mean_weighted"
-    Takes care of leap years and thus differs from "monthly_anomalies"
-
-    NOTE:
-        As this is a weighted mean, the values of the anomalies will not sum up to zero with a convenient .mean("time").
-        One should better check if the monthly_mean_weighted of the anomalies sums up to zero for each month.
-
-    Parameters
-    ----------
-    dobj: xarray.Dataset or xarray.DataArray
-        Contains the original data.
-    Returns
-    -------
-    xarray.Dataset or xarray.DataArray
-        Weighted monthly anomalies from the weighted monthly climatology of the original data.
-        Has the same variable name(s) as dobj.
-    """
-    # Note: the dobj needs to be grouped by the same group_dim as the DataArray returned by monthly_mean_weighted!
-    return (dobj.groupby("time.month") - monthly_mean_weighted(dobj)).drop_vars("month")
 
 
 def area_mean_weighted(
