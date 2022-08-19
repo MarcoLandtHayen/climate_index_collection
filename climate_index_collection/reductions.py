@@ -334,3 +334,22 @@ def area_mean_weighted(
     )
 
     return averaged
+
+
+def eof_weights(dobj):
+    """To have the Empirical Orthogonal Functions (EOFs) truly orthogonal, we need to take the area of the grid cells
+    into account. For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition (SVD), input data needs to be multiplied with the square root of the weights.
+
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Contains the original input data.
+
+    Returns
+    -------
+    xarray.DataArray
+        Square root of weights needed to pre-process input data for SVD.
+    """
+    return np.sqrt(np.cos(np.deg2rad(dobj.coords["lat"])))

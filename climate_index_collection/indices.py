@@ -5,7 +5,7 @@ import numpy as np
 import scipy as sp
 import xarray as xr
 
-from .reductions import area_mean_weighted, mean_unweighted
+from .reductions import area_mean_weighted, eof_weights, mean_unweighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -84,7 +84,7 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     mask = data_set.coords["lat"] <= -20
 
     geopoth = data_set[geopoth_name]
-    geopoth = geopoth * np.sqrt(np.cos(np.deg2rad(geopoth.lat)))
+    geopoth = geopoth * eof_weights(geopoth)
     geopoth = geopoth.where(mask)
     climatology = geopoth.groupby("time.month").mean("time")
     geopoth = (geopoth.groupby("time.month") - climatology).drop("month")
@@ -175,6 +175,9 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     3. Perform Singular Value Decomposition.
     4. Normalize Principal Components.
     5. Obtain NAO index as PC time series related to leading EOF.
+    6. Restore leading EOF pattern.
+    7. Use positive pole of leading EOF to correct index sign - if necessary.
+
 
     Parameters
     ----------
@@ -197,7 +200,7 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     )
 
     slp = data_set[slp_name]
-    slp = slp * np.sqrt(np.cos(np.deg2rad(slp.lat)))
+    slp = slp * eof_weights(slp)
     slp = slp.where(mask)
     climatology = slp.groupby("time.month").mean("time")
     slp = (slp.groupby("time.month") - climatology).drop("month")
@@ -210,6 +213,14 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     pc /= pc_std
 
     NAO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+
+    eofs = slp.stack(tmp_space=("lat", "lon")).copy()
+    eofs[:, eofs[0].notnull().values] = eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
+
+    mask_pos = eofs[0].coords["lat"] >= 60
+    if eofs[0].where(mask_pos).mean(("lat", "lon")) < 0:
+        NAO_index.values = -NAO_index.values
 
     NAO_index = NAO_index.rename("NAO_PC")
 
