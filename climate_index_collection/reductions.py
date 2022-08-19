@@ -337,8 +337,9 @@ def area_mean_weighted(
 
 
 def eof_weights(dobj):
-    """To have the Empirical Orthogonal Functions (EOFs) truly orthogonal, we need to take the area of the grid cells
-    into account. For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    """Empirical orthogonal functions (EOFs) can be thought of as the eigen-vectors of the spatial covariance matrix.
+    Grid cells can be thought of as representing spatial averages which are low-pass filtering the raw signals and dampen the variance by a factor proportional to the square root of the cell size.
+    For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
     Before applying Singular Value Decomposition (SVD), input data needs to be multiplied with the square root of the weights.
 
 
