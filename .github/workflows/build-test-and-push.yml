@@ -10,7 +10,7 @@ on:
 
 env:
   GITHUB_SHA: ${{ github.sha }}
-  DOCKERHUB_TARGET_REPO: willirath/climate_index_collection
+  DOCKERHUB_TARGET_REPO: mlandthayen/climate_index_collection
 
 jobs:
   build_test_push:
@@ -44,7 +44,6 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/heads/main')}}
         uses: docker/build-push-action@v3
         with:
-          platforms: linux/amd64
           tags: "${{env.CALVER_TARGET}}, ${{env.LATEST_TARGET}}"
           build-args: "SETUPTOOLS_SCM_PRETEND_VERSION=${{env.CALVER}}"
           push: true
