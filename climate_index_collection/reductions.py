@@ -334,3 +334,23 @@ def area_mean_weighted(
     )
 
     return averaged
+
+
+def eof_weights(dobj):
+    """Empirical orthogonal functions (EOFs) can be thought of as the eigen-vectors of the spatial covariance matrix.
+    Grid cells can be thought of as representing spatial averages which are low-pass filtering the raw signals and dampen the variance by a factor proportional to the square root of the cell size.
+    For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition (SVD), input data needs to be multiplied with the square root of the weights.
+
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Contains the original input data.
+
+    Returns
+    -------
+    xarray.DataArray
+        Square root of weights needed to pre-process input data for SVD.
+    """
+    return np.sqrt(np.cos(np.deg2rad(dobj.coords["lat"])))

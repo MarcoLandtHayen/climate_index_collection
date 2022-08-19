@@ -5,7 +5,7 @@ import numpy as np
 import scipy as sp
 import xarray as xr
 
-from .reductions import area_mean_weighted, mean_unweighted
+from .reductions import area_mean_weighted, eof_weights, mean_unweighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -54,7 +54,9 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     of monthly geopotential height anomalies over parts of the Southern hemisphere.
 
     Note: There is no unique definition for pc-based SAM index. Here we use geopotential height for 500 hPa and take
-    Southern hemisphere from 20°S to 90°S.
+    Southern hemisphere from 20°S to 90°S. And to have the EOFs truly orthogonal, we need to take the area of the grid cells
+    into account. For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition, input data is multiplied with the square root of the weights.
 
     Computation is done as follows:
     1. Compute geopotential height anomalies over parts of the Southern hemisphere.
@@ -62,6 +64,8 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     3. Perform Singular Value Decomposition.
     4. Normalize Principal Components.
     5. Obtain SAM index as PC time series related to leading EOF.
+    6. Restore EOF patterns.
+    7. Use positive pole of leading EOF to invert index values - if necessary.
 
     Parameters
     ----------
@@ -79,7 +83,9 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
 
     mask = data_set.coords["lat"] <= -20
 
-    geopoth = data_set[geopoth_name].where(mask)
+    geopoth = data_set[geopoth_name]
+    geopoth = geopoth * eof_weights(geopoth)
+    geopoth = geopoth.where(mask)
     climatology = geopoth.groupby("time.month").mean("time")
     geopoth = (geopoth.groupby("time.month") - climatology).drop("month")
 
@@ -95,6 +101,14 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     SAM_index = xr.DataArray(
         pc[:, 0], dims=("time"), coords={"time": geopoth_flat["time"]}
     )
+
+    eofs = geopoth.stack(tmp_space=("lat", "lon")).copy()
+    eofs[:, eofs[0].notnull().values] = eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
+
+    mask_pos = (eofs[0].coords["lat"] <= -20) & (eofs[0].coords["lat"] >= -40)
+    if eofs[0].where(mask_pos).mean(("lat", "lon")) < 0:
+        SAM_index.values = -SAM_index.values
 
     SAM_index = SAM_index.rename("SAM_PC")
 
@@ -151,12 +165,19 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
     of monthly sea-level pressure anomalies over the Atlantic sector, 20°-80°N, 90°W-40°E.
 
+    Note: To have the EOFs truly orthogonal, we need to take the area of the grid cells into account.
+    For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition, input data is multiplied with the square root of the weights.
+
     Computation is done as follows:
     1. Compute sea level pressure anomalies over Atlantic sector.
     2. Flatten spatial dimensions and subtract mean in time.
     3. Perform Singular Value Decomposition.
     4. Normalize Principal Components.
     5. Obtain NAO index as PC time series related to leading EOF.
+    6. Restore leading EOF pattern.
+    7. Use positive pole of leading EOF to correct index sign - if necessary.
+
 
     Parameters
     ----------
@@ -178,7 +199,9 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
         & ((data_set.coords["lon"] >= 270) | (data_set.coords["lon"] <= 40))
     )
 
-    slp = data_set[slp_name].where(mask)
+    slp = data_set[slp_name]
+    slp = slp * eof_weights(slp)
+    slp = slp.where(mask)
     climatology = slp.groupby("time.month").mean("time")
     slp = (slp.groupby("time.month") - climatology).drop("month")
 
@@ -190,6 +213,14 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     pc /= pc_std
 
     NAO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+
+    eofs = slp.stack(tmp_space=("lat", "lon")).copy()
+    eofs[:, eofs[0].notnull().values] = eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
+
+    mask_pos = eofs[0].coords["lat"] >= 60
+    if eofs[0].where(mask_pos).mean(("lat", "lon")) < 0:
+        NAO_index.values = -NAO_index.values
 
     NAO_index = NAO_index.rename("NAO_PC")
 
