@@ -105,6 +105,20 @@ def test_SAM_PC_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SAM_PC_correlation(source_name):
+    """Ensure that PC-based index is positively correlated to regular SAM index."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate regular and PC-based SAM index
+    SAM = southern_annular_mode(data_set)
+    SAM_PC = southern_annular_mode_pc(data_set)
+
+    assert np.corrcoef(np.stack([SAM.values, SAM_PC.values]))[0, 1] > 0
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NAO_metadata(source_name):
     """Ensure that index only contains time dimension."""
     # Load test data
@@ -187,6 +201,20 @@ def test_NAO_PC_naming(source_name):
     NAO_PC = north_atlantic_oscillation_pc(data_set)
 
     assert NAO_PC.name == "NAO_PC"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NAO_PC_correlation(source_name):
+    """Ensure that PC-based index is positively correlated to station based NAO index."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate station based and PC-based NAO index
+    NAO = north_atlantic_oscillation(data_set)
+    NAO_PC = north_atlantic_oscillation_pc(data_set)
+
+    assert np.corrcoef(np.stack([NAO.values, NAO_PC.values]))[0, 1] > 0
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
