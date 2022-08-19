@@ -14,11 +14,11 @@ from climate_index_collection.indices import (
     north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
     sea_air_surface_temperature_anomaly_north_all,
-    sea_air_surface_temperature_anomaly_north_ocean,
     sea_air_surface_temperature_anomaly_north_land,
+    sea_air_surface_temperature_anomaly_north_ocean,
     sea_air_surface_temperature_anomaly_south_all,
-    sea_air_surface_temperature_anomaly_south_ocean,
     sea_air_surface_temperature_anomaly_south_land,
+    sea_air_surface_temperature_anomaly_south_ocean,
     southern_annular_mode,
     southern_annular_mode_pc,
 )
@@ -315,7 +315,7 @@ def test_SASTAI_north_all_metadata(source_name):
     assert SASTAI.dims[0] == "time"
     assert len(SASTAI.dims) == 1
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_all_zeromean(source_name):
     """Ensure that mean of the index is zero."""
@@ -326,11 +326,9 @@ def test_SASTAI_north_all_zeromean(source_name):
     # Calculate SASTAI
     SASTAI = sea_air_surface_temperature_anomaly_north_all(data_set)
     # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(
-        actual=SASTAI.mean("time").values[()], desired=0, decimal=3
-    )
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_all_naming(source_name):
     """Ensure that the index is named correctly."""
@@ -342,7 +340,7 @@ def test_SASTAI_north_all_naming(source_name):
     SASTAI = sea_air_surface_temperature_anomaly_north_all(data_set)
 
     assert SASTAI.name == "SASTAI-north-all"
-    
+
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_ocean_metadata(source_name):
@@ -358,7 +356,7 @@ def test_SASTAI_north_ocean_metadata(source_name):
     assert SASTAI.dims[0] == "time"
     assert len(SASTAI.dims) == 1
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_ocean_zeromean(source_name):
     """Ensure that mean of the index is zero."""
@@ -369,11 +367,9 @@ def test_SASTAI_north_ocean_zeromean(source_name):
     # Calculate SASTAI
     SASTAI = sea_air_surface_temperature_anomaly_north_ocean(data_set)
     # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(
-        actual=SASTAI.mean("time").values[()], desired=0, decimal=3
-    )
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_ocean_naming(source_name):
     """Ensure that the index is named correctly."""
@@ -385,9 +381,8 @@ def test_SASTAI_north_ocean_naming(source_name):
     SASTAI = sea_air_surface_temperature_anomaly_north_ocean(data_set)
 
     assert SASTAI.name == "SASTAI-north-ocean"
-    
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_land_metadata(source_name):
     """Ensure that index only contains time dimension."""
@@ -402,7 +397,7 @@ def test_SASTAI_north_land_metadata(source_name):
     assert SASTAI.dims[0] == "time"
     assert len(SASTAI.dims) == 1
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_land_zeromean(source_name):
     """Ensure that mean of the index is zero."""
@@ -413,11 +408,9 @@ def test_SASTAI_north_land_zeromean(source_name):
     # Calculate SASTAI
     SASTAI = sea_air_surface_temperature_anomaly_north_land(data_set)
     # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(
-        actual=SASTAI.mean("time").values[()], desired=0, decimal=3
-    )
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_north_land_naming(source_name):
     """Ensure that the index is named correctly."""
@@ -430,7 +423,7 @@ def test_SASTAI_north_land_naming(source_name):
 
     assert SASTAI.name == "SASTAI-north-land"
 
-    
+
 # --- SASTAI south ---
 
 
@@ -448,7 +441,7 @@ def test_SASTAI_south_all_metadata(source_name):
     assert SASTAI.dims[0] == "time"
     assert len(SASTAI.dims) == 1
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_all_zeromean(source_name):
     """Ensure that mean of the index is zero."""
@@ -459,11 +452,9 @@ def test_SASTAI_south_all_zeromean(source_name):
     # Calculate SASTAI
     SASTAI = sea_air_surface_temperature_anomaly_south_all(data_set)
     # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(
-        actual=SASTAI.mean("time").values[()], desired=0, decimal=3
-    )
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_all_naming(source_name):
     """Ensure that the index is named correctly."""
@@ -475,7 +466,7 @@ def test_SASTAI_south_all_naming(source_name):
     SASTAI = sea_air_surface_temperature_anomaly_south_all(data_set)
 
     assert SASTAI.name == "SASTAI-south-all"
-    
+
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_ocean_metadata(source_name):
@@ -491,7 +482,7 @@ def test_SASTAI_south_ocean_metadata(source_name):
     assert SASTAI.dims[0] == "time"
     assert len(SASTAI.dims) == 1
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_ocean_zeromean(source_name):
     """Ensure that mean of the index is zero."""
@@ -502,11 +493,9 @@ def test_SASTAI_south_ocean_zeromean(source_name):
     # Calculate SASTAI
     SASTAI = sea_air_surface_temperature_anomaly_south_ocean(data_set)
     # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(
-        actual=SASTAI.mean("time").values[()], desired=0, decimal=3
-    )
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_ocean_naming(source_name):
     """Ensure that the index is named correctly."""
@@ -518,9 +507,8 @@ def test_SASTAI_south_ocean_naming(source_name):
     SASTAI = sea_air_surface_temperature_anomaly_south_ocean(data_set)
 
     assert SASTAI.name == "SASTAI-south-ocean"
-    
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_land_metadata(source_name):
     """Ensure that index only contains time dimension."""
@@ -535,7 +523,7 @@ def test_SASTAI_south_land_metadata(source_name):
     assert SASTAI.dims[0] == "time"
     assert len(SASTAI.dims) == 1
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_land_zeromean(source_name):
     """Ensure that mean of the index is zero."""
@@ -546,11 +534,9 @@ def test_SASTAI_south_land_zeromean(source_name):
     # Calculate SASTAI
     SASTAI = sea_air_surface_temperature_anomaly_south_land(data_set)
     # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(
-        actual=SASTAI.mean("time").values[()], desired=0, decimal=3
-    )
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
-    
+
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SASTAI_south_land_naming(source_name):
     """Ensure that the index is named correctly."""
@@ -562,4 +548,3 @@ def test_SASTAI_south_land_naming(source_name):
     SASTAI = sea_air_surface_temperature_anomaly_south_land(data_set)
 
     assert SASTAI.name == "SASTAI-south-land"
-    

@@ -333,7 +333,9 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 # SASTAI north
 
 
-def sea_air_surface_temperature_anomaly_north_all(data_set, sat_name="sea-air-temperature"):
+def sea_air_surface_temperature_anomaly_north_all(
+    data_set, sat_name="sea-air-temperature"
+):
     """Sea Air Surface Temperature Anomaly (SASTA) index ,
     for the northern hemisphere.
     Land and Ocean data is used for the calculation.
@@ -356,7 +358,7 @@ def sea_air_surface_temperature_anomaly_north_all(data_set, sat_name="sea-air-te
     -------
     xarray.DataArray
         Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be 
+        Name of the DataArray will be
         'SASTAI-north-all'
 
     """
@@ -372,7 +374,9 @@ def sea_air_surface_temperature_anomaly_north_all(data_set, sat_name="sea-air-te
     return SASTAI
 
 
-def sea_air_surface_temperature_anomaly_north_ocean(data_set, sat_name="sea-air-temperature"):
+def sea_air_surface_temperature_anomaly_north_ocean(
+    data_set, sat_name="sea-air-temperature"
+):
     """Sea Air Surface Temperature Anomaly (SASTA) index ,
     for the northern hemisphere.
     Only data over the Ocean is used for the calculation.
@@ -395,7 +399,7 @@ def sea_air_surface_temperature_anomaly_north_ocean(data_set, sat_name="sea-air-
     -------
     xarray.DataArray
         Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be 
+        Name of the DataArray will be
         'SASTAI-north-ocean'
 
     """
@@ -410,8 +414,10 @@ def sea_air_surface_temperature_anomaly_north_ocean(data_set, sat_name="sea-air-
 
     return SASTAI
 
-    
-def sea_air_surface_temperature_anomaly_north_land(data_set, sat_name="sea-air-temperature"):
+
+def sea_air_surface_temperature_anomaly_north_land(
+    data_set, sat_name="sea-air-temperature"
+):
     """Sea Air Surface Temperature Anomaly (SASTA) index ,
     for the northern hemisphere.
     Only data over land is used for the calculation.
@@ -434,7 +440,7 @@ def sea_air_surface_temperature_anomaly_north_land(data_set, sat_name="sea-air-t
     -------
     xarray.DataArray
         Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be 
+        Name of the DataArray will be
         'SASTAI-north-land'
 
     """
@@ -452,7 +458,10 @@ def sea_air_surface_temperature_anomaly_north_land(data_set, sat_name="sea-air-t
 
 # SASTAI south
 
-def sea_air_surface_temperature_anomaly_south_all(data_set, sat_name="sea-air-temperature"):
+
+def sea_air_surface_temperature_anomaly_south_all(
+    data_set, sat_name="sea-air-temperature"
+):
     """Sea Air Surface Temperature Anomaly (SASTA) index ,
     for the southern hemisphere.
     Land and Ocean data is used for the calculation.
@@ -475,14 +484,14 @@ def sea_air_surface_temperature_anomaly_south_all(data_set, sat_name="sea-air-te
     -------
     xarray.DataArray
         Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be 
+        Name of the DataArray will be
         'SASTAI-south-all'
 
     """
 
     sat = data_set[sat_name]
     sat_mean = area_mean_weighted(
-        dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360  
+        dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
     )
 
     SASTAI = monthly_anomalies_unweighted(sat_mean)
@@ -491,7 +500,9 @@ def sea_air_surface_temperature_anomaly_south_all(data_set, sat_name="sea-air-te
     return SASTAI
 
 
-def sea_air_surface_temperature_anomaly_south_ocean(data_set, sat_name="sea-air-temperature"):
+def sea_air_surface_temperature_anomaly_south_ocean(
+    data_set, sat_name="sea-air-temperature"
+):
     """Sea Air Surface Temperature Anomaly (SASTA) index ,
     for the southern hemisphere.
     Only data over the Ocean is used for the calculation.
@@ -514,14 +525,14 @@ def sea_air_surface_temperature_anomaly_south_ocean(data_set, sat_name="sea-air-
     -------
     xarray.DataArray
         Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be 
+        Name of the DataArray will be
         'SASTAI-south-ocean'
 
     """
     # select only ocean data
     sat = data_set[sat_name].where(data_set["is_over_ocean"])
     sat_mean = area_mean_weighted(
-        dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360  
+        dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
     )
 
     SASTAI = monthly_anomalies_unweighted(sat_mean)
@@ -529,8 +540,10 @@ def sea_air_surface_temperature_anomaly_south_ocean(data_set, sat_name="sea-air-
 
     return SASTAI
 
-    
-def sea_air_surface_temperature_anomaly_south_land(data_set, sat_name="sea-air-temperature"):
+
+def sea_air_surface_temperature_anomaly_south_land(
+    data_set, sat_name="sea-air-temperature"
+):
     """Sea Air Surface Temperature Anomaly (SASTA) index ,
     for the southern hemisphere.
     Only data over land is used for the calculation.
@@ -553,14 +566,14 @@ def sea_air_surface_temperature_anomaly_south_land(data_set, sat_name="sea-air-t
     -------
     xarray.DataArray
         Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be 
+        Name of the DataArray will be
         'SASTAI-south-land'
 
     """
     # select only ocean data
     sat = data_set[sat_name].where(~data_set["is_over_ocean"])
     sat_mean = area_mean_weighted(
-        dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360  
+        dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
     )
 
     SASTAI = monthly_anomalies_unweighted(sat_mean)
@@ -588,13 +601,24 @@ class ClimateIndexFunctions(Enum):
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
-    sea_air_surface_temperature_anomaly_north_all = partial(sea_air_surface_temperature_anomaly_north_all)
-    sea_air_surface_temperature_anomaly_north_ocean = partial(sea_air_surface_temperature_anomaly_north_ocean)
-    sea_air_surface_temperature_anomaly_north_land = partial(sea_air_surface_temperature_anomaly_north_land)
-    sea_air_surface_temperature_anomaly_south_all = partial(sea_air_surface_temperature_anomaly_south_all)
-    sea_air_surface_temperature_anomaly_south_ocean = partial(sea_air_surface_temperature_anomaly_south_ocean)
-    sea_air_surface_temperature_anomaly_south_land = partial(sea_air_surface_temperature_anomaly_south_land)
-
+    sea_air_surface_temperature_anomaly_north_all = partial(
+        sea_air_surface_temperature_anomaly_north_all
+    )
+    sea_air_surface_temperature_anomaly_north_ocean = partial(
+        sea_air_surface_temperature_anomaly_north_ocean
+    )
+    sea_air_surface_temperature_anomaly_north_land = partial(
+        sea_air_surface_temperature_anomaly_north_land
+    )
+    sea_air_surface_temperature_anomaly_south_all = partial(
+        sea_air_surface_temperature_anomaly_south_all
+    )
+    sea_air_surface_temperature_anomaly_south_ocean = partial(
+        sea_air_surface_temperature_anomaly_south_ocean
+    )
+    sea_air_surface_temperature_anomaly_south_land = partial(
+        sea_air_surface_temperature_anomaly_south_land
+    )
 
     @classmethod
     def get_all_names(cls):
