@@ -1,0 +1,49 @@
+name: build, test and push Docker container images
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_SHA: ${{ github.sha }}
+  DOCKERHUB_TARGET_REPO: mlandthayen/climate_index_collection
+
+jobs:
+  build_test_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Specify tags
+        run: |
+          CALVER="$( date -u '+%Y.%m.%d' )"
+          SHA7="${GITHUB_SHA::7}"
+          CALVER="${CALVER}"
+          CALVER_TARGET=${DOCKERHUB_TARGET_REPO}:v${CALVER}-${SHA7}
+          LATEST_TARGET=${DOCKERHUB_TARGET_REPO}:latest
+          echo "CALVER=${CALVER}" >> $GITHUB_ENV
+          echo "CALVER_TARGET=${CALVER_TARGET}" >> $GITHUB_ENV
+          echo "LATEST_TARGET=${LATEST_TARGET}" >> $GITHUB_ENV
+      - name: Checkout Github repository
+        uses: actions/checkout@v2
+      - name: Build Docker image
+        uses: docker/build-push-action@v3
+        with:
+          load: true # publish as local Docker image
+          tags: "${{env.CALVER_TARGET}}, ${{env.LATEST_TARGET}}"
+          build-args: "SETUPTOOLS_SCM_PRETEND_VERSION=${{env.CALVER}}"
+      - name: Login to DockerHub
+        if: ${{ startsWith(github.ref, 'refs/heads/main')}}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push the Docker images
+        if: ${{ startsWith(github.ref, 'refs/heads/main')}}
+        uses: docker/build-push-action@v3
+        with:
+          tags: "${{env.CALVER_TARGET}}, ${{env.LATEST_TARGET}}"
+          build-args: "SETUPTOOLS_SCM_PRETEND_VERSION=${{env.CALVER}}"
+          push: true
