@@ -544,10 +544,10 @@ def sea_air_surface_temperature_anomaly_south_ocean(
 def sea_air_surface_temperature_anomaly_south_land(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Sea Air Surface Temperature Anomaly (SASTA) index ,
-    for the southern hemisphere.
-    Only data over land is used for the calculation.
-    The Anomalies are climatoligical anomalies (monthly) relative to the whole time period of the data_set.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere.
+    
+    Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
+    calculated from the whole time covered by the data set.
 
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
