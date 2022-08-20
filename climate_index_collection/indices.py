@@ -336,10 +336,10 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 def sea_air_surface_temperature_anomaly_north_all(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Sea Air Surface Temperature Anomaly (SASTA) index ,
-    for the northern hemisphere.
-    Land and Ocean data is used for the calculation.
-    The Anomalies are climatoligical anomalies (monthly) relative to the whole time period of the data_set.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere.
+    
+    Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
+    calculated from the whole time covered by the data set.
 
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
