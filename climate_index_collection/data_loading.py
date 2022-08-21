@@ -127,7 +127,6 @@ VARNAME_MAPPING = {
 
 OCEAN_ONLY_VARS = (
     "sea-surface-temperature",
-    "sea-air-temperature",
     "sea-surface-salinity",
 )
 

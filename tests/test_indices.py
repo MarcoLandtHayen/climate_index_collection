@@ -13,6 +13,12 @@ from climate_index_collection.indices import (
     north_atlantic_oscillation,
     north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
+    sea_air_surface_temperature_anomaly_north_all,
+    sea_air_surface_temperature_anomaly_north_land,
+    sea_air_surface_temperature_anomaly_north_ocean,
+    sea_air_surface_temperature_anomaly_south_all,
+    sea_air_surface_temperature_anomaly_south_land,
+    sea_air_surface_temperature_anomaly_south_ocean,
     southern_annular_mode,
     southern_annular_mode_pc,
 )
@@ -285,3 +291,77 @@ def test_NASSS_standardisation(source_name):
     # Check, if calculated NASSS index has zero mean and unit std dev:
     assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
     assert_almost_equal(actual=NASSS.std("time").values[()], desired=1, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+@pytest.mark.parametrize(
+    "index_function",
+    [
+        sea_air_surface_temperature_anomaly_north_all,
+        sea_air_surface_temperature_anomaly_north_land,
+        sea_air_surface_temperature_anomaly_north_ocean,
+        sea_air_surface_temperature_anomaly_south_all,
+        sea_air_surface_temperature_anomaly_south_land,
+        sea_air_surface_temperature_anomaly_south_ocean,
+    ],
+)
+def test_SASTAI_metadata(source_name, index_function):
+    """Ensure that index of the SASTAI index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SASTAI
+    SASTAI = index_function(data_set)
+
+    # Check, if calculated SASTAI only has one dimension: 'time'
+    assert SASTAI.dims[0] == "time"
+    assert len(SASTAI.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+@pytest.mark.parametrize(
+    "index_function",
+    [
+        sea_air_surface_temperature_anomaly_north_all,
+        sea_air_surface_temperature_anomaly_north_land,
+        sea_air_surface_temperature_anomaly_north_ocean,
+        sea_air_surface_temperature_anomaly_south_all,
+        sea_air_surface_temperature_anomaly_south_land,
+        sea_air_surface_temperature_anomaly_south_ocean,
+    ],
+)
+def test_SASTAI_zeromean(source_name, index_function):
+    """Ensure that mean of the index is zero."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SASTAI
+    SASTAI = index_function(data_set)
+    # Check, if calculated SASTAI has zero mean:
+    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+@pytest.mark.parametrize(
+    "index_function",
+    [
+        sea_air_surface_temperature_anomaly_north_all,
+        sea_air_surface_temperature_anomaly_north_land,
+        sea_air_surface_temperature_anomaly_north_ocean,
+        sea_air_surface_temperature_anomaly_south_all,
+        sea_air_surface_temperature_anomaly_south_land,
+        sea_air_surface_temperature_anomaly_south_ocean,
+    ],
+)
+def test_SASTAI_north_all_naming(source_name, index_function):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SASTAI
+    SASTAI = index_function(data_set)
+
+    assert SASTAI.name.startswith("SASTAI-")
