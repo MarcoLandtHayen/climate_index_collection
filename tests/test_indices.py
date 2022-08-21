@@ -293,23 +293,26 @@ def test_NASSS_standardisation(source_name):
     assert_almost_equal(actual=NASSS.std("time").values[()], desired=1, decimal=3)
 
 
-# ------
-# Sea air surface temperature anomalies index tests
-# ------
-
-
-# --- SASTAI north ---
-
-
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_all_metadata(source_name):
+@pytest.mark.parametrize(
+    "index_function",
+    [
+        sea_air_surface_temperature_anomaly_north_all,
+        sea_air_surface_temperature_anomaly_north_land,
+        sea_air_surface_temperature_anomaly_north_ocean,
+        sea_air_surface_temperature_anomaly_south_all,
+        sea_air_surface_temperature_anomaly_south_land,
+        sea_air_surface_temperature_anomaly_south_ocean,
+    ],
+)
+def test_SASTAI_metadata(source_name, index_function):
     """Ensure that index of the SASTAI index only contains time dimension."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
 
     # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_all(data_set)
+    SASTAI = index_function(data_set)
 
     # Check, if calculated SASTAI only has one dimension: 'time'
     assert SASTAI.dims[0] == "time"
@@ -317,234 +320,48 @@ def test_SASTAI_north_all_metadata(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_all_zeromean(source_name):
+@pytest.mark.parametrize(
+    "index_function",
+    [
+        sea_air_surface_temperature_anomaly_north_all,
+        sea_air_surface_temperature_anomaly_north_land,
+        sea_air_surface_temperature_anomaly_north_ocean,
+        sea_air_surface_temperature_anomaly_south_all,
+        sea_air_surface_temperature_anomaly_south_land,
+        sea_air_surface_temperature_anomaly_south_ocean,
+    ],
+)
+def test_SASTAI_zeromean(source_name, index_function):
     """Ensure that mean of the index is zero."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
 
     # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_all(data_set)
+    SASTAI = index_function(data_set)
     # Check, if calculated SASTAI has zero mean:
     assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_all_naming(source_name):
+@pytest.mark.parametrize(
+    "index_function",
+    [
+        sea_air_surface_temperature_anomaly_north_all,
+        sea_air_surface_temperature_anomaly_north_land,
+        sea_air_surface_temperature_anomaly_north_ocean,
+        sea_air_surface_temperature_anomaly_south_all,
+        sea_air_surface_temperature_anomaly_south_land,
+        sea_air_surface_temperature_anomaly_south_ocean,
+    ],
+)
+def test_SASTAI_north_all_naming(source_name, index_function):
     """Ensure that the index is named correctly."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
 
     # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_all(data_set)
+    SASTAI = index_function(data_set)
 
-    assert SASTAI.name == "SASTAI-north-all"
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_ocean_metadata(source_name):
-    """Ensure that index only contains time dimension."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_ocean(data_set)
-
-    # Check, if calculated SASTAI only has one dimension: 'time'
-    assert SASTAI.dims[0] == "time"
-    assert len(SASTAI.dims) == 1
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_ocean_zeromean(source_name):
-    """Ensure that mean of the index is zero."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_ocean(data_set)
-    # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_ocean_naming(source_name):
-    """Ensure that the index is named correctly."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_ocean(data_set)
-
-    assert SASTAI.name == "SASTAI-north-ocean"
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_land_metadata(source_name):
-    """Ensure that index only contains time dimension."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_land(data_set)
-
-    # Check, if calculated SASTAI only has one dimension: 'time'
-    assert SASTAI.dims[0] == "time"
-    assert len(SASTAI.dims) == 1
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_land_zeromean(source_name):
-    """Ensure that mean of the index is zero."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_land(data_set)
-    # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_north_land_naming(source_name):
-    """Ensure that the index is named correctly."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_north_land(data_set)
-
-    assert SASTAI.name == "SASTAI-north-land"
-
-
-# --- SASTAI south ---
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_all_metadata(source_name):
-    """Ensure that index of the SASTAI index only contains time dimension."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_all(data_set)
-
-    # Check, if calculated SASTAI only has one dimension: 'time'
-    assert SASTAI.dims[0] == "time"
-    assert len(SASTAI.dims) == 1
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_all_zeromean(source_name):
-    """Ensure that mean of the index is zero."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_all(data_set)
-    # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_all_naming(source_name):
-    """Ensure that the index is named correctly."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_all(data_set)
-
-    assert SASTAI.name == "SASTAI-south-all"
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_ocean_metadata(source_name):
-    """Ensure that index only contains time dimension."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_ocean(data_set)
-
-    # Check, if calculated SASTAI only has one dimension: 'time'
-    assert SASTAI.dims[0] == "time"
-    assert len(SASTAI.dims) == 1
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_ocean_zeromean(source_name):
-    """Ensure that mean of the index is zero."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_ocean(data_set)
-    # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_ocean_naming(source_name):
-    """Ensure that the index is named correctly."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_ocean(data_set)
-
-    assert SASTAI.name == "SASTAI-south-ocean"
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_land_metadata(source_name):
-    """Ensure that index only contains time dimension."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_land(data_set)
-
-    # Check, if calculated SASTAI only has one dimension: 'time'
-    assert SASTAI.dims[0] == "time"
-    assert len(SASTAI.dims) == 1
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_land_zeromean(source_name):
-    """Ensure that mean of the index is zero."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_land(data_set)
-    # Check, if calculated SASTAI has zero mean:
-    assert_almost_equal(actual=SASTAI.mean("time").values[()], desired=0, decimal=3)
-
-
-@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_SASTAI_south_land_naming(source_name):
-    """Ensure that the index is named correctly."""
-    # Load test data
-    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
-
-    # Calculate SASTAI
-    SASTAI = sea_air_surface_temperature_anomaly_south_land(data_set)
-
-    assert SASTAI.name == "SASTAI-south-land"
+    assert SASTAI.name.startswith("SASTAI-")
