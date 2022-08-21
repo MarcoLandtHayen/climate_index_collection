@@ -325,18 +325,10 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     return NASSS
 
 
-# ------
-# Sea air surface temperature anomalies indices
-# ------
-
-
-# SASTAI north
-
-
 def sea_air_surface_temperature_anomaly_north_all(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the complete northern hemisphere.
 
     Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -344,7 +336,7 @@ def sea_air_surface_temperature_anomaly_north_all(
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
     2. Compute monthly climatology for area averaged SAT for the hemisphere.
-    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    3. Subtract climatology from area averaged total SAT time series to obtain anomalies.
     This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
 
     Parameters
@@ -358,11 +350,9 @@ def sea_air_surface_temperature_anomaly_north_all(
     -------
     xarray.DataArray
         Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be
-        'SASTAI-north-all'
+        Name of the DataArray will be: "SASTAI-north-all"
 
     """
-
     sat = data_set[sat_name]
     sat_mean = area_mean_weighted(
         dobj=sat, lat_south=0, lat_north=90, lon_west=0, lon_east=360
@@ -377,7 +367,7 @@ def sea_air_surface_temperature_anomaly_north_all(
 def sea_air_surface_temperature_anomaly_north_ocean(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere Ocean.
 
     Only data over the Ocean is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -385,7 +375,7 @@ def sea_air_surface_temperature_anomaly_north_ocean(
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
     2. Compute monthly climatology for area averaged SAT for the hemisphere.
-    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    3. Subtract climatology from area averaged total SAT time series to obtain anomalies.
     This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
 
     Parameters
@@ -399,8 +389,7 @@ def sea_air_surface_temperature_anomaly_north_ocean(
     -------
     xarray.DataArray
         Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be
-        'SASTAI-north-ocean'
+        Name of the DataArray will be: "SASTAI-north-ocean"
 
     """
     # select only ocean data
@@ -418,7 +407,7 @@ def sea_air_surface_temperature_anomaly_north_ocean(
 def sea_air_surface_temperature_anomaly_north_land(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere land.
 
     Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -426,7 +415,7 @@ def sea_air_surface_temperature_anomaly_north_land(
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
     2. Compute monthly climatology for area averaged SAT for the hemisphere.
-    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    3. Subtract climatology from area averaged total SAT time series to obtain anomalies.
     This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
 
     Parameters
@@ -440,11 +429,10 @@ def sea_air_surface_temperature_anomaly_north_land(
     -------
     xarray.DataArray
         Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be
-        'SASTAI-north-land'
+        Name of the DataArray will be: "SASTAI-north-land"
 
     """
-    # select only ocean data
+    # select only land data
     sat = data_set[sat_name].where(~data_set["is_over_ocean"])
     sat_mean = area_mean_weighted(
         dobj=sat, lat_south=0, lat_north=90, lon_west=0, lon_east=360
@@ -456,13 +444,10 @@ def sea_air_surface_temperature_anomaly_north_land(
     return SASTAI
 
 
-# SASTAI south
-
-
 def sea_air_surface_temperature_anomaly_south_all(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the complete southern hemisphere.
 
     Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -470,7 +455,7 @@ def sea_air_surface_temperature_anomaly_south_all(
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
     2. Compute monthly climatology for area averaged SAT for the hemisphere.
-    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    3. Subtract climatology from area averaged total SAT time series to obtain anomalies.
     This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
 
     Parameters
@@ -484,11 +469,9 @@ def sea_air_surface_temperature_anomaly_south_all(
     -------
     xarray.DataArray
         Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be
-        'SASTAI-south-all'
+        Name of the DataArray will be: "SASTAI-south-all"
 
     """
-
     sat = data_set[sat_name]
     sat_mean = area_mean_weighted(
         dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
@@ -503,7 +486,7 @@ def sea_air_surface_temperature_anomaly_south_all(
 def sea_air_surface_temperature_anomaly_south_ocean(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere Ocean.
 
     Only data over the Ocean is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -511,7 +494,7 @@ def sea_air_surface_temperature_anomaly_south_ocean(
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
     2. Compute monthly climatology for area averaged SAT for the hemisphere.
-    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    3. Subtract climatology from area averaged total SAT time series to obtain anomalies.
     This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
 
     Parameters
@@ -525,8 +508,7 @@ def sea_air_surface_temperature_anomaly_south_ocean(
     -------
     xarray.DataArray
         Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be
-        'SASTAI-south-ocean'
+        Name of the DataArray will be: "SASTAI-south-ocean"
 
     """
     # select only ocean data
@@ -544,7 +526,7 @@ def sea_air_surface_temperature_anomaly_south_ocean(
 def sea_air_surface_temperature_anomaly_south_land(
     data_set, sat_name="sea-air-temperature"
 ):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere.
+    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere land.
 
     Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -552,7 +534,7 @@ def sea_air_surface_temperature_anomaly_south_land(
     Computation is done as follows:
     1. Compute area averaged total SAT for the hemisphere.
     2. Compute monthly climatology for area averaged SAT for the hemisphere.
-    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    3. Subtract climatology from area averaged total SAT time series to obtain anomalies.
     This follows https://www.ncei.noaa.gov/access/monitoring/global-temperature-anomalies/anomalies
 
     Parameters
@@ -566,11 +548,10 @@ def sea_air_surface_temperature_anomaly_south_land(
     -------
     xarray.DataArray
         Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be
-        'SASTAI-south-land'
+        Name of the DataArray will be: "SASTAI-south-land"
 
     """
-    # select only ocean data
+    # select only land data
     sat = data_set[sat_name].where(~data_set["is_over_ocean"])
     sat_mean = area_mean_weighted(
         dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
