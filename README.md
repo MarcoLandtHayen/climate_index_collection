@@ -57,9 +57,9 @@ A release will contain the specific version of the package (taken care of automa
 
 1. _**Draft a release:**_ Go to https://github.com/MarcoLandtHayen/climate_index_collection/releases/new and draft a new release (don't publish yet).
 
-2. _**Prepeare data:**_ For the commit in `main` for which the release is planned, pull the container on NESH (see above) and run
+2. _**Prepeare data:**_ For the commit in `main` for which the release is planned, pull the container on NESH (see above) and run:
 ```
-$singularity run mlandthayen_climate_index_collection_<tag>.sif climate_index_collection_run --input-path <path_to_full_data>
+$ singularity run mlandthayen_climate_index_collection_<tag>.sif climate_index_collection_run --input-path <path_to_full_data>
 ```
 
 3. _**Attach data:**_ Attach the CSV file to the drafted release.
