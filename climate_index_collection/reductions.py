@@ -302,9 +302,19 @@ def area_mean_weighted(
     lon_east = lon_east % 360
 
     # coords
-    mask = (
-        (lat >= lat_south) & (lat <= lat_north) & (lon >= lon_west) & (lon <= lon_east)
-    )
+    if lon_west <= lon_east:
+        mask = (
+            (lat >= lat_south)
+            & (lat <= lat_north)
+            & (lon >= lon_west)
+            & (lon <= lon_east)
+        )
+    else:
+        mask = (lat == 0) & (lon == 0) + False
+        mask_west = (lat >= lat_south) & (lat <= lat_north) & (lon >= lon_west)
+        mask_east = (lat >= lat_south) & (lat <= lat_north) & (lon <= lon_east)
+        mask_west
+        mask = mask + np.ma.mask_or(mask_west, mask_east)
 
     # do we have dimensional coords?
     have_dimensional_coords = (lat.dims[0] == lat_name) & (lon.dims[0] == lon_name)
