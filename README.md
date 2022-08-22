@@ -44,12 +44,23 @@ Here, `<tag>` can either be `latest` or a more specific tag.
 
 ### Use with Singularity
 
-You can use it wherever Singularity is installed by running:
+You can use it wherever Singularity is installed by essentially running:
 ```shell
 $ singularity pull --disable-cache --dir "${PWD}" docker://mlandthayen/climate_index_collection:<tag>
-$ singularity run mlandthayen_climate_index_collection_<tag>.sif climate_index_collection_run --help
+$ singularity run climate_index_collection_<tag>.sif climate_index_collection_run --help
 ```
 Here, `<tag>` can either be `latest` or a more specific tag.
+
+_Note_ that for NESH, it's currently necessary to
+- specify the version of singularity to use, and
+- to make sure to bind mount various parts of the file system explicitly.
+
+So the full call on NESH would look like:
+```shell
+$ module load singularity/3.5.2
+$ singularity pull --disable-cache --dir "${PWD}" docker://mlandthayen/climate_index_collection:<tag>
+$ singularity run -B /sfs -B /gxfs_work1 -B ${PWD}:/work --pwd /work climate_index_collection_<tag>.sif climate_index_collection_run --help
+```
 
 ## Release Procedure
 
@@ -59,7 +70,7 @@ A release will contain the specific version of the package (taken care of automa
 
 2. _**Prepeare data:**_ For the commit in `main` for which the release is planned, pull the container on NESH (see above) and run:
 ```
-$ singularity run mlandthayen_climate_index_collection_<tag>.sif climate_index_collection_run --input-path <path_to_full_data>
+$ singularity run -B /sfs -B /gxfs_work1 -B ${PWD}:/work --pwd /work climate_index_collection_<tag>.sif climate_index_collection_run --input-path <path_to_full_data>
 ```
 
 3. _**Attach data:**_ Attach the CSV file to the drafted release.
