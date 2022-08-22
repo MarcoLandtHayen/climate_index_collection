@@ -577,9 +577,7 @@ class ClimateIndexFunctions(Enum):
     """
 
     southern_annular_mode = partial(southern_annular_mode)
-    southern_annular_mode_pc = partial(southern_annular_mode_pc)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
-    north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
     sea_air_surface_temperature_anomaly_north_all = partial(
