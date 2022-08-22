@@ -264,11 +264,7 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
 
     """
     sst_nino34 = area_mean_weighted(
-        dobj=data_set[sst_name],
-        lat_south=-5,
-        lat_north=5,
-        lon_west=190,
-        lon_east=240,
+        dobj=data_set[sst_name], lat_south=-5, lat_north=5, lon_west=190, lon_east=240,
     )
 
     climatology = sst_nino34.groupby("time.month").mean("time")
@@ -311,11 +307,7 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     sss = data_set[sss_name]
 
     sss_box_ave = area_mean_weighted(
-        sss,
-        lat_south=25,
-        lat_north=50,
-        lon_west=-50,
-        lon_east=-15,
+        sss, lat_south=25, lat_north=50, lon_west=-50, lon_east=-15,
     )
 
     NASSS = (sss_box_ave - sss_box_ave.mean("time")) / sss_box_ave.std("time")
@@ -577,9 +569,7 @@ class ClimateIndexFunctions(Enum):
     """
 
     southern_annular_mode = partial(southern_annular_mode)
-    southern_annular_mode_pc = partial(southern_annular_mode_pc)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
-    north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
     sea_air_surface_temperature_anomaly_north_all = partial(
