@@ -5,7 +5,7 @@ import numpy as np
 import scipy as sp
 import xarray as xr
 
-from .reductions import area_mean_weighted, eof_weights, mean_unweighted
+from .reductions import area_mean_weighted, eof_weights, mean_unweighted, monthly_anoamlies_unweighted
 
 
 def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
@@ -319,6 +319,56 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 
     return NASSS
 
+def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the Atlantic Multi-decadal Oscillation (AMO) index.
+
+    This follows the NOAA method <https://psl.noaa.gov/data/timeseries/AMO/> in defining the Atlantic Multi-decadal Oscillation index using area weighted averaged sea-surface temperature anomalies of the north Atlantic between 0°N and 70°N,
+    The anomalies are relative to a monthly climatology calculated from the whole time covered by the data set.
+    !!! TODO :
+    HOW TO PROPERLY SELECT ONLY ATLANTIC REGION
+    Regionmask is a python package that might help to solve this issue.
+    !!!
+    It differs from the definition of the NOAA in that it does not detrend the time series and the optional smomothing is not performed.
+    
+    Computation is done as follows:
+    1. Compute area averaged total SST from north Atlantic region.
+    2. Compute monthly climatology for area averaged total SST from north Atlantic  region.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+
+    Further informations can be found in :
+    - [Trenberth and Shea, 2006] <https://doi.org/10.1029/2006GL026894>.
+    - NCAR climate data guide <https://climatedataguide.ucar.edu/climate-data/atlantic-multi-decadal-oscillation-amo>
+    
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing a SST field.
+    slp_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-tempearture".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the AMO index.
+
+    """
+    sst = data_set[sst_name]
+
+    sst_box_ave = area_mean_weighted(
+        sst,
+        lat_south=0,
+        lat_north=70,
+        lon_west=-75,
+        lon_east=15,
+    )
+
+    sst_anom = monthly_anoamlies_unweighted(sst_box_ave)
+
+    AMO = AMO.rename("AMO")
+
+    return AMO
+    
 
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
