@@ -252,6 +252,73 @@ def monthly_anomalies_unweighted(dobj):
     )
 
 
+def spatial_mask(
+    dobj,
+    lat_south=None,
+    lat_north=None,
+    lon_west=None,
+    lon_east=None,
+    lon_name="lon",
+    lat_name="lat",
+    lat_extent_name=None,
+    lon_extent_name=None,
+):
+    """Mask over lat and lon range.
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Data for which the mask will be created.
+    lat_south: float
+        Southern latitude bound.
+    lat_north: float
+        Northern latitude bound.
+    lon_west: float
+        Western longitude bound.
+    lon_east: float
+        Eastern longitude bound.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+    lat_extent_name: str
+        Name of the lat extent. Defaults to None.
+    lon_extent_name: str
+        Name of the lon extent. Defaults to None.
+
+    Returns
+    -------
+    dobj:
+        Mask for given lat and lon range.
+
+    """
+    # extract coords
+    lat = dobj.coords[lat_name]
+    lon = dobj.coords[lon_name]
+
+    # standardize lon
+    lon = lon % 360
+    lon_west = lon_west % 360
+    lon_east = lon_east % 360
+
+    # coords
+    # check if lon range does not cross the greenwhich meridian at 0°W.
+    if lon_west <= lon_east:
+        return (
+            (lat >= lat_south)
+            & (lat <= lat_north)
+            & (lon >= lon_west)
+            & (lon <= lon_east)
+        )
+    # otherwise us 'or' instead of 'and' for the lon logical operation.
+    else:
+        return (
+            (lat >= lat_south)
+            & (lat <= lat_north)
+            & ((lon >= lon_west) | (lon <= lon_east))
+        )
+
+
 def area_mean_weighted(
     dobj,
     lat_south=None,
@@ -302,19 +369,15 @@ def area_mean_weighted(
     lon_east = lon_east % 360
 
     # coords
-    if lon_west <= lon_east:
-        mask = (
-            (lat >= lat_south)
-            & (lat <= lat_north)
-            & (lon >= lon_west)
-            & (lon <= lon_east)
-        )
-    else:
-        mask = (lat == 0) & (lon == 0) + False
-        mask_west = (lat >= lat_south) & (lat <= lat_north) & (lon >= lon_west)
-        mask_east = (lat >= lat_south) & (lat <= lat_north) & (lon <= lon_east)
-        mask_west
-        mask = mask + np.ma.mask_or(mask_west, mask_east)
+    mask = spatial_mask(
+        dobj=dobj,
+        lat_south=lat_south,
+        lat_north=lat_north,
+        lon_west=lon_west,
+        lon_east=lon_east,
+        lon_name=lon_name,
+        lat_name=lat_name,
+    )
 
     # do we have dimensional coords?
     have_dimensional_coords = (lat.dims[0] == lat_name) & (lon.dims[0] == lon_name)
