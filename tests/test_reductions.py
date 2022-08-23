@@ -155,6 +155,31 @@ def test_spatial_mask_no_lon_masking():
     assert all(m == mt for m, mt in zip([True, True, True], mask.squeeze().data))
 
 
+def test_spatial_mask_partial_lon_masking():
+    """Check that not setting all lon bounds works as intended."""
+    data_set = xr.Dataset(
+        coords={
+            "lat": [
+                0.0,
+            ],
+            "lon": [
+                0.0,
+                120.0,
+                240.0,
+            ],
+        }
+    )
+    mask = spatial_mask(
+        dobj=data_set,
+        lat_south=-90.0,
+        lat_north=90.0,
+        lon_west=None,
+        lon_east=180.0,
+    )
+    assert mask.astype(int).sum().data[()] == 2
+    assert all(m == mt for m, mt in zip([True, True, False], mask.squeeze().data))
+
+
 def test_spatial_mask_no_lat_masking():
     """Check that not setting lat bounds works as intended."""
     data_set = xr.Dataset(
@@ -174,3 +199,47 @@ def test_spatial_mask_no_lat_masking():
     )
     assert mask.astype(int).sum().data[()] == 3
     assert all(m == mt for m, mt in zip([True, True, True], mask.squeeze().data))
+
+
+def test_spatial_mask_partial_lat_masking():
+    """Check that not setting all lat bounds works as intended."""
+    data_set = xr.Dataset(
+        coords={
+            "lat": [-60.0, 0.0, 60.0],
+            "lon": [
+                30.0,
+            ],
+        }
+    )
+    mask = spatial_mask(
+        dobj=data_set,
+        lat_south=-30.0,
+        lat_north=None,
+        lon_west=0.0,
+        lon_east=60.0,
+    )
+    assert mask.astype(int).sum().data[()] == 2
+    assert all(m == mt for m, mt in zip([False, True, True], mask.squeeze().data))
+
+
+def test_spatial_mask_no_bounds():
+    """Check that not setting any bounds works as intended."""
+    data_set = xr.Dataset(
+        coords={
+            "lat": [-60.0, 0.0, 60.0],
+            "lon": [
+                0.0,
+                120.0,
+                240.0,
+            ],
+        }
+    )
+    mask = spatial_mask(
+        dobj=data_set,
+        lat_south=None,
+        lat_north=None,
+        lon_west=None,
+        lon_east=None,
+    )
+    assert mask.astype(int).sum().data[()] == 9
+    assert all(list(mask.data.flatten()))
