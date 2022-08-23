@@ -260,8 +260,6 @@ def spatial_mask(
     lon_east=None,
     lon_name="lon",
     lat_name="lat",
-    lat_extent_name=None,
-    lon_extent_name=None,
 ):
     """Mask over lat and lon range.
 
@@ -270,21 +268,17 @@ def spatial_mask(
     dobj: xarray.DataArray
         Data for which the mask will be created.
     lat_south: float
-        Southern latitude bound.
+        Southern latitude bound. If "None", only the other lat bound will be applied.
     lat_north: float
-        Northern latitude bound.
+        Northern latitude bound. If "None", only the other lat bound will be applied.
     lon_west: float
-        Western longitude bound.
+        Western longitude bound. If "None", only the other lon bound will be applied.
     lon_east: float
-        Eastern longitude bound.
+        Eastern longitude bound. If "None", only the other lon bound will be applied.
     lat_name: str
         Name of the latitude coordinate. Defaults to "lat".
     lon_name: str
         Name of the longitude coordinate. Defaults to "lon".
-    lat_extent_name: str
-        Name of the lat extent. Defaults to None.
-    lon_extent_name: str
-        Name of the lon extent. Defaults to None.
 
     Returns
     -------
@@ -296,10 +290,22 @@ def spatial_mask(
     lat = dobj.coords[lat_name]
     lon = dobj.coords[lon_name]
 
-    # standardize lon
+    # maybe standardize lon
     lon = lon % 360
-    lon_west = lon_west % 360
-    lon_east = lon_east % 360
+    if lon_west is not None:
+        lon_west = lon_west % 360
+    if lon_east is not None:
+        lon_east = lon_east % 360
+
+    # catch unset lat and lon bounds
+    if lon_west is None:
+        lon_west = -np.inf
+    if lon_east is None:
+        lon_east = np.inf
+    if lat_south is None:
+        lat_south = -np.inf
+    if lat_north is None:
+        lat_north = np.inf
 
     # coords
     # check if lon range does not cross the greenwhich meridian at 0°W.
@@ -337,13 +343,13 @@ def area_mean_weighted(
     dobj: xarray.DataArray
         Data for which the area average will be computed.
     lat_south: float
-        Southern latitude bound.
+        Southern latitude bound. If "None", only the other lat bound will be applied.
     lat_north: float
-        Northern latitude bound.
+        Northern latitude bound. If "None", only the other lat bound will be applied.
     lon_west: float
-        Western longitude bound.
+        Western longitude bound. If "None", only the other lon bound will be applied.
     lon_east: float
-        Eastern longitude bound.
+        Eastern longitude bound. If "None", only the other lon bound will be applied.
     lat_name: str
         Name of the latitude coordinate. Defaults to "lat".
     lon_name: str
@@ -362,11 +368,6 @@ def area_mean_weighted(
     # extract coords
     lat = dobj.coords[lat_name]
     lon = dobj.coords[lon_name]
-
-    # standardize lon
-    lon = lon % 360
-    lon_west = lon_west % 360
-    lon_east = lon_east % 360
 
     # coords
     mask = spatial_mask(
