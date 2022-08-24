@@ -103,12 +103,12 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     pc_std = pc.std(axis=0)
     pc /= pc_std
 
-    SAM_index = xr.DataArray(
-        pc[:, 0], dims=("time"), coords={"time": geopoth_flat["time"]}
-    )
+    SAM_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": geopoth["time"]})
 
-    eofs = geopoth.stack(tmp_space=("lat", "lon")).copy()
-    eofs[:, eofs[0].notnull().values] = eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    eofs = geopoth.stack(tmp_space=("lat", "lon")).copy()[0:1, :]
+    eofs[0:1, eofs[0].notnull().values] = (
+        eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    )[0:1, :]
     eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
 
     mask_pos = (eofs[0].coords["lat"] <= -20) & (eofs[0].coords["lat"] >= -40)
@@ -217,10 +217,12 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     pc_std = pc.std(axis=0)
     pc /= pc_std
 
-    NAO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp_flat["time"]})
+    NAO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": slp["time"]})
 
-    eofs = slp.stack(tmp_space=("lat", "lon")).copy()
-    eofs[:, eofs[0].notnull().values] = eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    eofs = slp.stack(tmp_space=("lat", "lon")).copy()[0:1, :]
+    eofs[0:1, eofs[0].notnull().values] = (
+        eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    )[0:1, :]
     eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
 
     mask_pos = eofs[0].coords["lat"] >= 60
