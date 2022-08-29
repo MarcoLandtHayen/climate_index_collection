@@ -332,11 +332,7 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
 
     This follows the NOAA method <https://psl.noaa.gov/data/timeseries/AMO/> in defining the Atlantic Multi-decadal Oscillation index using area weighted averaged sea-surface temperature anomalies of the north Atlantic between 0°N and 70°N,
     The anomalies are relative to a monthly climatology calculated from the whole time covered by the data set.
-    !!! TODO :
-    HOW TO PROPERLY SELECT ONLY ATLANTIC REGION
-    Regionmask is a python package that might help to solve this issue.
-    !!!
-    It differs from the definition of the NOAA in that it does not detrend the time series and the optional smomothing is not performed.
+    It differs from the definition of the NOAA in that it does not detrend the time series and the smomothing is not performed.
 
     Computation is done as follows:
     1. Compute area averaged total SST from north Atlantic region.
@@ -371,7 +367,7 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
         lon_east=15,
     )
 
-    sst_anom = monthly_anoamlies_unweighted(sst_box_ave)
+    AMO = monthly_anomalies_unweighted(sst_box_ave)
 
     AMO = AMO.rename("AMO")
 
@@ -635,6 +631,7 @@ class ClimateIndexFunctions(Enum):
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
+    atlantic_multidecadal_oscillation = partial(atlantic_multidecadal_oscillation)
     sea_air_surface_temperature_anomaly_north_all = partial(
         sea_air_surface_temperature_anomaly_north_all
     )
