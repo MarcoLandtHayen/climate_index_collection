@@ -326,6 +326,7 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 
     return NASSS
 
+
 def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperature"):
     """Calculate the Atlantic Multi-decadal Oscillation (AMO) index.
 
@@ -336,7 +337,7 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     Regionmask is a python package that might help to solve this issue.
     !!!
     It differs from the definition of the NOAA in that it does not detrend the time series and the optional smomothing is not performed.
-    
+
     Computation is done as follows:
     1. Compute area averaged total SST from north Atlantic region.
     2. Compute monthly climatology for area averaged total SST from north Atlantic  region.
@@ -345,7 +346,7 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     Further informations can be found in :
     - [Trenberth and Shea, 2006] <https://doi.org/10.1029/2006GL026894>.
     - NCAR climate data guide <https://climatedataguide.ucar.edu/climate-data/atlantic-multi-decadal-oscillation-amo>
-    
+
 
     Parameters
     ----------
@@ -375,7 +376,7 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     AMO = AMO.rename("AMO")
 
     return AMO
-    
+
 
 def sea_air_surface_temperature_anomaly_north_all(
     data_set, sat_name="sea-air-temperature"
