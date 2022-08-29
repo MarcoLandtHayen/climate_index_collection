@@ -252,6 +252,79 @@ def monthly_anomalies_unweighted(dobj):
     )
 
 
+def spatial_mask(
+    dobj,
+    lat_south=None,
+    lat_north=None,
+    lon_west=None,
+    lon_east=None,
+    lon_name="lon",
+    lat_name="lat",
+):
+    """Mask over lat and lon range.
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Data for which the mask will be created.
+    lat_south: float
+        Southern latitude bound. If "None", only the other lat bound will be applied.
+    lat_north: float
+        Northern latitude bound. If "None", only the other lat bound will be applied.
+    lon_west: float
+        Western longitude bound. If "None", only the other lon bound will be applied.
+    lon_east: float
+        Eastern longitude bound. If "None", only the other lon bound will be applied.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+
+    Returns
+    -------
+    dobj:
+        Mask for given lat and lon range.
+
+    """
+    # extract coords
+    lat = dobj.coords[lat_name]
+    lon = dobj.coords[lon_name]
+
+    # maybe standardize lon
+    lon = lon % 360
+    if lon_west is not None:
+        lon_west = lon_west % 360
+    if lon_east is not None:
+        lon_east = lon_east % 360
+
+    # catch unset lat and lon bounds
+    if lon_west is None:
+        lon_west = -np.inf
+    if lon_east is None:
+        lon_east = np.inf
+    if lat_south is None:
+        lat_south = -np.inf
+    if lat_north is None:
+        lat_north = np.inf
+
+    # coords
+    # check if lon range does not cross the greenwhich meridian at 0°W.
+    if lon_west <= lon_east:
+        return (
+            (lat >= lat_south)
+            & (lat <= lat_north)
+            & (lon >= lon_west)
+            & (lon <= lon_east)
+        )
+    # otherwise us 'or' instead of 'and' for the lon logical operation.
+    else:
+        return (
+            (lat >= lat_south)
+            & (lat <= lat_north)
+            & ((lon >= lon_west) | (lon <= lon_east))
+        )
+
+
 def area_mean_weighted(
     dobj,
     lat_south=None,
@@ -270,13 +343,13 @@ def area_mean_weighted(
     dobj: xarray.DataArray
         Data for which the area average will be computed.
     lat_south: float
-        Southern latitude bound.
+        Southern latitude bound. If "None", only the other lat bound will be applied.
     lat_north: float
-        Northern latitude bound.
+        Northern latitude bound. If "None", only the other lat bound will be applied.
     lon_west: float
-        Western longitude bound.
+        Western longitude bound. If "None", only the other lon bound will be applied.
     lon_east: float
-        Eastern longitude bound.
+        Eastern longitude bound. If "None", only the other lon bound will be applied.
     lat_name: str
         Name of the latitude coordinate. Defaults to "lat".
     lon_name: str
@@ -296,14 +369,15 @@ def area_mean_weighted(
     lat = dobj.coords[lat_name]
     lon = dobj.coords[lon_name]
 
-    # standardize lon
-    lon = lon % 360
-    lon_west = lon_west % 360
-    lon_east = lon_east % 360
-
     # coords
-    mask = (
-        (lat >= lat_south) & (lat <= lat_north) & (lon >= lon_west) & (lon <= lon_east)
+    mask = spatial_mask(
+        dobj=dobj,
+        lat_south=lat_south,
+        lat_north=lat_north,
+        lon_west=lon_west,
+        lon_east=lon_east,
+        lon_name=lon_name,
+        lat_name=lat_name,
     )
 
     # do we have dimensional coords?
