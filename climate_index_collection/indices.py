@@ -565,6 +565,55 @@ def sea_air_surface_temperature_anomaly_south_land(
     return SASTAI
 
 
+def sahel_precipitation_anomaly(data_set, precip_name="precipitation"):
+    """Calculate the Sahel precipitation anomaly index
+
+    Following http://research.jisao.washington.edu/data/sahel/
+    the Sahel rainy season is centered on June through October. The Sahel precipitation index in its original form gives a measure
+    for year to year variability of Sahel rainfall as mean over this rainy season.
+
+    Here we compute the Sahel precipitation anomaly index as monthly anomalies of rainfall in the Sahel zone.
+    As defined in https://doi.org/10.1175/JAMC-D-13-0181.1
+    the Sahel zone is assumed to be bordered by 10 to 20°N and 20°W to 10°E.
+
+    Computation is done as follows:
+    1. Compute area averaged total precipitation from Sahel zone.
+    2. Compute monthly climatology for area averaged total precipitation from Sahel zone.
+    3. Subtract climatology from area averaged total precipitation time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an precipitation field.
+    precip_name: str
+        Name of the precipitation field. Defaults to "precipitation".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the Sahel precipitation anomaly index.
+
+    """
+    precip = area_mean_weighted(
+        dobj=data_set[precip_name],
+        lat_south=10,
+        lat_north=20,
+        lon_west=340,
+        lon_east=10,
+    )
+
+    climatology = precip.groupby("time.month").mean("time")
+
+    std_dev = precip.std("time")
+
+    Sahel_precip = (precip.groupby("time.month") - climatology) / std_dev
+    Sahel_precip = Sahel_precip.rename("SPAI")
+
+    return Sahel_precip
+
+
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
 
@@ -602,6 +651,7 @@ class ClimateIndexFunctions(Enum):
     sea_air_surface_temperature_anomaly_south_land = partial(
         sea_air_surface_temperature_anomaly_south_land
     )
+    sahel_precipitation_anomaly = partial(sahel_precipitation_anomaly)
 
     @classmethod
     def get_all_names(cls):

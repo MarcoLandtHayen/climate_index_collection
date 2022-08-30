@@ -13,6 +13,7 @@ from climate_index_collection.indices import (
     north_atlantic_oscillation,
     north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
+    sahel_precipitation_anomaly,
     sea_air_surface_temperature_anomaly_north_all,
     sea_air_surface_temperature_anomaly_north_land,
     sea_air_surface_temperature_anomaly_north_ocean,
@@ -244,7 +245,7 @@ def test_ENSO34_naming(source_name):
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
 
-    # Calculate NAO index
+    # Calculate ENSO 3.4 index
     result = el_nino_southern_oscillation_34(data_set)
 
     assert result.name == "ENSO34"
@@ -365,3 +366,32 @@ def test_SASTAI_north_all_naming(source_name, index_function):
     SASTAI = index_function(data_set)
 
     assert SASTAI.name.startswith("SASTAI-")
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_sahel_precip_zeromean(source_name):
+    """Ensure that Sahel precipitation anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate Sahel precipitation anomaly index
+    Sahel_precip = sahel_precipitation_anomaly(data_set)
+
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(
+        actual=Sahel_precip.mean("time").values[()], desired=0, decimal=3
+    )
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_sahel_precip_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate Sahel precipitation anomaly index index
+    result = sahel_precipitation_anomaly(data_set)
+
+    assert result.name == "SPAI"
