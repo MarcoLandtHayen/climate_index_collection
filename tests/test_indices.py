@@ -13,6 +13,7 @@ from climate_index_collection.indices import (
     north_atlantic_oscillation,
     north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
+    pacific_decadal_oscillation_pc,
     sahel_precipitation_anomaly,
     sea_air_surface_temperature_anomaly_north_all,
     sea_air_surface_temperature_anomaly_north_land,
@@ -395,3 +396,46 @@ def test_sahel_precip_naming(source_name):
     result = sahel_precipitation_anomaly(data_set)
 
     assert result.name == "SPAI"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_PDO_PC_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate PDO index PC-based
+    PDO_PC = pacific_decadal_oscillation_pc(data_set)
+
+    # Check, if calculated PDO index only has one dimension: 'time'
+    assert PDO_PC.dims[0] == "time"
+    assert len(PDO_PC.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_PDO_PC_standardisationn(source_name):
+    """Ensure that PDO has zero mean and unit std dev."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NAO index PC-based
+    PDO_PC = pacific_decadal_oscillation_pc(data_set)
+
+    # Check, if calculated PDO index has zero mean:
+    assert_almost_equal(actual=PDO_PC.mean("time").values[()], desired=0, decimal=3)
+    assert_almost_equal(actual=PDO_PC.std("time").values[()], desired=1, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_PDO_PC_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate PDO index PC-based
+    PDO_PC = pacific_decadal_oscillation_pc(data_set)
+
+    assert PDO_PC.name == "PDO_PC"
