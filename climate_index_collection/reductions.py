@@ -1,4 +1,9 @@
 import numpy as np
+import xarray as xr
+
+from shapely.affinity import translate
+from shapely.geometry import LineString, Point, Polygon
+from shapely.ops import split, unary_union
 
 
 # -----------------------------
@@ -428,3 +433,79 @@ def eof_weights(dobj):
         Square root of weights needed to pre-process input data for SVD.
     """
     return np.sqrt(np.cos(np.deg2rad(dobj.coords["lat"])))
+
+
+def polygon_prime_meridian(pg):
+    """
+    Transforms shapely Polygons or MultiPolygons defined in [180W, 180E) coords into [0E,360E) coords.
+    Takes care of Polygons crossing the prime meridan.
+    Polygon points are expected be (lon, lat) tuples.
+
+    Parameters
+    ----------
+    pg: shaply Polygon or shapely MultiPolygon
+        Polygon including the area wanted.
+
+    Returns
+    -------
+    shapely MultPolygon
+        shaply MultiPolygon with single.
+    """
+
+    # create prime_meridian to eventually split the polygon
+    prime_meridian = LineString([(0, 90), (0, -90)])
+    pg_split = split(pg, prime_meridian)
+    # create a list containing all polygons
+    pg_list = []
+    for temp_pg in pg_split.geoms:
+        # check if the poygon minx is negative and and 360deg to it.
+        if temp_pg.bounds[0] < 0:
+            temp_pg = translate(temp_pg, xoff=360)
+        pg_list += [temp_pg]
+    # create the multipolygon existing in [0E, 360E) coords from the list of polygons
+    return unary_union(pg_list)
+
+
+def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
+    """
+    This funciton creates a mask for a given DataArray or DataSet based on a shapely Polygon or MultiPolygon.
+    Polygon points are expected be (lon, lat) tuples.
+    The dobj is expected to have lon values in [0E, 360E) coords.
+
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    pg: shaply Polygon or shapely MultiPolygon
+        Polygon including the area wanted.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Mask for given Polygon on dobj grid.
+    """
+
+    # handle prime meridian crossing Polygons and transform [180W, 180E) coords into [0E,360E) coords
+    pg = polygon_prime_meridian(pg)
+
+    # create the mask
+    lon_2d, lat_2d = xr.broadcast(dobj.coords[lon_name], dobj.coords[lat_name])
+
+    mask = xr.DataArray(
+        np.reshape(
+            [
+                pg.contains(Point(_lon, _lat)) | pg.boundary.contains(Point(_lon, _lat))
+                for _lon, _lat in zip(np.ravel(lon_2d), np.ravel(lat_2d))
+            ],
+            lon_2d.shape,
+        ),
+        dims=lon_2d.dims,
+        coords=lon_2d.coords,
+    )
+    # transpose to have lon on x and lat on y axes
+    mask = mask.transpose()
+    return mask
