@@ -565,6 +565,134 @@ def sea_air_surface_temperature_anomaly_south_land(
     return SASTAI
 
 
+def sahel_precipitation_anomaly(data_set, precip_name="precipitation"):
+    """Calculate the Sahel precipitation anomaly index
+
+    Following http://research.jisao.washington.edu/data/sahel/
+    the Sahel rainy season is centered on June through October. The Sahel precipitation index in its original form gives a measure
+    for year to year variability of Sahel rainfall as mean over this rainy season.
+
+    Here we compute the Sahel precipitation anomaly index as monthly anomalies of rainfall in the Sahel zone.
+    As defined in https://doi.org/10.1175/JAMC-D-13-0181.1
+    the Sahel zone is assumed to be bordered by 10 to 20°N and 20°W to 10°E.
+
+    Computation is done as follows:
+    1. Compute area averaged total precipitation from Sahel zone.
+    2. Compute monthly climatology for area averaged total precipitation from Sahel zone.
+    3. Subtract climatology from area averaged total precipitation time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an precipitation field.
+    precip_name: str
+        Name of the precipitation field. Defaults to "precipitation".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the Sahel precipitation anomaly index.
+
+    """
+    precip = area_mean_weighted(
+        dobj=data_set[precip_name],
+        lat_south=10,
+        lat_north=20,
+        lon_west=340,
+        lon_east=10,
+    )
+
+    climatology = precip.groupby("time.month").mean("time")
+
+    std_dev = precip.std("time")
+
+    Sahel_precip = (precip.groupby("time.month") - climatology) / std_dev
+    Sahel_precip = Sahel_precip.rename("SPAI")
+
+    return Sahel_precip
+
+
+def pacific_decadal_oscillation_pc(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the principal component based Pacific Decadal Oscillation (PDO) index
+
+    Following
+    https://climatedataguide.ucar.edu/climate-data/pacific-decadal-oscillation-pdo-definition-and-indices
+    this index is obtained as Principle Component (PC) time series of the leading Empirical Orthogonal Function (EOF)
+    of monthly sea-surface temperature (SST) anomalies in the North Pacific basin, 20°-60°N, 120°-260°E.
+
+    Note: To have the EOFs truly orthogonal, we need to take the area of the grid cells into account.
+    For equidistant latitude/longitude grids the area weights are proportional to cos(latitude).
+    Before applying Singular Value Decomposition, input data is multiplied with the square root of the weights.
+
+    Computation is done as follows:
+    1. Compute sea-surface temperature anomalies in North Pacific basin.
+    2. Flatten spatial dimensions and subtract mean in time.
+    3. Perform Singular Value Decomposition.
+    4. Normalize Principal Components.
+    5. Obtain PDO index as PC time series related to leading EOF.
+    6. Restore leading EOF pattern.
+    7. Use negative pole of leading EOF to correct index sign - if necessary.
+
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SST field.
+    sst_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the PDO index.
+
+    """
+
+    mask = (
+        (data_set.coords["lat"] >= 20)
+        & (data_set.coords["lat"] <= 60)
+        & (data_set.coords["lon"] >= 120)
+        & (data_set.coords["lon"] <= 260)
+    )
+
+    sst = data_set[sst_name]
+    sst = sst * eof_weights(sst)
+    sst = sst.where(mask)
+    climatology = sst.groupby("time.month").mean("time")
+    sst = (sst.groupby("time.month") - climatology).drop("month")
+
+    sst_flat = sst.stack(tmp_space=("lat", "lon")).dropna(dim="tmp_space")
+
+    pc, s, eof = sp.linalg.svd(sst_flat - sst_flat.mean(axis=0), full_matrices=False)
+
+    pc_std = pc.std(axis=0)
+    pc /= pc_std
+
+    PDO_index = xr.DataArray(pc[:, 0], dims=("time"), coords={"time": sst["time"]})
+
+    eofs = sst.stack(tmp_space=("lat", "lon")).copy()[0:1, :]
+    eofs[0:1, eofs[0].notnull().values] = (
+        eof * pc_std[:, np.newaxis] * s[:, np.newaxis]
+    )[0:1, :]
+    eofs = eofs.unstack(dim="tmp_space").rename(**{"time": "mode"})
+
+    mask_neg = (
+        (eofs[0].coords["lat"] >= 30)
+        & (eofs[0].coords["lat"] <= 50)
+        & (eofs[0].coords["lon"] >= 150)
+        & (eofs[0].coords["lon"] <= 200)
+    )
+
+    if eofs[0].where(mask_neg).mean(("lat", "lon")) > 0:
+        PDO_index.values = -PDO_index.values
+
+    PDO_index = PDO_index.rename("PDO_PC")
+
+    return PDO_index
+
+
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
 
@@ -602,6 +730,8 @@ class ClimateIndexFunctions(Enum):
     sea_air_surface_temperature_anomaly_south_land = partial(
         sea_air_surface_temperature_anomaly_south_land
     )
+    sahel_precipitation_anomaly = partial(sahel_precipitation_anomaly)
+    pacific_decadal_oscillation_pc = partial(pacific_decadal_oscillation_pc)
 
     @classmethod
     def get_all_names(cls):
