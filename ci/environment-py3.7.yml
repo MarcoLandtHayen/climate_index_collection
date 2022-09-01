@@ -10,6 +10,7 @@ dependencies:
   - netcdf4
   - scipy
   - xarray
+  - shapely
   ##############
   - pytest
   - pip:
