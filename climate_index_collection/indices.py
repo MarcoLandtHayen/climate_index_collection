@@ -234,12 +234,116 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
     return NAO_index
 
 
+def el_nino_southern_oscillation_12(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the El Nino Southern Oscillation 1+2 index (ENSO 1+2)
+
+    Following https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
+    the index is derived from equatorial pacific sea-surface temperature (SST) anomalies in a box
+    borderd by 0°S - 10°S and 90°W - 80°W. This translates to -10°N - 0°N and 270°E - 280°E.
+    The Niño 1+2 region is the smallest and eastern-most of the Niño regions,
+    and corresponds with the region of coastal South America where El Niño was first recognized by the local populations.
+    This index tends to have the largest variance of the Niño SST indices.
+
+    Computation is done as follows:
+    1. Compute area averaged total SST from Niño 1+2 region.
+    2. Compute monthly climatology for area averaged total SST from Niño 1+2 region.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+    Note: Usually the index is smoothed by taking some rolling mean over 5 months before
+    normalizing. We omit the rolling mean here and directly take sst anomaly index instead,
+    to preserve the information in full detail. And as climatology we use the complete time span,
+    since we deal with model data.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SST field.
+    sst_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the ENSO 1+2 index.
+
+    """
+    sst_nino12 = area_mean_weighted(
+        dobj=data_set[sst_name],
+        lat_south=-10,
+        lat_north=0,
+        lon_west=270,
+        lon_east=280,
+    )
+
+    climatology = sst_nino12.groupby("time.month").mean("time")
+
+    std_dev = sst_nino12.std("time")
+
+    ENSO12_index = (sst_nino12.groupby("time.month") - climatology) / std_dev
+    ENSO12_index = ENSO12_index.rename("ENSO12")
+
+    return ENSO12_index
+
+
+def el_nino_southern_oscillation_3(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the El Nino Southern Oscillation 3 index (ENSO 3)
+
+    Following https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
+    the index is derived from equatorial pacific sea-surface temperature (SST) anomalies in a box
+    borderd by 5°S - 5°N and 150°W - 90°W. This translates to -5°N - 5°N and 210°E - 270°E.
+    This region was once the primary focus for monitoring and predicting El Niño, but researchers later
+    learned that the key region for coupled ocean-atmosphere interactions for ENSO lies further west.
+    Hence, the Niño 3.4 became favored for defining El Niño and La Niña events.
+
+    Computation is done as follows:
+    1. Compute area averaged total SST from Niño 3 region.
+    2. Compute monthly climatology for area averaged total SST from Niño 3 region.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+    Note: Usually the index is smoothed by taking some rolling mean over 5 months before
+    normalizing. We omit the rolling mean here and directly take sst anomaly index instead,
+    to preserve the information in full detail. And as climatology we use the complete time span,
+    since we deal with model data.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SST field.
+    sst_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the ENSO 3 index.
+
+    """
+    sst_nino3 = area_mean_weighted(
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=210,
+        lon_east=270,
+    )
+
+    climatology = sst_nino3.groupby("time.month").mean("time")
+
+    std_dev = sst_nino3.std("time")
+
+    ENSO3_index = (sst_nino3.groupby("time.month") - climatology) / std_dev
+    ENSO3_index = ENSO3_index.rename("ENSO3")
+
+    return ENSO3_index
+
+
 def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"):
     """Calculate the El Nino Southern Oscillation 3.4 index (ENSO 3.4)
 
     Following https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
-    the index is derived from equatorial pacific sea-surface temperature anomalies in a box
-    borderd by 5°S, 5°N, 120°W and 170°W.
+    the index is derived from equatorial pacific sea-surface temperature (SST) anomalies in a box
+    borderd by 5°S - 5°N and 170°W - 120°W. This translates to -5°N - 5°N and 190°E - 240°E.
 
     Computation is done as follows:
     1. Compute area averaged total SST from Niño 3.4 region.
@@ -281,6 +385,55 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
     ENSO34_index = ENSO34_index.rename("ENSO34")
 
     return ENSO34_index
+
+
+def el_nino_southern_oscillation_4(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the El Nino Southern Oscillation 4 index (ENSO 4)
+
+    Following https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
+    the index is derived from equatorial pacific sea-surface temperature (SST) anomalies in a box
+    borderd by 5°S - 5°N, 160°E - 150°W. This translates to -5°N - 5°N and 160°E - 210°E.
+
+    Computation is done as follows:
+    1. Compute area averaged total SST from Niño 4 region.
+    2. Compute monthly climatology for area averaged total SST from Niño 4 region.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+    Note: Usually the index is smoothed by taking some rolling mean over 5 months before
+    normalizing. We omit the rolling mean here and directly take sst anomaly index instead,
+    to preserve the information in full detail. And as climatology we use the complete time span,
+    since we deal with model data.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SST field.
+    sst_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-temperature".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the ENSO 4 index.
+
+    """
+    sst_nino4 = area_mean_weighted(
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=160,
+        lon_east=210,
+    )
+
+    climatology = sst_nino4.groupby("time.month").mean("time")
+
+    std_dev = sst_nino4.std("time")
+
+    ENSO4_index = (sst_nino4.groupby("time.month") - climatology) / std_dev
+    ENSO4_index = ENSO4_index.rename("ENSO4")
+
+    return ENSO4_index
 
 
 def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity"):
@@ -710,7 +863,10 @@ class ClimateIndexFunctions(Enum):
     southern_annular_mode_pc = partial(southern_annular_mode_pc)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
+    el_nino_southern_oscillation_12 = partial(el_nino_southern_oscillation_12)
+    el_nino_southern_oscillation_3 = partial(el_nino_southern_oscillation_3)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
+    el_nino_southern_oscillation_4 = partial(el_nino_southern_oscillation_4)
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
     sea_air_surface_temperature_anomaly_north_all = partial(
         sea_air_surface_temperature_anomaly_north_all

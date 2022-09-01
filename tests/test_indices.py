@@ -9,6 +9,9 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
+    el_nino_southern_oscillation_3,
+    el_nino_southern_oscillation_4,
+    el_nino_southern_oscillation_12,
     el_nino_southern_oscillation_34,
     north_atlantic_oscillation,
     north_atlantic_oscillation_pc,
@@ -226,6 +229,60 @@ def test_NAO_PC_correlation(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso12_zeromean(source_name):
+    """Ensure that ENSO 1+2 has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 1+2 index
+    ENSO12 = el_nino_southern_oscillation_12(data_set)
+
+    # Check, if calculated ENSO 1+2 index has zero mean:
+    assert_almost_equal(actual=ENSO12.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_ENSO12_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 1+2 index
+    result = el_nino_southern_oscillation_12(data_set)
+
+    assert result.name == "ENSO12"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso3_zeromean(source_name):
+    """Ensure that ENSO 3 has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 3 index
+    ENSO3 = el_nino_southern_oscillation_3(data_set)
+
+    # Check, if calculated ENSO 3 index has zero mean:
+    assert_almost_equal(actual=ENSO3.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_ENSO3_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 3 index
+    result = el_nino_southern_oscillation_3(data_set)
+
+    assert result.name == "ENSO3"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_enso34_zeromean(source_name):
     """Ensure that ENSO 3.4 has zero mean."""
     # Load test data
@@ -250,6 +307,33 @@ def test_ENSO34_naming(source_name):
     result = el_nino_southern_oscillation_34(data_set)
 
     assert result.name == "ENSO34"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso4_zeromean(source_name):
+    """Ensure that ENSO 4 has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 4 index
+    ENSO4 = el_nino_southern_oscillation_4(data_set)
+
+    # Check, if calculated ENSO 4 index has zero mean:
+    assert_almost_equal(actual=ENSO4.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_ENSO4_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 4 index
+    result = el_nino_southern_oscillation_4(data_set)
+
+    assert result.name == "ENSO4"
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
