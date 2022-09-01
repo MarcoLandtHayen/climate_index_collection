@@ -457,14 +457,14 @@ def polygon_prime_meridian(pg):
         return MultiPolygon([pg])
 
     # create prime_meridian to eventually split the polygon
-    prime_meridian = LineString([(0, 90), (0, -90)])
+    prime_meridian = LineString([(0, 90), (0, 0), (0, -90)])
     pg_split = split(pg, prime_meridian)
 
     # create a list containing all Polygons given by the split operation
     # polygons on the negative (western) side of the prime meridian are translated into new coords, by adding 360 to the lon values.
     pg_list = []
     for temp_pg in pg_split.geoms:
-        # check if the poygon minx is negative and if, add 360 to it.
+        # check if the polygons minx is negative and add 360 to it.
         if temp_pg.bounds[0] < 0:
             temp_pg = translate(temp_pg, xoff=360)
         pg_list += [temp_pg]
