@@ -514,11 +514,11 @@ def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
             [
                 pg.contains(Point(_lon, _lat)) | pg.boundary.contains(Point(_lon, _lat))
                 for _lon, _lat in zip(
-                    np.ravel(lon_2d, order='C'), 
-                    np.ravel(lat_2d, order='C'))
+                    np.ravel(lon_2d, order="C"), np.ravel(lat_2d, order="C")
+                )
             ],
             lon_2d.shape,
-            order='C',
+            order="C",
         ),
         dims=lon_2d.dims,
         coords=lon_2d.coords,
