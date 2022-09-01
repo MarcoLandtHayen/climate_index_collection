@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 
 from shapely.affinity import translate
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import split, unary_union
 
 
@@ -449,21 +449,35 @@ def polygon_prime_meridian(pg):
     Returns
     -------
     shapely MultPolygon
-        shaply MultiPolygon with single.
+        shaply MultiPolygon containing at least one Polygon.
     """
+
+    # handle empty Polygons and MultiPolygons
+    if pg.is_empty:
+        return MultiPolygon([pg])
 
     # create prime_meridian to eventually split the polygon
     prime_meridian = LineString([(0, 90), (0, -90)])
     pg_split = split(pg, prime_meridian)
-    # create a list containing all polygons
+
+    # create a list containing all Polygons given by the split operation
+    # polygons on the negative (western) side of the prime meridian are translated into new coords, by adding 360 to the lon values.
     pg_list = []
     for temp_pg in pg_split.geoms:
-        # check if the poygon minx is negative and and 360deg to it.
+        # check if the poygon minx is negative and if, add 360 to it.
         if temp_pg.bounds[0] < 0:
             temp_pg = translate(temp_pg, xoff=360)
         pg_list += [temp_pg]
+
     # create the multipolygon existing in [0E, 360E) coords from the list of polygons
-    return unary_union(pg_list)
+    result = unary_union(pg_list)
+
+    # for consistency always return MultiPolygon
+    if type(result) is not MultiPolygon:
+        # convert Polygon to MultiPolygon
+        return MultiPolygon([result])
+    else:
+        return result
 
 
 def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
