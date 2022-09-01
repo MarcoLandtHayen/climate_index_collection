@@ -120,14 +120,51 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
     return SAM_index
 
 
+def southern_oscillation(data_set, slp_name="sea-level-pressure"):
+    """Calculate the station based Southern Oscillation Index (SOI)
+
+    This uses sea-level pressure (SLP) closest to Tahiti (17°41'S, 149°27'W) and
+    Darwin (12°27'S, 130°50'O) and, following https://doi.org/10.1126/science.269.5224.676,
+    defines SOI index from difference of normalized SLP anomalies in Tahiti and Darwin.
+    The resulting time series is then itself normalized over the whole time span.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SLP field.
+    slp_name: str
+        Name of the Sea-Level Pressure field. Defaults to "sea-level-pressure".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the SOI index.
+
+    """
+    slp = data_set[slp_name]
+
+    slp_tahiti = slp.sel(lat=-18, lon=211, method="nearest")
+    slp_darwin = slp.sel(lat=-12, lon=131, method="nearest")
+
+    slp_tahiti_norm = (slp_tahiti - slp_tahiti.mean("time")) / slp_tahiti.std("time")
+    slp_darwin_norm = (slp_darwin - slp_darwin.mean("time")) / slp_darwin.std("time")
+
+    slp_diff = slp_tahiti_norm - slp_darwin_norm
+
+    SOI_index = slp_diff / slp_diff.std("time")
+    SOI_index = SOI_index.rename("SOI")
+
+    return SOI_index
+
+
 def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
     """Calculate the station based North Atlantic Oscillation (NAO) index
 
     This uses station-based sea-level pressure closest to Reykjavik (64°9'N, 21°56'W) and
-    Ponta Delgada (37°45'N, 25°40'W) and, largely following [Hurrel, 1995]
-    <https://doi.org/10.1126/science.269.5224.676>, defines the north-atlantic oscillation index
+    Ponta Delgada (37°45'N, 25°40'W) and, largely following
+    https://doi.org/10.1126/science.269.5224.676, defines the north-atlantic oscillation index
     as the difference of normalized in Reykjavik and Ponta Delgada without normalizing the
-    resulting timeseries again. (This means that the north atlantic oscillation presented here
+    resulting time series again. (This means that the north atlantic oscillation presented here
     has vanishing mean because both minuend and subtrahend have zero mean, but no unit
     standard deviation.)
 
@@ -861,6 +898,7 @@ class ClimateIndexFunctions(Enum):
 
     southern_annular_mode = partial(southern_annular_mode)
     southern_annular_mode_pc = partial(southern_annular_mode_pc)
+    southern_oscillation = partial(southern_oscillation)
     north_atlantic_oscillation = partial(north_atlantic_oscillation)
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_12 = partial(el_nino_southern_oscillation_12)
