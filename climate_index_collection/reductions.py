@@ -490,7 +490,7 @@ def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
     ----------
     dobj: xarray.Dataset or xarray.DataArray
         Contains the original data.
-    pg: shaply Polygon or shapely MultiPolygon
+    pg: shapely Polygon or shapely MultiPolygon
         Polygon including the area wanted.
     lat_name: str
         Name of the latitude coordinate. Defaults to "lat".
