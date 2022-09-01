@@ -9,13 +9,18 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
+    eastern_subtropical_indian_ocean_SST,
     el_nino_southern_oscillation_3,
     el_nino_southern_oscillation_4,
     el_nino_southern_oscillation_12,
     el_nino_southern_oscillation_34,
+    hurricane_main_development_region_SST,
+    mediterranean_SST,
     north_atlantic_oscillation,
     north_atlantic_oscillation_pc,
     north_atlantic_sea_surface_salinity,
+    north_atlantic_sea_surface_salinity_east,
+    north_atlantic_sea_surface_salinity_west,
     pacific_decadal_oscillation_pc,
     sahel_precipitation_anomaly,
     sea_air_surface_temperature_anomaly_north_all,
@@ -24,9 +29,13 @@ from climate_index_collection.indices import (
     sea_air_surface_temperature_anomaly_south_all,
     sea_air_surface_temperature_anomaly_south_land,
     sea_air_surface_temperature_anomaly_south_ocean,
+    south_atlantic_sea_surface_salinity,
     southern_annular_mode,
     southern_annular_mode_pc,
     southern_oscillation,
+    tropical_north_atlantic_SST,
+    tropical_south_atlantic_SST,
+    western_subtropical_indian_ocean_SST,
 )
 
 
@@ -381,6 +390,168 @@ def test_ENSO4_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_TNA_zeromean(source_name):
+    """Ensure that Tropical North Atlantic SST anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_TNA = tropical_north_atlantic_SST(data_set)
+
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(actual=SSTA_TNA.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_TNA_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    result = tropical_north_atlantic_SST(data_set)
+
+    assert result.name == "SSTA_TNA"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_TSA_zeromean(source_name):
+    """Ensure that Tropical South Atlantic SST anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_TSA = tropical_south_atlantic_SST(data_set)
+
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(actual=SSTA_TSA.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_TSA_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    result = tropical_south_atlantic_SST(data_set)
+
+    assert result.name == "SSTA_TSA"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_ESIO_zeromean(source_name):
+    """Ensure that Eastern Subtropical Indian Ocean SST anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_ESIO = eastern_subtropical_indian_ocean_SST(data_set)
+
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(actual=SSTA_ESIO.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_ESIO_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    result = eastern_subtropical_indian_ocean_SST(data_set)
+
+    assert result.name == "SSTA_ESIO"
+
+
+# @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+# def test_SSTA_WSIO_zeromean(source_name):
+#     """Ensure that Western Subtropical Indian Ocean SST anomaly index has zero mean."""
+#     # Load test data
+#     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+#     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+#     # Calculate index
+#     SSTA_WSIO = western_subtropical_indian_ocean_SST(data_set)
+
+#     # Check, if calculated index has zero mean:
+#     assert_almost_equal(actual=SSTA_WSIO.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_WSIO_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    result = western_subtropical_indian_ocean_SST(data_set)
+
+    assert result.name == "SSTA_WSIO"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_MED_zeromean(source_name):
+    """Ensure that Mediterranean Sea SST anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_MED = mediterranean_SST(data_set)
+
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(actual=SSTA_MED.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_MED_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    result = mediterranean_SST(data_set)
+
+    assert result.name == "SSTA_MED"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_HMDR_zeromean(source_name):
+    """Ensure that Mediterranean Sea SST anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_HMDR = hurricane_main_development_region_SST(data_set)
+
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(actual=SSTA_HMDR.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_HMDR_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    result = hurricane_main_development_region_SST(data_set)
+
+    assert result.name == "SSTA_HMDR"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_NASSS_metadata(source_name):
     """Ensure that index only contains time dimension."""
     # Load test data
@@ -409,8 +580,8 @@ def test_NASSS_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_NASSS_standardisation(source_name):
-    """Ensure that standardisation works correctly."""
+def test_NASSS_zeromean(source_name):
+    """Ensure that the index has zero mean."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
@@ -418,9 +589,134 @@ def test_NASSS_standardisation(source_name):
     # Calculate NASSS index
     NASSS = north_atlantic_sea_surface_salinity(data_set)
 
-    # Check, if calculated NASSS index has zero mean and unit std dev:
+    # Check, if calculated NASSS index has zero mean:
     assert_almost_equal(actual=NASSS.mean("time").values[()], desired=0, decimal=3)
-    assert_almost_equal(actual=NASSS.std("time").values[()], desired=1, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_W_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS_W index
+    NASSS_W = north_atlantic_sea_surface_salinity_west(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert NASSS_W.dims[0] == "time"
+    assert len(NASSS_W.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_W_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS_W index
+    NASSS_W = north_atlantic_sea_surface_salinity_west(data_set)
+
+    assert NASSS_W.name == "NASSS_W"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_W_zeromean(source_name):
+    """Ensure that the index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS_W = north_atlantic_sea_surface_salinity_west(data_set)
+
+    # Check, if calculated NASSS index has zero mean:
+    assert_almost_equal(actual=NASSS_W.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_E_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS_W index
+    NASSS_E = north_atlantic_sea_surface_salinity_east(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert NASSS_E.dims[0] == "time"
+    assert len(NASSS_E.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_E_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS_E index
+    NASSS_E = north_atlantic_sea_surface_salinity_east(data_set)
+
+    assert NASSS_E.name == "NASSS_E"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NASSS_E_zeromean(source_name):
+    """Ensure that the index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    NASSS_E = north_atlantic_sea_surface_salinity_east(data_set)
+
+    # Check, if calculated NASSS index has zero mean:
+    assert_almost_equal(actual=NASSS_E.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SASSS_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SASSS index
+    SASSS = south_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index only has one dimension: 'time'
+    assert SASSS.dims[0] == "time"
+    assert len(SASSS.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SASSS_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NASSS index
+    SASSS = south_atlantic_sea_surface_salinity(data_set)
+
+    assert SASSS.name == "SASSS"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SASSS_zeromean(source_name):
+    """Ensure that the index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate SASSS index
+    SASSS = south_atlantic_sea_surface_salinity(data_set)
+
+    # Check, if calculated NASSS index has zero mean:
+    assert_almost_equal(actual=SASSS.mean("time").values[()], desired=0, decimal=3)
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
