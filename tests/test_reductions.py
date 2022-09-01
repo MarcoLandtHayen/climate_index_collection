@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 
 from shapely.affinity import translate
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import split, unary_union
 
 from climate_index_collection.reductions import (
@@ -249,6 +249,170 @@ def test_spatial_mask_no_bounds():
     )
     assert mask.astype(int).sum().data[()] == 9
     assert all(list(mask.data.flatten()))
+
+
+def test_polygon_prime_meridian_no_crossing_polygon():
+    """
+    Check case where input is a
+    - Polygon which
+    - does not cross prime meridian.
+    The result needs to be
+    - correct and
+    - be a MultiPolygon
+    """
+
+    pg = Polygon([(10, 50), (5, 50), (5, -50), (10, -50)])
+    result = polygon_prime_meridian(pg)
+    should_result = Polygon([(10, 50), (5, 50), (5, -50), (10, -50)])
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_prime_meridian_no_crossing_multipolygon():
+    """
+    Check case where input is a
+    - MultiPolygon which
+    - does not cross the prime meridian.
+    The result needs to be
+    - correct and
+    - be a MultiPolygon
+    """
+
+    pg = MultiPolygon(
+        [
+            Polygon([(10, 50), (5, 50), (5, 10), (10, 10)]),
+            Polygon([(10, -10), (5, -10), (5, -50), (5, -50)]),
+        ]
+    )
+    result = polygon_prime_meridian(pg)
+    should_result = MultiPolygon(
+        [
+            Polygon([(10, 50), (5, 50), (5, 10), (10, 10)]),
+            Polygon([(10, -10), (5, -10), (5, -50), (5, -50)]),
+        ]
+    )
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_prime_meridian_crossing_polygon():
+    """
+    Check case where input is a
+    - Polygon which
+    - does cross the prime meridian.
+    The result needs to be
+    - correct and
+    - be a MultiPolygon
+    """
+
+    pg = Polygon([(10, 50), (-10, 50), (-10, -50), (10, -50)])
+    result = polygon_prime_meridian(pg)
+    should_result = unary_union(
+        [
+            Polygon([(360, 50), (350, 50), (350, -50), (360, -50)]),
+            Polygon([(10, 50), (0, 50), (0, -50), (10, -50)]),
+        ]
+    )
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_prime_meridian_crossing_multipolygon():
+    """
+    Check case where input is a
+    - MultiPolygon which
+    - does cross the prime meridian.
+    The result needs to be
+    - correct and
+    - be a MultiPolygon
+    """
+
+    pg = MultiPolygon(
+        [
+            Polygon([(10, 50), (-10, 50), (-10, -50), (10, -50)]),
+            Polygon([(50, -10), (180, -10), (180, -50), (50, -50)]),
+        ]
+    )
+    result = polygon_prime_meridian(pg)
+    should_result = MultiPolygon(
+        [
+            Polygon([(10, 50), (0, 50), (0, -50), (10, -50)]),
+            Polygon([(50, -10), (180, -10), (180, -50), (50, -50)]),
+            Polygon([(360, 50), (350, 50), (350, -50), (360, -50)]),
+        ]
+    )
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_prime_meridian_crossing_multipolygon_overlap():
+    """
+    Check case where input is a
+    - MultiPolygon which
+    - does cross the prime meridian
+    - and is defined in coords [180W, 360E).
+    The last point needs to function to handle overlapping Polygons after the spilt operation.
+    The result needs to be
+    - correct and
+    - handles the resulting overlap of the Polygons created by the split and
+    - be a MultiPolygon
+    """
+
+    pg = MultiPolygon(
+        [
+            Polygon([(10, 50), (-10, 50), (-10, -50), (10, -50)]),
+            Polygon([(50, -10), (355, -10), (355, -50), (50, -50)]),
+        ]
+    )
+    result = polygon_prime_meridian(pg)
+    should_result = MultiPolygon(
+        [
+            Polygon([(10, 50), (0, 50), (0, -50), (10, -50)]),
+            Polygon(
+                [
+                    (360, 50),
+                    (350, 50),
+                    (350, -10),
+                    (50, -10),
+                    (50, -50),
+                    (360, -50),
+                ]
+            ),
+        ]
+    )
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_prime_meridian_whole_earth():
+    """
+    Check case where input is a Polygon which cointains the whole earth.
+    The result needs to be
+    - correct and
+    - has same area as before and
+    - be a MultiPolygon
+    """
+    pg = Polygon([(-180, 90), (180, 90), (180, -90), (-180, -90)])
+    should_result = Polygon([(0, 90), (360, 90), (360, -90), (0, -90)])
+    result = polygon_prime_meridian(pg)
+    assert pg.area == result.area
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_prime_meridian_empty():
+    """
+    Check case where input is an empty Polygon or Multipolygon.
+    The result needs to be
+    - empty
+    - be a MultiPolygon
+    """
+    pg = Polygon()
+    mpg = MultiPolygon()
+    pg_result = polygon_prime_meridian(pg)
+    mpg_result = polygon_prime_meridian(mpg)
+    assert all(result.is_empty for result in [pg_result, mpg_result])
+    assert all(type(result) is MultiPolygon for result in [pg_result, mpg_result])
 
 
 def test_polygon2mask_across_dateline():
