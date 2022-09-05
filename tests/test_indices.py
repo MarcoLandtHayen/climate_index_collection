@@ -591,18 +591,18 @@ def test_SSTA_WSIO_metadata(source_name):
     assert len(SSTA_WSIO.dims) == 1
 
 
-# @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-# def test_SSTA_WSIO_zeromean(source_name):
-#     """Ensure that Western Subtropical Indian Ocean SST anomaly index has zero mean."""
-#     # Load test data
-#     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
-#     data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_WSIO_zeromean(source_name):
+    """Ensure that Western Subtropical Indian Ocean SST anomaly index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
 
-#     # Calculate index
-#     SSTA_WSIO = western_subtropical_indian_ocean_SST(data_set)
+    # Calculate index
+    SSTA_WSIO = western_subtropical_indian_ocean_SST(data_set)
 
-#     # Check, if calculated index has zero mean:
-#     assert_almost_equal(actual=SSTA_WSIO.mean("time").values[()], desired=0, decimal=3)
+    # Check, if calculated index has zero mean:
+    assert_almost_equal(actual=SSTA_WSIO.mean("time").values[()], desired=0, decimal=3)
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))

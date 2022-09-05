@@ -83,7 +83,6 @@ for infile, outfile, gridfile in zip(
     binned.coords["lon"] = target_grid.lon
 
     binned = binned.rename({"TLAT_bin": "lat"})
-    binned = binned.isel(lat=slice(None, None, -1))
     binned.coords["lat"] = target_grid.lat
     binned.attrs.update(original_data_set.SALT.attrs)
 
