@@ -1278,6 +1278,53 @@ def pacific_decadal_oscillation_pc(data_set, sst_name="sea-surface-temperature")
     return PDO_index
 
 
+def north_pacific(data_set, slp_name="sea-level-pressure"):
+    """Calculate the North Pacific index (NP)
+
+    Following https://climatedataguide.ucar.edu/climate-data/north-pacific-np-index-trenberth-and-hurrell-monthly-and-winter
+    the index is derived from area-weighted sea level pressure (SLP) anomalies in a box
+    bordered by 30°N to 65°N and 160°E to 140°W. This translates to 30°N to 65°N and 160°E to 220°E.
+
+    Computation is done as follows:
+    1. Compute area averaged total SLP from region of interest.
+    2. Compute monthly climatology for area averaged total SLP from that region.
+    3. Subtract climatology from area averaged total SLP time series to obtain anomalies.
+    4. Normalize anomalies by its standard deviation over the climatological period.
+
+    Note: Usually the index focusses on anomalies during November and March. Here we keep full information and
+    compute monthly anomalies for all months of a year.
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing an SLP field.
+    sst_name: str
+        Name of the sea level pressure field. Defaults to "sea--level-pressure".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the North Pacific index.
+
+    """
+    slp = area_mean_weighted(
+        dobj=data_set[slp_name],
+        lat_south=30,
+        lat_north=65,
+        lon_west=160,
+        lon_east=220,
+    )
+
+    climatology = slp.groupby("time.month").mean("time")
+
+    std_dev = slp.std("time")
+
+    NP_index = (slp.groupby("time.month") - climatology) / std_dev
+    NP_index = NP_index.rename("NP")
+
+    return NP_index
+
+
 class ClimateIndexFunctions(Enum):
     """Enumeration of all index functions.
 
@@ -1336,6 +1383,7 @@ class ClimateIndexFunctions(Enum):
     )
     sahel_precipitation_anomaly = partial(sahel_precipitation_anomaly)
     pacific_decadal_oscillation_pc = partial(pacific_decadal_oscillation_pc)
+    north_pacific = partial(north_pacific)
 
     @classmethod
     def get_all_names(cls):

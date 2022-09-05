@@ -21,6 +21,7 @@ from climate_index_collection.indices import (
     north_atlantic_sea_surface_salinity,
     north_atlantic_sea_surface_salinity_east,
     north_atlantic_sea_surface_salinity_west,
+    north_pacific,
     pacific_decadal_oscillation_pc,
     sahel_precipitation_anomaly,
     sea_air_surface_temperature_anomaly_north_all,
@@ -282,6 +283,21 @@ def test_NAO_PC_correlation(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso12_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 1+2 index
+    ENSO12 = el_nino_southern_oscillation_12(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert ENSO12.dims[0] == "time"
+    assert len(ENSO12.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_enso12_zeromean(source_name):
     """Ensure that ENSO 1+2 has zero mean."""
     # Load test data
@@ -306,6 +322,21 @@ def test_ENSO12_naming(source_name):
     result = el_nino_southern_oscillation_12(data_set)
 
     assert result.name == "ENSO12"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso3_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 3 index
+    ENSO3 = el_nino_southern_oscillation_3(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert ENSO3.dims[0] == "time"
+    assert len(ENSO3.dims) == 1
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
@@ -336,6 +367,21 @@ def test_ENSO3_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso34_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 3.4 index
+    ENSO34 = el_nino_southern_oscillation_34(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert ENSO34.dims[0] == "time"
+    assert len(ENSO34.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_enso34_zeromean(source_name):
     """Ensure that ENSO 3.4 has zero mean."""
     # Load test data
@@ -360,6 +406,21 @@ def test_ENSO34_naming(source_name):
     result = el_nino_southern_oscillation_34(data_set)
 
     assert result.name == "ENSO34"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_enso4_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate ENSO 4 index
+    ENSO4 = el_nino_southern_oscillation_4(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert ENSO4.dims[0] == "time"
+    assert len(ENSO4.dims) == 1
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
@@ -390,6 +451,21 @@ def test_ENSO4_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_TNA_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_TNA = tropical_north_atlantic_SST(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert SSTA_TNA.dims[0] == "time"
+    assert len(SSTA_TNA.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SSTA_TNA_zeromean(source_name):
     """Ensure that Tropical North Atlantic SST anomaly index has zero mean."""
     # Load test data
@@ -414,6 +490,21 @@ def test_SSTA_TNA_naming(source_name):
     result = tropical_north_atlantic_SST(data_set)
 
     assert result.name == "SSTA_TNA"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_TSA_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_TSA = tropical_south_atlantic_SST(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert SSTA_TSA.dims[0] == "time"
+    assert len(SSTA_TSA.dims) == 1
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
@@ -444,6 +535,21 @@ def test_SSTA_TSA_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_ESIO_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_ESIO = eastern_subtropical_indian_ocean_SST(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert SSTA_ESIO.dims[0] == "time"
+    assert len(SSTA_ESIO.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SSTA_ESIO_zeromean(source_name):
     """Ensure that Eastern Subtropical Indian Ocean SST anomaly index has zero mean."""
     # Load test data
@@ -468,6 +574,21 @@ def test_SSTA_ESIO_naming(source_name):
     result = eastern_subtropical_indian_ocean_SST(data_set)
 
     assert result.name == "SSTA_ESIO"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_WSIO_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_WSIO = western_subtropical_indian_ocean_SST(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert SSTA_WSIO.dims[0] == "time"
+    assert len(SSTA_WSIO.dims) == 1
 
 
 # @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
@@ -498,6 +619,21 @@ def test_SSTA_WSIO_naming(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_MED_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_MED = mediterranean_SST(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert SSTA_MED.dims[0] == "time"
+    assert len(SSTA_MED.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_SSTA_MED_zeromean(source_name):
     """Ensure that Mediterranean Sea SST anomaly index has zero mean."""
     # Load test data
@@ -522,6 +658,21 @@ def test_SSTA_MED_naming(source_name):
     result = mediterranean_SST(data_set)
 
     assert result.name == "SSTA_MED"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_SSTA_HMDR_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    SSTA_HMDR = hurricane_main_development_region_SST(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert SSTA_HMDR.dims[0] == "time"
+    assert len(SSTA_HMDR.dims) == 1
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
@@ -794,6 +945,21 @@ def test_SASTAI_north_all_naming(source_name, index_function):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_sahel_precip_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate index
+    Sahel_precip = sahel_precipitation_anomaly(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert Sahel_precip.dims[0] == "time"
+    assert len(Sahel_precip.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
 def test_sahel_precip_zeromean(source_name):
     """Ensure that Sahel precipitation anomaly index has zero mean."""
     # Load test data
@@ -863,3 +1029,45 @@ def test_PDO_PC_naming(source_name):
     PDO_PC = pacific_decadal_oscillation_pc(data_set)
 
     assert PDO_PC.name == "PDO_PC"
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NP_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NP index
+    NP = north_pacific(data_set)
+
+    # Check, if calculated index only has one dimension: 'time'
+    assert NP.dims[0] == "time"
+    assert len(NP.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NP_zeromean(source_name):
+    """Ensure that NP index has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NP index
+    NP = north_pacific(data_set)
+
+    # Check, if calculated NP index has zero mean:
+    assert_almost_equal(actual=NP.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_NP_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NP index
+    result = north_pacific(data_set)
+
+    assert result.name == "NP"
