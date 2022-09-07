@@ -5,11 +5,15 @@ import numpy as np
 import scipy as sp
 import xarray as xr
 
+from shapely.geometry import Polygon
+
 from .reductions import (
     area_mean_weighted,
+    area_mean_weighted_polygon_selection,
     eof_weights,
     mean_unweighted,
     monthly_anomalies_unweighted,
+    polygon_prime_meridian,
 )
 
 
@@ -915,7 +919,8 @@ def south_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperature"):
     """Calculate the Atlantic Multi-decadal Oscillation (AMO) index.
 
-    This follows the NOAA method <https://psl.noaa.gov/data/timeseries/AMO/> in defining the Atlantic Multi-decadal Oscillation index using area weighted averaged sea-surface temperature anomalies of the north Atlantic between 0°N and 70°N,
+    This follows the NOAA method <https://psl.noaa.gov/data/timeseries/AMO/> in defining the Atlantic Multi-decadal Oscillation
+    index using area weighted averaged sea-surface temperature anomalies of the north Atlantic between 0°N and 70°N,
     The anomalies are relative to a monthly climatology calculated from the whole time covered by the data set.
     It differs from the definition of the NOAA in that it does not detrend the time series and the smomothing is not performed.
 
@@ -944,12 +949,12 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     """
     sst = data_set[sst_name]
 
-    sst_box_ave = area_mean_weighted(
-        sst,
-        lat_south=0,
-        lat_north=70,
-        lon_west=-75,
-        lon_east=15,
+    # create Atlantic polygon and calculate horizontal average
+    atlanctic_polygon_lon_lat = polygon_prime_meridian(
+        Polygon([(15, 0), (-65, 0), (-105, 25), (-45, 70), (15, 70), (-7, 35)])
+    )
+    sst_box_ave = area_mean_weighted_polygon_selection(
+        dobj=sst, polygon_lon_lat=atlanctic_polygon_lon_lat
     )
 
     AMO = monthly_anomalies_unweighted(sst_box_ave)
