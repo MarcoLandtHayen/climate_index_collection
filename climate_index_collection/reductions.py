@@ -415,6 +415,76 @@ def area_mean_weighted(
     return averaged
 
 
+def area_mean_weighted_polygon_selection(
+    dobj,
+    polygon_lon_lat=None,
+    lon_name="lon",
+    lat_name="lat",
+    lat_extent_name=None,
+    lon_extent_name=None,
+):
+    """Area average over polygon-selected region.
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Data for which the area average will be computed.
+    polygon_lon_lat: shapely Polygon
+        (Multi)Polygon containing the region over which we want to average.
+        If "None", all data will be used.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+    lat_extent_name: str
+        Name of the lat extent. Defaults to None.
+    lon_extent_name: str
+        Name of the lon extent. Defaults to None.
+
+    Returns
+    -------
+    dobj:
+        Area averaged input data.
+
+    """
+    # extract coords
+    lat = dobj.coords[lat_name]
+    lon = dobj.coords[lon_name]
+
+    # mask
+    # TODO: Pass polygon_lon_lat once through polygon_prime_meridian()?
+    mask = polygon2mask(dobj=dobj, pg=polygon_lon_lat)
+
+    # do we have dimensional coords?
+    have_dimensional_coords = (lat.dims[0] == lat_name) & (lon.dims[0] == lon_name)
+
+    # prepare spatial coords for final sum
+    if have_dimensional_coords:
+        spatial_dims = [lat_name, lon_name]
+    else:
+        spatial_dims = list(set(lat.dims) + set(lon.dims))
+
+    # prepare weights
+    if have_dimensional_coords:
+        # will only handle equidistant lons and lats here...
+        dlon = abs(lon.diff(lon_name).mean())
+        dlat = abs(lat.diff(lat_name).mean())
+        dx = dlon * np.cos(np.deg2rad(lat))
+        dy = dlat
+        weights = dx * dy
+    else:
+        lat_extent = dobj.coords[lat_extent_name]
+        lon_extent = dobj.coords[lon_extent_name]
+        weights = lat_extent * lon_extent
+
+    # weighted averaging
+    averaged = (dobj * weights).where(mask).sum(spatial_dims) / weights.where(mask).sum(
+        spatial_dims
+    )
+
+    return averaged
+
+
 def eof_weights(dobj):
     """Empirical orthogonal functions (EOFs) can be thought of as the eigen-vectors of the spatial covariance matrix.
     Grid cells can be thought of as representing spatial averages which are low-pass filtering the raw signals and dampen the variance by a factor proportional to the square root of the cell size.

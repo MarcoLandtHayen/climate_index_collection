@@ -4,11 +4,13 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from numpy.testing import assert_almost_equal
 from shapely.affinity import translate
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import split, unary_union
 
 from climate_index_collection.reductions import (
+    area_mean_weighted_polygon_selection,
     mean_unweighted,
     mean_weighted,
     polygon2mask,
@@ -504,3 +506,33 @@ def test_polygon2mask_multipolygon():
     mask_should = np.array([[True, False, False], [False, True, False]])
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip(mask_should.flatten(), mask.data.flatten()))
+
+
+def test_area_mean_weighted_polygon_selection():
+    """Ensure that polygon selection results in correct example average."""
+    #
+    # data:
+    #    4 5 6
+    #    1 2 3
+    #
+    # polygon covers:
+    #    . . .
+    #    x x .
+    #
+    # resulting average = (1 + 2) / 2
+    #
+    test_data = xr.DataArray(
+        [[1, 2, 3], [4, 5, 6]],
+        name="data",
+        dims=("lat", "lon"),
+        coords={"lat": [5.0, 6.0], "lon": [10.0, 20.0, 30.0]},
+    )
+    test_polygon_lon_lat = Polygon([(9.0, 4.5), (21.0, 4.5), (21.0, 5.5), (9.0, 5.5)])
+
+    assert_almost_equal(
+        actual=area_mean_weighted_polygon_selection(
+            test_data, polygon_lon_lat=test_polygon_lon_lat
+        ).data[()],
+        desired=(1 + 2) / 2,
+        decimal=3,
+    )
