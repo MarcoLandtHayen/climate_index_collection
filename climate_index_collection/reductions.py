@@ -75,7 +75,7 @@ def variance_weighted(dobj, weights=None, dim=None):
         Variance data. Has the same variable name(s) as dobj.
 
     """
-    mean_of_squares = mean_weighted(dobj**2, weights=weights, dim=dim)
+    mean_of_squares = mean_weighted(dobj ** 2, weights=weights, dim=dim)
     square_of_means = mean_weighted(dobj, weights=weights, dim=dim) ** 2
     variance = mean_of_squares - square_of_means
     return variance
@@ -122,7 +122,7 @@ def stddev_weighted(dobj, weights=None, dim=None):
 
     """
     variance = variance_weighted(dobj, weights=weights, dim=dim)
-    std_dev = variance**0.5
+    std_dev = variance ** 0.5
     return std_dev
 
 
@@ -523,6 +523,7 @@ def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
         dims=lon_2d.dims,
         coords=lon_2d.coords,
     )
-    # transpose to have lon on x and lat on y axes
-    mask = mask.transpose()
+    # transpose to ensure the same order of horizontal dims as the input object
+    mask = mask.transpose(*[d for d in dobj.dims if d in [lon_name, lat_name]])
+
     return mask
