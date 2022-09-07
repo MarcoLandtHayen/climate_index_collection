@@ -1,4 +1,9 @@
 import numpy as np
+import xarray as xr
+
+from shapely.affinity import translate
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon
+from shapely.ops import split, unary_union
 
 
 # -----------------------------
@@ -410,6 +415,76 @@ def area_mean_weighted(
     return averaged
 
 
+def area_mean_weighted_polygon_selection(
+    dobj,
+    polygon_lon_lat=None,
+    lon_name="lon",
+    lat_name="lat",
+    lat_extent_name=None,
+    lon_extent_name=None,
+):
+    """Area average over polygon-selected region.
+
+    Parameters
+    ----------
+    dobj: xarray.DataArray
+        Data for which the area average will be computed.
+    polygon_lon_lat: shapely Polygon
+        (Multi)Polygon containing the region over which we want to average.
+        If "None", all data will be used.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+    lat_extent_name: str
+        Name of the lat extent. Defaults to None.
+    lon_extent_name: str
+        Name of the lon extent. Defaults to None.
+
+    Returns
+    -------
+    dobj:
+        Area averaged input data.
+
+    """
+    # extract coords
+    lat = dobj.coords[lat_name]
+    lon = dobj.coords[lon_name]
+
+    # mask
+    # TODO: Pass polygon_lon_lat once through polygon_prime_meridian()?
+    mask = polygon2mask(dobj=dobj, pg=polygon_lon_lat)
+
+    # do we have dimensional coords?
+    have_dimensional_coords = (lat.dims[0] == lat_name) & (lon.dims[0] == lon_name)
+
+    # prepare spatial coords for final sum
+    if have_dimensional_coords:
+        spatial_dims = [lat_name, lon_name]
+    else:
+        spatial_dims = list(set(lat.dims) + set(lon.dims))
+
+    # prepare weights
+    if have_dimensional_coords:
+        # will only handle equidistant lons and lats here...
+        dlon = abs(lon.diff(lon_name).mean())
+        dlat = abs(lat.diff(lat_name).mean())
+        dx = dlon * np.cos(np.deg2rad(lat))
+        dy = dlat
+        weights = dx * dy
+    else:
+        lat_extent = dobj.coords[lat_extent_name]
+        lon_extent = dobj.coords[lon_extent_name]
+        weights = lat_extent * lon_extent
+
+    # weighted averaging
+    averaged = (dobj * weights).where(mask).sum(spatial_dims) / weights.where(mask).sum(
+        spatial_dims
+    )
+
+    return averaged
+
+
 def eof_weights(dobj):
     """Empirical orthogonal functions (EOFs) can be thought of as the eigen-vectors of the spatial covariance matrix.
     Grid cells can be thought of as representing spatial averages which are low-pass filtering the raw signals and dampen the variance by a factor proportional to the square root of the cell size.
@@ -428,3 +503,97 @@ def eof_weights(dobj):
         Square root of weights needed to pre-process input data for SVD.
     """
     return np.sqrt(np.cos(np.deg2rad(dobj.coords["lat"])))
+
+
+def polygon_prime_meridian(pg):
+    """
+    Transforms shapely Polygons or MultiPolygons defined in [180W, 180E) coords into [0E,360E) coords.
+    Takes care of Polygons crossing the prime meridan.
+    Polygon points are expected be (lon, lat) tuples.
+
+    Parameters
+    ----------
+    pg: shaply Polygon or shapely MultiPolygon
+        Polygon including the area wanted.
+
+    Returns
+    -------
+    shapely MultPolygon
+        shaply MultiPolygon containing at least one Polygon.
+    """
+
+    # handle empty Polygons and MultiPolygons
+    if pg.is_empty:
+        return MultiPolygon([pg])
+
+    # create prime_meridian to eventually split the polygon
+    prime_meridian = LineString([(0, 90), (0, 0), (0, -90)])
+    pg_split = split(pg, prime_meridian)
+
+    # create a list containing all Polygons given by the split operation
+    # polygons on the negative (western) side of the prime meridian are translated into new coords, by adding 360 to the lon values.
+    pg_list = []
+    for temp_pg in pg_split.geoms:
+        # check if the polygons minx is negative and add 360 to it.
+        if temp_pg.bounds[0] < 0:
+            temp_pg = translate(temp_pg, xoff=360)
+        pg_list += [temp_pg]
+
+    # create the multipolygon existing in [0E, 360E) coords from the list of polygons
+    result = unary_union(pg_list)
+
+    # for consistency always return MultiPolygon
+    if type(result) is not MultiPolygon:
+        # convert Polygon to MultiPolygon
+        return MultiPolygon([result])
+    else:
+        return result
+
+
+def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
+    """
+    This funciton creates a mask for a given DataArray or DataSet based on a shapely Polygon or MultiPolygon.
+    Polygon points are expected be (lon, lat) tuples.
+    The dobj is expected to have lon values in [0E, 360E) coords.
+
+    Parameters
+    ----------
+    dobj: xarray.Dataset or xarray.DataArray
+        Contains the original data.
+    pg: shapely Polygon or shapely MultiPolygon
+        Polygon including the area wanted.
+    lat_name: str
+        Name of the latitude coordinate. Defaults to "lat".
+    lon_name: str
+        Name of the longitude coordinate. Defaults to "lon".
+
+    Returns
+    -------
+    xarray.Dataset or xarray.DataArray
+        Mask for given Polygon on dobj grid.
+    """
+
+    # handle prime meridian crossing Polygons and transform [180W, 180E) coords into [0E,360E) coords
+    pg = polygon_prime_meridian(pg)
+
+    # create the mask
+    lon_2d, lat_2d = xr.broadcast(dobj.coords[lon_name], dobj.coords[lat_name])
+
+    mask = xr.DataArray(
+        np.reshape(
+            [
+                pg.contains(Point(_lon, _lat)) | pg.boundary.contains(Point(_lon, _lat))
+                for _lon, _lat in zip(
+                    np.ravel(lon_2d, order="C"), np.ravel(lat_2d, order="C")
+                )
+            ],
+            lon_2d.shape,
+            order="C",
+        ),
+        dims=lon_2d.dims,
+        coords=lon_2d.coords,
+    )
+    # transpose to ensure the same order of horizontal dims as the input object
+    mask = mask.transpose(*[d for d in dobj.dims if d in [lon_name, lat_name]])
+
+    return mask
