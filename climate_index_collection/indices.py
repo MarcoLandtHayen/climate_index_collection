@@ -306,7 +306,11 @@ def el_nino_southern_oscillation_12(data_set, sst_name="sea-surface-temperature"
 
     """
     sst_nino12 = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-10, lat_north=0, lon_west=270, lon_east=280,
+        dobj=data_set[sst_name],
+        lat_south=-10,
+        lat_north=0,
+        lon_west=270,
+        lon_east=280,
     )
 
     climatology = sst_nino12.groupby("time.month").mean("time")
@@ -354,7 +358,11 @@ def el_nino_southern_oscillation_3(data_set, sst_name="sea-surface-temperature")
 
     """
     sst_nino3 = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-5, lat_north=5, lon_west=210, lon_east=270,
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=210,
+        lon_east=270,
     )
 
     climatology = sst_nino3.groupby("time.month").mean("time")
@@ -399,7 +407,11 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
 
     """
     sst_nino34 = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-5, lat_north=5, lon_west=190, lon_east=240,
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=190,
+        lon_east=240,
     )
 
     climatology = sst_nino34.groupby("time.month").mean("time")
@@ -444,7 +456,11 @@ def el_nino_southern_oscillation_4(data_set, sst_name="sea-surface-temperature")
 
     """
     sst_nino4 = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-5, lat_north=5, lon_west=160, lon_east=210,
+        dobj=data_set[sst_name],
+        lat_south=-5,
+        lat_north=5,
+        lon_west=160,
+        lon_east=210,
     )
 
     climatology = sst_nino4.groupby("time.month").mean("time")
@@ -483,7 +499,11 @@ def tropical_north_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
 
     """
     sst = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=5, lat_north=25, lon_west=305, lon_east=345,
+        dobj=data_set[sst_name],
+        lat_south=5,
+        lat_north=25,
+        lon_west=305,
+        lon_east=345,
     )
 
     climatology = sst.groupby("time.month").mean("time")
@@ -522,7 +542,11 @@ def tropical_south_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
 
     """
     sst = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-20, lat_north=0, lon_west=330, lon_east=10,
+        dobj=data_set[sst_name],
+        lat_south=-20,
+        lat_north=0,
+        lon_west=330,
+        lon_east=10,
     )
 
     climatology = sst.groupby("time.month").mean("time")
@@ -604,7 +628,11 @@ def western_subtropical_indian_ocean_SST(data_set, sst_name="sea-surface-tempera
 
     """
     sst = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=-37, lat_north=-27, lon_west=55, lon_east=65,
+        dobj=data_set[sst_name],
+        lat_south=-37,
+        lat_north=-27,
+        lon_west=55,
+        lon_east=65,
     )
 
     climatology = sst.groupby("time.month").mean("time")
@@ -642,7 +670,11 @@ def mediterranean_SST(data_set, sst_name="sea-surface-temperature"):
 
     """
     sst = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=30, lat_north=45, lon_west=0, lon_east=25,
+        dobj=data_set[sst_name],
+        lat_south=30,
+        lat_north=45,
+        lon_west=0,
+        lon_east=25,
     )
 
     climatology = sst.groupby("time.month").mean("time")
@@ -681,7 +713,11 @@ def hurricane_main_development_region_SST(data_set, sst_name="sea-surface-temper
 
     """
     sst = area_mean_weighted(
-        dobj=data_set[sst_name], lat_south=10, lat_north=20, lon_west=275, lon_east=340,
+        dobj=data_set[sst_name],
+        lat_south=10,
+        lat_north=20,
+        lon_west=275,
+        lon_east=340,
     )
 
     climatology = sst.groupby("time.month").mean("time")
@@ -724,7 +760,11 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 
     """
     sss = area_mean_weighted(
-        data_set[sss_name], lat_south=25, lat_north=50, lon_west=-50, lon_east=-15,
+        data_set[sss_name],
+        lat_south=25,
+        lat_north=50,
+        lon_west=-50,
+        lon_east=-15,
     )
 
     climatology = sss.groupby("time.month").mean("time")
@@ -765,7 +805,11 @@ def north_atlantic_sea_surface_salinity_west(data_set, sss_name="sea-surface-sal
 
     """
     sss = area_mean_weighted(
-        data_set[sss_name], lat_south=25, lat_north=38, lon_west=310, lon_east=320,
+        data_set[sss_name],
+        lat_south=25,
+        lat_north=38,
+        lon_west=310,
+        lon_east=320,
     )
 
     climatology = sss.groupby("time.month").mean("time")
@@ -806,7 +850,11 @@ def north_atlantic_sea_surface_salinity_east(data_set, sss_name="sea-surface-sal
 
     """
     sss = area_mean_weighted(
-        data_set[sss_name], lat_south=25, lat_north=50, lon_west=320, lon_east=345,
+        data_set[sss_name],
+        lat_south=25,
+        lat_north=50,
+        lon_west=320,
+        lon_east=345,
     )
 
     climatology = sss.groupby("time.month").mean("time")
@@ -847,7 +895,11 @@ def south_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 
     """
     sss = area_mean_weighted(
-        data_set[sss_name], lat_south=-22.5, lat_north=-10, lon_west=318, lon_east=350,
+        data_set[sss_name],
+        lat_south=-22.5,
+        lat_north=-10,
+        lon_west=318,
+        lon_east=350,
     )
 
     climatology = sss.groupby("time.month").mean("time")
@@ -893,7 +945,11 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     sst = data_set[sst_name]
 
     sst_box_ave = area_mean_weighted(
-        sst, lat_south=0, lat_north=70, lon_west=-75, lon_east=15,
+        sst,
+        lat_south=0,
+        lat_north=70,
+        lon_west=-75,
+        lon_east=15,
     )
 
     AMO = monthly_anomalies_unweighted(sst_box_ave)
@@ -1299,7 +1355,11 @@ def north_pacific(data_set, slp_name="sea-level-pressure"):
 
     """
     slp = area_mean_weighted(
-        dobj=data_set[slp_name], lat_south=30, lat_north=65, lon_west=160, lon_east=220,
+        dobj=data_set[slp_name],
+        lat_south=30,
+        lat_north=65,
+        lon_west=160,
+        lon_east=220,
     )
 
     climatology = slp.groupby("time.month").mean("time")

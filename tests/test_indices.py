@@ -9,6 +9,7 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
+    atlantic_multidecadal_oscillation,
     eastern_subtropical_indian_ocean_SST,
     el_nino_southern_oscillation_3,
     el_nino_southern_oscillation_4,
@@ -24,7 +25,6 @@ from climate_index_collection.indices import (
     north_pacific,
     pacific_decadal_oscillation_pc,
     sahel_precipitation_anomaly,
-    atlantic_multidecadal_oscillation,
     sea_air_surface_temperature_anomaly_north_all,
     sea_air_surface_temperature_anomaly_north_land,
     sea_air_surface_temperature_anomaly_north_ocean,
