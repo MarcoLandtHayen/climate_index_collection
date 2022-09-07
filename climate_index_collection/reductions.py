@@ -75,7 +75,7 @@ def variance_weighted(dobj, weights=None, dim=None):
         Variance data. Has the same variable name(s) as dobj.
 
     """
-    mean_of_squares = mean_weighted(dobj ** 2, weights=weights, dim=dim)
+    mean_of_squares = mean_weighted(dobj**2, weights=weights, dim=dim)
     square_of_means = mean_weighted(dobj, weights=weights, dim=dim) ** 2
     variance = mean_of_squares - square_of_means
     return variance
@@ -122,7 +122,7 @@ def stddev_weighted(dobj, weights=None, dim=None):
 
     """
     variance = variance_weighted(dobj, weights=weights, dim=dim)
-    std_dev = variance ** 0.5
+    std_dev = variance**0.5
     return std_dev
 
 
