@@ -5,11 +5,15 @@ import numpy as np
 import scipy as sp
 import xarray as xr
 
+from shapely.geometry import Polygon
+
 from .reductions import (
     area_mean_weighted,
+    area_mean_weighted_polygon_selection,
     eof_weights,
     mean_unweighted,
     monthly_anomalies_unweighted,
+    polygon_prime_meridian,
 )
 
 
@@ -912,6 +916,54 @@ def south_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     return SASSS
 
 
+def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the Atlantic Multi-decadal Oscillation (AMO) index.
+
+    This follows the NOAA method <https://psl.noaa.gov/data/timeseries/AMO/> in defining the Atlantic Multi-decadal Oscillation
+    index using area weighted averaged sea-surface temperature anomalies of the north Atlantic between 0°N and 70°N,
+    The anomalies are relative to a monthly climatology calculated from the whole time covered by the data set.
+    It differs from the definition of the NOAA in that it does not detrend the time series and the smomothing is not performed.
+
+    Computation is done as follows:
+    1. Compute area averaged total SST from north Atlantic region.
+    2. Compute monthly climatology for area averaged total SST from north Atlantic  region.
+    3. Subtract climatology from area averaged total SST time series to obtain anomalies.
+
+    Further informations can be found in :
+    - [Trenberth and Shea, 2006] <https://doi.org/10.1029/2006GL026894>.
+    - NCAR climate data guide <https://climatedataguide.ucar.edu/climate-data/atlantic-multi-decadal-oscillation-amo>
+
+
+    Parameters
+    ----------
+    data_set: xarray.DataSet
+        Dataset containing a SST field.
+    slp_name: str
+        Name of the Sea-Surface Temperature field. Defaults to "sea-surface-tempearture".
+
+    Returns
+    -------
+    xarray.DataArray
+        Time series containing the AMO index.
+
+    """
+    sst = data_set[sst_name]
+
+    # create Atlantic polygon and calculate horizontal average
+    atlanctic_polygon_lon_lat = polygon_prime_meridian(
+        Polygon([(15, 0), (-65, 0), (-105, 25), (-45, 70), (15, 70), (-7, 35)])
+    )
+    sst_box_ave = area_mean_weighted_polygon_selection(
+        dobj=sst, polygon_lon_lat=atlanctic_polygon_lon_lat
+    )
+
+    AMO = monthly_anomalies_unweighted(sst_box_ave)
+
+    AMO = AMO.rename("AMO")
+
+    return AMO
+
+
 def sea_air_surface_temperature_anomaly_north_all(
     data_set, sat_name="sea-air-temperature"
 ):
@@ -1363,6 +1415,7 @@ class ClimateIndexFunctions(Enum):
         north_atlantic_sea_surface_salinity_east
     )
     south_atlantic_sea_surface_salinity = partial(south_atlantic_sea_surface_salinity)
+    atlantic_multidecadal_oscillation = partial(atlantic_multidecadal_oscillation)
     sea_air_surface_temperature_anomaly_north_all = partial(
         sea_air_surface_temperature_anomaly_north_all
     )

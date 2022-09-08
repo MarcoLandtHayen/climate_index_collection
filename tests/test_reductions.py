@@ -536,3 +536,33 @@ def test_area_mean_weighted_polygon_selection():
         desired=(1 + 2) / 2,
         decimal=3,
     )
+
+
+def test_area_mean_weighted_polygon_no_selection():
+    """Ensure that polygon selection results in correct example average."""
+    #
+    # data:
+    #    4 5 6
+    #    1 2 3
+    #
+    # polygon covers everything:
+    #    x x x
+    #    x x x
+    #
+    # resulting average = (1 + 2 + 3 + 4 + 5 + 6) / 6 = 3.5
+    #
+    test_data = xr.DataArray(
+        [[1, 2, 3], [4, 5, 6]],
+        name="data",
+        dims=("lat", "lon"),
+        coords={"lat": [5.0, 6.0], "lon": [10.0, 20.0, 30.0]},
+    )
+    test_polygon_lon_lat = None
+
+    assert_almost_equal(
+        actual=area_mean_weighted_polygon_selection(
+            test_data, polygon_lon_lat=test_polygon_lon_lat
+        ).data[()],
+        desired=3.5,
+        decimal=3,
+    )

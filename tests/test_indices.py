@@ -9,6 +9,7 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
+    atlantic_multidecadal_oscillation,
     eastern_subtropical_indian_ocean_SST,
     el_nino_southern_oscillation_3,
     el_nino_southern_oscillation_4,
@@ -382,7 +383,7 @@ def test_enso34_metadata(source_name):
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
-def test_enso34_zeromean(source_name):
+def test_ENSO34_zeromean(source_name):
     """Ensure that ENSO 3.4 has zero mean."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
@@ -868,6 +869,48 @@ def test_SASSS_zeromean(source_name):
 
     # Check, if calculated NASSS index has zero mean:
     assert_almost_equal(actual=SASSS.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_AMO_metadata(source_name):
+    """Ensure that index only contains time dimension."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate AMO index
+    AMO = atlantic_multidecadal_oscillation(data_set)
+
+    # Check, if calculated AMO index only has one dimension: 'time'
+    assert AMO.dims[0] == "time"
+    assert len(AMO.dims) == 1
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_AMO_zeromean(source_name):
+    """Ensure that AMO has zero mean."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate AMO index
+    AMO = atlantic_multidecadal_oscillation(data_set)
+
+    # Check, if calculated AMO index has zero mean:
+    assert_almost_equal(actual=AMO.mean("time").values[()], desired=0, decimal=3)
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_AMO_naming(source_name):
+    """Ensure that the index is named correctly."""
+    # Load test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+    data_set = load_data_set(data_path=TEST_DATA_PATH, data_source_name=source_name)
+
+    # Calculate NAO index
+    AMO = atlantic_multidecadal_oscillation(data_set)
+
+    assert AMO.name == "AMO"
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
