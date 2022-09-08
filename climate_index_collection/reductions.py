@@ -453,7 +453,10 @@ def area_mean_weighted_polygon_selection(
 
     # mask
     # TODO: Pass polygon_lon_lat once through polygon_prime_meridian()?
-    mask = polygon2mask(dobj=dobj, pg=polygon_lon_lat)
+    if polygon_lon_lat is not None:
+        mask = polygon2mask(dobj=dobj, pg=polygon_lon_lat)
+    else:
+        mask = xr.ones_like(dobj).astype(bool)
 
     # do we have dimensional coords?
     have_dimensional_coords = (lat.dims[0] == lat_name) & (lon.dims[0] == lon_name)
