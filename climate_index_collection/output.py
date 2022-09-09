@@ -1,16 +1,17 @@
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import xarray as xr
 
 from climate_index_collection.data_loading import load_data_set
-from climate_index_collection.indices import southern_annular_mode
+from climate_index_collection.indices import southern_annular_mode_zonal_mean
 
 
 def compute_index(
     data_path="../data/test_data/",
     data_source_name="FOCI",
-    index_function=southern_annular_mode,
+    index_function=southern_annular_mode_zonal_mean,
 ):
     """Compute index from data source and return xarray DataArray.
 
@@ -21,7 +22,7 @@ def compute_index(
     data_source_name: str
         Name of the model dataset. Defaults to "FOCI".
     index_function: function
-        Index function. Defaults to southern_annular_mode.
+        Index function. Defaults to southern_annular_mode_zonal_mean.
 
     Returns
     -------
@@ -37,6 +38,8 @@ def compute_index(
 def index_dataarray_to_dataframe(index_data_array=None, data_source_name="FOCI"):
     """Convert index from xarray DataArray to Pandas dataframe.
 
+    Modify time axis to start in year 1. Drop time stamp and only keep year and month.
+
     Parameters
     ----------
     index_data_array: xarray DataArray
@@ -50,10 +53,33 @@ def index_dataarray_to_dataframe(index_data_array=None, data_source_name="FOCI")
 
     """
     index_df = index_data_array.to_dataframe().reset_index()
+
+    old_time_axis = index_df["time"].values
+    year_offset = old_time_axis[0].year - 1
+    datetime_type = type(old_time_axis[0])
+    new_time_axis = np.array(
+        [
+            datetime_type(
+                year=odt.year - year_offset,
+                month=odt.month,
+                day=odt.day,
+                hour=odt.hour,
+                minute=odt.minute,
+                second=odt.second,
+            )
+            for odt in old_time_axis
+        ]
+    )
+    index_df["year"] = np.array(int(ndt.year) for ndt in new_time_axis)
+    index_df["month"] = np.array(int(ndt.month) for ndt in new_time_axis)
+
     index_df["model"] = data_source_name
     index_df["index"] = index_data_array.name
+    index_df["long_name"] = index_data_array.long_name
     index_df = index_df.rename(columns={index_data_array.name: "value"})
-    index_df = index_df.reindex(columns=["time", "model", "index", "value"])
+    index_df = index_df.reindex(
+        columns=["model", "year", "month", "index", "long_name", "value"]
+    )
 
     return index_df
 

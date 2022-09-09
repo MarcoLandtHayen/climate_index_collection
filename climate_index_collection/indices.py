@@ -17,16 +17,16 @@ from .reductions import (
 )
 
 
-def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
+def southern_annular_mode_zonal_mean(data_set, slp_name="sea-level-pressure"):
     """Calculate the southern annular mode (SAM) index.
 
-    This follows [Gong and Wang, 1999] <https://doi.org/10.1029/1999GL900003> in defining
+    This follows https://doi.org/10.1029/1999GL900003 in defining
     the southern annular mode index using zonally averaged sea-level pressure at 65°S and
     40°S.
 
-    It differs from the definition of [Gong and Wang, 1999] in that it uses the raw time
+    It differs from the definition in that it uses the raw time
     series of zonally averaged sea-level pressure and then only normalizes (zero mean,
-    unit standard deviation) of the difference of zonally avearged sea-level pressure at
+    unit standard deviation) the difference of zonally avearged sea-level pressure at
     65°S and 40°S.
 
     Parameters
@@ -50,7 +50,8 @@ def southern_annular_mode(data_set, slp_name="sea-level-pressure"):
     slp_diff = slp40S - slp65S
 
     SAM_index = (slp_diff - slp_diff.mean("time")) / slp_diff.std("time")
-    SAM_index = SAM_index.rename("SAM")
+    SAM_index = SAM_index.rename("SAM_ZM")
+    SAM_index.attrs["long_name"] = "southern_annular_mode_zonal_mean"
 
     return SAM_index
 
@@ -120,6 +121,7 @@ def southern_annular_mode_pc(data_set, geopoth_name="geopotential-height"):
         SAM_index.values = -SAM_index.values
 
     SAM_index = SAM_index.rename("SAM_PC")
+    SAM_index.attrs["long_name"] = "southern_annular_mode_pc"
 
     return SAM_index
 
@@ -157,11 +159,12 @@ def southern_oscillation(data_set, slp_name="sea-level-pressure"):
 
     SOI_index = slp_diff / slp_diff.std("time")
     SOI_index = SOI_index.rename("SOI")
+    SOI_index.attrs["long_name"] = "southern_oscillation"
 
     return SOI_index
 
 
-def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
+def north_atlantic_oscillation_station(data_set, slp_name="sea-level-pressure"):
     """Calculate the station based North Atlantic Oscillation (NAO) index
 
     This uses station-based sea-level pressure closest to Reykjavik (64°9'N, 21°56'W) and
@@ -198,7 +201,8 @@ def north_atlantic_oscillation(data_set, slp_name="sea-level-pressure"):
     ) / slp_southern_station.std("time")
 
     NAO_index = slp_northern_station_norm - slp_southern_station_norm
-    NAO_index = NAO_index.rename("NAO")
+    NAO_index = NAO_index.rename("NAO_ST")
+    NAO_index.attrs["long_name"] = "north_atlantic_oscillation_station"
 
     return NAO_index
 
@@ -271,6 +275,7 @@ def north_atlantic_oscillation_pc(data_set, slp_name="sea-level-pressure"):
         NAO_index.values = -NAO_index.values
 
     NAO_index = NAO_index.rename("NAO_PC")
+    NAO_index.attrs["long_name"] = "north_atlantic_oscillation_pc"
 
     return NAO_index
 
@@ -322,7 +327,8 @@ def el_nino_southern_oscillation_12(data_set, sst_name="sea-surface-temperature"
     std_dev = sst_nino12.std("time")
 
     ENSO12_index = (sst_nino12.groupby("time.month") - climatology) / std_dev
-    ENSO12_index = ENSO12_index.rename("ENSO12")
+    ENSO12_index = ENSO12_index.rename("ENSO_12")
+    ENSO12_index.attrs["long_name"] = "el_nino_southern_oscillation_12"
 
     return ENSO12_index
 
@@ -374,7 +380,8 @@ def el_nino_southern_oscillation_3(data_set, sst_name="sea-surface-temperature")
     std_dev = sst_nino3.std("time")
 
     ENSO3_index = (sst_nino3.groupby("time.month") - climatology) / std_dev
-    ENSO3_index = ENSO3_index.rename("ENSO3")
+    ENSO3_index = ENSO3_index.rename("ENSO_3")
+    ENSO3_index.attrs["long_name"] = "el_nino_southern_oscillation_3"
 
     return ENSO3_index
 
@@ -423,7 +430,8 @@ def el_nino_southern_oscillation_34(data_set, sst_name="sea-surface-temperature"
     std_dev = sst_nino34.std("time")
 
     ENSO34_index = (sst_nino34.groupby("time.month") - climatology) / std_dev
-    ENSO34_index = ENSO34_index.rename("ENSO34")
+    ENSO34_index = ENSO34_index.rename("ENSO_34")
+    ENSO34_index.attrs["long_name"] = "el_nino_southern_oscillation_34"
 
     return ENSO34_index
 
@@ -472,13 +480,16 @@ def el_nino_southern_oscillation_4(data_set, sst_name="sea-surface-temperature")
     std_dev = sst_nino4.std("time")
 
     ENSO4_index = (sst_nino4.groupby("time.month") - climatology) / std_dev
-    ENSO4_index = ENSO4_index.rename("ENSO4")
+    ENSO4_index = ENSO4_index.rename("ENSO_4")
+    ENSO4_index.attrs["long_name"] = "el_nino_southern_oscillation_4"
 
     return ENSO4_index
 
 
-def tropical_north_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the sea-surface temperature (SST) anomaly index in the Tropical North Atlantic (SSTA_TNA)
+def tropical_north_atlantic_sea_surface_temperature(
+    data_set, sst_name="sea-surface-temperature"
+):
+    """Calculate the sea-surface temperature (SST) anomaly index in the Tropical North Atlantic (SST_TNA)
 
     The Tropical North Atlantic region is defined by a box bordered by 5°N to 25°N and 55°W to 15°W.
     This translates to 5°N to 25°N and 305°E to 345°E.
@@ -499,7 +510,7 @@ def tropical_north_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
     Returns
     -------
     xarray.DataArray
-        Time series containing the SSTA_TNA index.
+        Time series containing the SST_TNA index.
 
     """
     sst = area_mean_weighted(
@@ -514,14 +525,17 @@ def tropical_north_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
 
     std_dev = sst.std("time")
 
-    SSTA_TNA = (sst.groupby("time.month") - climatology) / std_dev
-    SSTA_TNA = SSTA_TNA.rename("SSTA_TNA")
+    SST_TNA = (sst.groupby("time.month") - climatology) / std_dev
+    SST_TNA = SST_TNA.rename("SST_TNA")
+    SST_TNA.attrs["long_name"] = "tropical_north_atlantic_sea_surface_temperature"
 
-    return SSTA_TNA
+    return SST_TNA
 
 
-def tropical_south_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the sea-surface temperature (SST) anomaly index in the Tropical South Atlantic (SSTA_TSA)
+def tropical_south_atlantic_sea_surface_temperature(
+    data_set, sst_name="sea-surface-temperature"
+):
+    """Calculate the sea-surface temperature (SST) anomaly index in the Tropical South Atlantic (SST_TSA)
 
     The Tropical South Atlantic region is defined by a box bordered by 20°S to 0°N and 30°W to 10°E.
     This translates to -20°N to 0°N and 330°E to 10°E.
@@ -542,7 +556,7 @@ def tropical_south_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
     Returns
     -------
     xarray.DataArray
-        Time series containing the SSTA_TSA index.
+        Time series containing the SST_TSA index.
 
     """
     sst = area_mean_weighted(
@@ -557,14 +571,17 @@ def tropical_south_atlantic_SST(data_set, sst_name="sea-surface-temperature"):
 
     std_dev = sst.std("time")
 
-    SSTA_TSA = (sst.groupby("time.month") - climatology) / std_dev
-    SSTA_TSA = SSTA_TSA.rename("SSTA_TSA")
+    SST_TSA = (sst.groupby("time.month") - climatology) / std_dev
+    SST_TSA = SST_TSA.rename("SST_TSA")
+    SST_TSA.attrs["long_name"] = "tropical_south_atlantic_sea_surface_temperature"
 
-    return SSTA_TSA
+    return SST_TSA
 
 
-def eastern_subtropical_indian_ocean_SST(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the sea-surface temperature (SST) anomaly index in the Eastern Subtropical Indian Ocean (SSTA_ESIO)
+def eastern_subtropical_indian_ocean_sea_surface_temperature(
+    data_set, sst_name="sea-surface-temperature"
+):
+    """Calculate the sea-surface temperature (SST) anomaly index in the Eastern Subtropical Indian Ocean (SST_ESIO)
 
     The Eastern Subtropical Indian Ocean region is defined by a box bordered by 28°S to 18°S and 90°E to 100°E.
     This translates to -28°N to -18°N and 90°E to 100°E.
@@ -585,7 +602,7 @@ def eastern_subtropical_indian_ocean_SST(data_set, sst_name="sea-surface-tempera
     Returns
     -------
     xarray.DataArray
-        Time series containing the SSTA_ESIO index.
+        Time series containing the SST_ESIO index.
 
     """
     sst = area_mean_weighted(
@@ -600,14 +617,19 @@ def eastern_subtropical_indian_ocean_SST(data_set, sst_name="sea-surface-tempera
 
     std_dev = sst.std("time")
 
-    SSTA_ESIO = (sst.groupby("time.month") - climatology) / std_dev
-    SSTA_ESIO = SSTA_ESIO.rename("SSTA_ESIO")
+    SST_ESIO = (sst.groupby("time.month") - climatology) / std_dev
+    SST_ESIO = SST_ESIO.rename("SST_ESIO")
+    SST_ESIO.attrs[
+        "long_name"
+    ] = "eastern_subtropical_indian_ocean_sea_surface_temperature"
 
-    return SSTA_ESIO
+    return SST_ESIO
 
 
-def western_subtropical_indian_ocean_SST(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the sea-surface temperature (SST) anomaly index in the Western Subtropical Indian Ocean (SSTA_WSIO)
+def western_subtropical_indian_ocean_sea_surface_temperature(
+    data_set, sst_name="sea-surface-temperature"
+):
+    """Calculate the sea-surface temperature (SST) anomaly index in the Western Subtropical Indian Ocean (SST_WSIO)
 
     The Western Subtropical Indian Ocean region is defined by a box bordered by 37°S to 27°S and 55°E to 65°E.
     This translates to -37°N to -27°N and 55°E to 65°E.
@@ -643,14 +665,17 @@ def western_subtropical_indian_ocean_SST(data_set, sst_name="sea-surface-tempera
 
     std_dev = sst.std("time")
 
-    SSTA_WSIO = (sst.groupby("time.month") - climatology) / std_dev
-    SSTA_WSIO = SSTA_WSIO.rename("SSTA_WSIO")
+    SST_WSIO = (sst.groupby("time.month") - climatology) / std_dev
+    SST_WSIO = SST_WSIO.rename("SST_WSIO")
+    SST_WSIO.attrs[
+        "long_name"
+    ] = "western_subtropical_indian_ocean_sea_surface_temperature"
 
-    return SSTA_WSIO
+    return SST_WSIO
 
 
-def mediterranean_SST(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the sea-surface temperature (SST) anomaly index in the Mediterranean Sea (SSTA_MED)
+def mediterranean_sea_surface_temperature(data_set, sst_name="sea-surface-temperature"):
+    """Calculate the sea-surface temperature (SST) anomaly index in the Mediterranean Sea (SST_MED)
 
     The Mediterranean Sea region is defined by a box bordered by 30°N to 45°N and 0°E to 25°E.
 
@@ -670,7 +695,7 @@ def mediterranean_SST(data_set, sst_name="sea-surface-temperature"):
     Returns
     -------
     xarray.DataArray
-        Time series containing the SSTA_MED index.
+        Time series containing the SST_MED index.
 
     """
     sst = area_mean_weighted(
@@ -685,14 +710,17 @@ def mediterranean_SST(data_set, sst_name="sea-surface-temperature"):
 
     std_dev = sst.std("time")
 
-    SSTA_MED = (sst.groupby("time.month") - climatology) / std_dev
-    SSTA_MED = SSTA_MED.rename("SSTA_MED")
+    SST_MED = (sst.groupby("time.month") - climatology) / std_dev
+    SST_MED = SST_MED.rename("SST_MED")
+    SST_MED.attrs["long_name"] = "mediterranean_sea_surface_temperature"
 
-    return SSTA_MED
+    return SST_MED
 
 
-def hurricane_main_development_region_SST(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the sea-surface temperature (SST) anomaly index in Hurricane main development region (SSTA_HMDR)
+def hurricane_main_development_region_sea_surface_temperature(
+    data_set, sst_name="sea-surface-temperature"
+):
+    """Calculate the sea-surface temperature (SST) anomaly index in Hurricane main development region (SST_HMDR)
 
     The Hurricane main development region is defined by a box bordered by 10°N to 20°N and 85°W to 20°W.
     This translates to 10°N to 20°N and 275°E to 340°E.
@@ -713,7 +741,7 @@ def hurricane_main_development_region_SST(data_set, sst_name="sea-surface-temper
     Returns
     -------
     xarray.DataArray
-        Time series containing the SSTA_HMDR index.
+        Time series containing the SST_HMDR index.
 
     """
     sst = area_mean_weighted(
@@ -728,14 +756,17 @@ def hurricane_main_development_region_SST(data_set, sst_name="sea-surface-temper
 
     std_dev = sst.std("time")
 
-    SSTA_HMDR = (sst.groupby("time.month") - climatology) / std_dev
-    SSTA_HMDR = SSTA_HMDR.rename("SSTA_HMDR")
+    SST_HMDR = (sst.groupby("time.month") - climatology) / std_dev
+    SST_HMDR = SST_HMDR.rename("SST_HMDR")
+    SST_HMDR.attrs[
+        "long_name"
+    ] = "hurricane_main_development_region_sea_surface_temperature"
 
-    return SSTA_HMDR
+    return SST_HMDR
 
 
 def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity"):
-    """Calculate North Atlantic Sea-Surface Salinity index (NASSS)
+    """Calculate North Atlantic Sea-Surface Salinity index (SSS_NA)
 
     Following https://doi.org/10.1126/sciadv.1501588
     the index is derived from Atlantic sea-surface salinity (SSS) anomalies in a box
@@ -760,7 +791,7 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     Returns
     -------
     xarray.DataArray
-        Time series containing the NASSS index.
+        Time series containing the SSS_NA index.
 
     """
     sss = area_mean_weighted(
@@ -775,14 +806,17 @@ def north_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 
     std_dev = sss.std("time")
 
-    NASSS = (sss.groupby("time.month") - climatology) / std_dev
-    NASSS = NASSS.rename("NASSS")
+    SSS_NA = (sss.groupby("time.month") - climatology) / std_dev
+    SSS_NA = SSS_NA.rename("SSS_NA")
+    SSS_NA.attrs["long_name"] = "north_atlantic_sea_surface_salinity"
 
-    return NASSS
+    return SSS_NA
 
 
-def north_atlantic_sea_surface_salinity_west(data_set, sss_name="sea-surface-salinity"):
-    """Calculate the Sea-Surface Salinity index in the Western part of the North Atlantic region (NASSS_W)
+def western_north_atlantic_sea_surface_salinity(
+    data_set, sss_name="sea-surface-salinity"
+):
+    """Calculate the Sea-Surface Salinity index in the Western part of the North Atlantic region (SSS_WNA)
 
     Following https://doi.org/10.1126/sciadv.1501588
     the index is derived from Atlantic sea-surface salinity (SSS) anomalies. Here we focus on the Western part
@@ -805,7 +839,7 @@ def north_atlantic_sea_surface_salinity_west(data_set, sss_name="sea-surface-sal
     Returns
     -------
     xarray.DataArray
-        Time series containing the NASSS_W index.
+        Time series containing the SSS_WNA index.
 
     """
     sss = area_mean_weighted(
@@ -820,14 +854,17 @@ def north_atlantic_sea_surface_salinity_west(data_set, sss_name="sea-surface-sal
 
     std_dev = sss.std("time")
 
-    NASSS_W = (sss.groupby("time.month") - climatology) / std_dev
-    NASSS_W = NASSS_W.rename("NASSS_W")
+    SSS_WNA = (sss.groupby("time.month") - climatology) / std_dev
+    SSS_WNA = SSS_WNA.rename("SSS_WNA")
+    SSS_WNA.attrs["long_name"] = "western_north_atlantic_sea_surface_salinity"
 
-    return NASSS_W
+    return SSS_WNA
 
 
-def north_atlantic_sea_surface_salinity_east(data_set, sss_name="sea-surface-salinity"):
-    """Calculate the Sea-Surface Salinity index in the Eastern part of the North Atlantic region (NASSS_E)
+def eastern_north_atlantic_sea_surface_salinity(
+    data_set, sss_name="sea-surface-salinity"
+):
+    """Calculate the Sea-Surface Salinity index in the Eastern part of the North Atlantic region (SSS_ENA)
 
     Following https://doi.org/10.1126/sciadv.1501588
     the index is derived from Atlantic sea-surface salinity (SSS) anomalies. Here we focus on the Eastern part
@@ -850,7 +887,7 @@ def north_atlantic_sea_surface_salinity_east(data_set, sss_name="sea-surface-sal
     Returns
     -------
     xarray.DataArray
-        Time series containing the NASSS_E index.
+        Time series containing the SSS_ENA index.
 
     """
     sss = area_mean_weighted(
@@ -865,14 +902,15 @@ def north_atlantic_sea_surface_salinity_east(data_set, sss_name="sea-surface-sal
 
     std_dev = sss.std("time")
 
-    NASSS_E = (sss.groupby("time.month") - climatology) / std_dev
-    NASSS_E = NASSS_E.rename("NASSS_E")
+    SSS_ENA = (sss.groupby("time.month") - climatology) / std_dev
+    SSS_ENA = SSS_ENA.rename("SSS_ENA")
+    SSS_ENA.attrs["long_name"] = "eastern_north_atlantic_sea_surface_salinity"
 
-    return NASSS_E
+    return SSS_ENA
 
 
 def south_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity"):
-    """Calculate South Atlantic Sea-Surface Salinity index (SASSS)
+    """Calculate South Atlantic Sea-Surface Salinity index (SSS_SA)
 
     Following https://doi.org/10.1126/sciadv.1501588
     the index is derived from Atlantic sea-surface salinity (SSS) anomalies. Here we focus on
@@ -895,7 +933,7 @@ def south_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASSS index.
+        Time series containing the SSS_SA index.
 
     """
     sss = area_mean_weighted(
@@ -910,10 +948,11 @@ def south_atlantic_sea_surface_salinity(data_set, sss_name="sea-surface-salinity
 
     std_dev = sss.std("time")
 
-    SASSS = (sss.groupby("time.month") - climatology) / std_dev
-    SASSS = SASSS.rename("SASSS")
+    SSS_SA = (sss.groupby("time.month") - climatology) / std_dev
+    SSS_SA = SSS_SA.rename("SSS_SA")
+    SSS_SA.attrs["long_name"] = "south_atlantic_sea_surface_salinity"
 
-    return SASSS
+    return SSS_SA
 
 
 def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperature"):
@@ -960,14 +999,13 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     AMO = monthly_anomalies_unweighted(sst_box_ave)
 
     AMO = AMO.rename("AMO")
+    AMO.attrs["long_name"] = "atlantic_multidecadal_oscillation"
 
     return AMO
 
 
-def sea_air_surface_temperature_anomaly_north_all(
-    data_set, sat_name="sea-air-temperature"
-):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the complete northern hemisphere.
+def sea_air_temperature_north_all(data_set, sat_name="sea-air-temperature"):
+    """Calculate the Sea Air Temperature Anomaly (SAT_N_ALL) index, for the complete northern hemisphere.
 
     Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -988,8 +1026,7 @@ def sea_air_surface_temperature_anomaly_north_all(
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be: "SASTAI-north-all"
+        Time series containing the SAT_N_ALL index.
 
     """
     sat = data_set[sat_name]
@@ -997,16 +1034,15 @@ def sea_air_surface_temperature_anomaly_north_all(
         dobj=sat, lat_south=0, lat_north=90, lon_west=0, lon_east=360
     )
 
-    SASTAI = monthly_anomalies_unweighted(sat_mean)
-    SASTAI = SASTAI.rename("SASTAI-north-all")
+    SAT_N_ALL = monthly_anomalies_unweighted(sat_mean)
+    SAT_N_ALL = SAT_N_ALL.rename("SAT_N_ALL")
+    SAT_N_ALL.attrs["long_name"] = "sea_air_temperature_north_all"
 
-    return SASTAI
+    return SAT_N_ALL
 
 
-def sea_air_surface_temperature_anomaly_north_ocean(
-    data_set, sat_name="sea-air-temperature"
-):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere Ocean.
+def sea_air_temperature_north_ocean(data_set, sat_name="sea-air-temperature"):
+    """Calculate the Sea Air Temperature Anomaly (SAT_N_OCEAN) index, for the northern hemisphere Ocean.
 
     Only data over the Ocean is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -1027,8 +1063,7 @@ def sea_air_surface_temperature_anomaly_north_ocean(
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be: "SASTAI-north-ocean"
+        Time series containing the SAT_N_OCEAN index.
 
     """
     # select only ocean data
@@ -1037,16 +1072,15 @@ def sea_air_surface_temperature_anomaly_north_ocean(
         dobj=sat, lat_south=0, lat_north=90, lon_west=0, lon_east=360
     )
 
-    SASTAI = monthly_anomalies_unweighted(sat_mean)
-    SASTAI = SASTAI.rename("SASTAI-north-ocean")
+    SAT_N_OCEAN = monthly_anomalies_unweighted(sat_mean)
+    SAT_N_OCEAN = SAT_N_OCEAN.rename("SAT_N_OCEAN")
+    SAT_N_OCEAN.attrs["long_name"] = "sea_air_temperature_north_ocean"
 
-    return SASTAI
+    return SAT_N_OCEAN
 
 
-def sea_air_surface_temperature_anomaly_north_land(
-    data_set, sat_name="sea-air-temperature"
-):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the northern hemisphere land.
+def sea_air_temperature_north_land(data_set, sat_name="sea-air-temperature"):
+    """Calculate the Sea Air Temperature Anomaly (SAT_N_LAND) index, for the northern hemisphere land.
 
     Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -1067,8 +1101,7 @@ def sea_air_surface_temperature_anomaly_north_land(
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASTA index for northern hemisphere.
-        Name of the DataArray will be: "SASTAI-north-land"
+        Time series containing the SAT_N_LAND index.
 
     """
     # select only land data
@@ -1077,16 +1110,15 @@ def sea_air_surface_temperature_anomaly_north_land(
         dobj=sat, lat_south=0, lat_north=90, lon_west=0, lon_east=360
     )
 
-    SASTAI = monthly_anomalies_unweighted(sat_mean)
-    SASTAI = SASTAI.rename("SASTAI-north-land")
+    SAT_N_LAND = monthly_anomalies_unweighted(sat_mean)
+    SAT_N_LAND = SAT_N_LAND.rename("SAT_N_LAND")
+    SAT_N_LAND.attrs["long_name"] = "sea_air_temperature_north_land"
 
-    return SASTAI
+    return SAT_N_LAND
 
 
-def sea_air_surface_temperature_anomaly_south_all(
-    data_set, sat_name="sea-air-temperature"
-):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the complete southern hemisphere.
+def sea_air_temperature_south_all(data_set, sat_name="sea-air-temperature"):
+    """Calculate the Sea Air Temperature Anomaly (SAT_S_ALL) index, for the complete southern hemisphere.
 
     Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -1107,8 +1139,7 @@ def sea_air_surface_temperature_anomaly_south_all(
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be: "SASTAI-south-all"
+        Time series containing the SAT_S_ALL index.
 
     """
     sat = data_set[sat_name]
@@ -1116,16 +1147,15 @@ def sea_air_surface_temperature_anomaly_south_all(
         dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
     )
 
-    SASTAI = monthly_anomalies_unweighted(sat_mean)
-    SASTAI = SASTAI.rename("SASTAI-south-all")
+    SAT_S_ALL = monthly_anomalies_unweighted(sat_mean)
+    SAT_S_ALL = SAT_S_ALL.rename("SAT_S_ALL")
+    SAT_S_ALL.attrs["long_name"] = "sea_air_temperature_south_all"
 
-    return SASTAI
+    return SAT_S_ALL
 
 
-def sea_air_surface_temperature_anomaly_south_ocean(
-    data_set, sat_name="sea-air-temperature"
-):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere Ocean.
+def sea_air_temperature_south_ocean(data_set, sat_name="sea-air-temperature"):
+    """Calculate the Sea Air Temperature Anomaly (SAT_S_OCEAN) index, for the southern hemisphere Ocean.
 
     Only data over the Ocean is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -1146,8 +1176,7 @@ def sea_air_surface_temperature_anomaly_south_ocean(
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be: "SASTAI-south-ocean"
+        Time series containing the SAT_S_OCEAN index.
 
     """
     # select only ocean data
@@ -1156,16 +1185,15 @@ def sea_air_surface_temperature_anomaly_south_ocean(
         dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
     )
 
-    SASTAI = monthly_anomalies_unweighted(sat_mean)
-    SASTAI = SASTAI.rename("SASTAI-south-ocean")
+    SAT_S_OCEAN = monthly_anomalies_unweighted(sat_mean)
+    SAT_S_OCEAN = SAT_S_OCEAN.rename("SAT_S_OCEAN")
+    SAT_S_OCEAN.attrs["long_name"] = "sea_air_temperature_south_ocean"
 
-    return SASTAI
+    return SAT_S_OCEAN
 
 
-def sea_air_surface_temperature_anomaly_south_land(
-    data_set, sat_name="sea-air-temperature"
-):
-    """Calculate the Sea Air Surface Temperature Anomaly (SASTA) index, for the southern hemisphere land.
+def sea_air_temperature_south_land(data_set, sat_name="sea-air-temperature"):
+    """Calculate the Sea Air Temperature Anomaly (SAT_S_LAND) index, for the southern hemisphere land.
 
     Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
     calculated from the whole time covered by the data set.
@@ -1186,8 +1214,7 @@ def sea_air_surface_temperature_anomaly_south_land(
     Returns
     -------
     xarray.DataArray
-        Time series containing the SASTA index for southern hemisphere.
-        Name of the DataArray will be: "SASTAI-south-land"
+        Time series containing the SAT_S_LAND index.
 
     """
     # select only land data
@@ -1196,14 +1223,15 @@ def sea_air_surface_temperature_anomaly_south_land(
         dobj=sat, lat_south=-90, lat_north=0, lon_west=0, lon_east=360
     )
 
-    SASTAI = monthly_anomalies_unweighted(sat_mean)
-    SASTAI = SASTAI.rename("SASTAI-south-land")
+    SAT_S_LAND = monthly_anomalies_unweighted(sat_mean)
+    SAT_S_LAND = SAT_S_LAND.rename("SAT_S_LAND")
+    SAT_S_LAND.attrs["long_name"] = "sea_air_temperature_south_land"
 
-    return SASTAI
+    return SAT_S_LAND
 
 
-def sahel_precipitation_anomaly(data_set, precip_name="precipitation"):
-    """Calculate the Sahel precipitation anomaly index
+def sahel_precipitation(data_set, precip_name="precipitation"):
+    """Calculate the Sahel precipitation anomaly index (PREC_SAHEL)
 
     Following http://research.jisao.washington.edu/data/sahel/
     the Sahel rainy season is centered on June through October. The Sahel precipitation index in its original form gives a measure
@@ -1230,7 +1258,7 @@ def sahel_precipitation_anomaly(data_set, precip_name="precipitation"):
     Returns
     -------
     xarray.DataArray
-        Time series containing the Sahel precipitation anomaly index.
+        Time series containing the PREC_SAHEL index.
 
     """
     precip = area_mean_weighted(
@@ -1245,14 +1273,15 @@ def sahel_precipitation_anomaly(data_set, precip_name="precipitation"):
 
     std_dev = precip.std("time")
 
-    Sahel_precip = (precip.groupby("time.month") - climatology) / std_dev
-    Sahel_precip = Sahel_precip.rename("SPAI")
+    PREC_SAHEL = (precip.groupby("time.month") - climatology) / std_dev
+    PREC_SAHEL = PREC_SAHEL.rename("PREC_SAHEL")
+    PREC_SAHEL.attrs["long_name"] = "sahel_precipitation"
 
-    return Sahel_precip
+    return PREC_SAHEL
 
 
 def pacific_decadal_oscillation_pc(data_set, sst_name="sea-surface-temperature"):
-    """Calculate the principal component based Pacific Decadal Oscillation (PDO) index
+    """Calculate the principal component based Pacific Decadal Oscillation (PDO_PC) index
 
     Following
     https://climatedataguide.ucar.edu/climate-data/pacific-decadal-oscillation-pdo-definition-and-indices
@@ -1283,7 +1312,7 @@ def pacific_decadal_oscillation_pc(data_set, sst_name="sea-surface-temperature")
     Returns
     -------
     xarray.DataArray
-        Time series containing the PDO index.
+        Time series containing the PDO_PC index.
 
     """
 
@@ -1326,6 +1355,7 @@ def pacific_decadal_oscillation_pc(data_set, sst_name="sea-surface-temperature")
         PDO_index.values = -PDO_index.values
 
     PDO_index = PDO_index.rename("PDO_PC")
+    PDO_index.attrs["long_name"] = "pacific_decadal_oscillation_pc"
 
     return PDO_index
 
@@ -1356,7 +1386,7 @@ def north_pacific(data_set, slp_name="sea-level-pressure"):
     Returns
     -------
     xarray.DataArray
-        Time series containing the North Pacific index.
+        Time series containing the NP index.
 
     """
     slp = area_mean_weighted(
@@ -1373,6 +1403,7 @@ def north_pacific(data_set, slp_name="sea-level-pressure"):
 
     NP_index = (slp.groupby("time.month") - climatology) / std_dev
     NP_index = NP_index.rename("NP")
+    NP_index.attrs["long_name"] = "north_pacific"
 
     return NP_index
 
@@ -1390,51 +1421,49 @@ class ClimateIndexFunctions(Enum):
 
     """
 
-    southern_annular_mode = partial(southern_annular_mode)
+    southern_annular_mode_zonal_mean = partial(southern_annular_mode_zonal_mean)
     southern_annular_mode_pc = partial(southern_annular_mode_pc)
     southern_oscillation = partial(southern_oscillation)
-    north_atlantic_oscillation = partial(north_atlantic_oscillation)
+    north_atlantic_oscillation_station = partial(north_atlantic_oscillation_station)
     north_atlantic_oscillation_pc = partial(north_atlantic_oscillation_pc)
     el_nino_southern_oscillation_12 = partial(el_nino_southern_oscillation_12)
     el_nino_southern_oscillation_3 = partial(el_nino_southern_oscillation_3)
     el_nino_southern_oscillation_34 = partial(el_nino_southern_oscillation_34)
     el_nino_southern_oscillation_4 = partial(el_nino_southern_oscillation_4)
-    tropical_north_atlantic_SST = partial(tropical_north_atlantic_SST)
-    tropical_south_atlantic_SST = partial(tropical_south_atlantic_SST)
-    eastern_subtropical_indian_ocean_SST = partial(eastern_subtropical_indian_ocean_SST)
-    western_subtropical_indian_ocean_SST = partial(western_subtropical_indian_ocean_SST)
-    mediterranean_SST = partial(mediterranean_SST)
-    hurricane_main_development_region_SST = partial(
-        hurricane_main_development_region_SST
+    tropical_north_atlantic_sea_surface_temperature = partial(
+        tropical_north_atlantic_sea_surface_temperature
+    )
+    tropical_south_atlantic_sea_surface_temperature = partial(
+        tropical_south_atlantic_sea_surface_temperature
+    )
+    eastern_subtropical_indian_ocean_sea_surface_temperature = partial(
+        eastern_subtropical_indian_ocean_sea_surface_temperature
+    )
+    western_subtropical_indian_ocean_sea_surface_temperature = partial(
+        western_subtropical_indian_ocean_sea_surface_temperature
+    )
+    mediterranean_sea_surface_temperature = partial(
+        mediterranean_sea_surface_temperature
+    )
+    hurricane_main_development_region_sea_surface_temperature = partial(
+        hurricane_main_development_region_sea_surface_temperature
     )
     north_atlantic_sea_surface_salinity = partial(north_atlantic_sea_surface_salinity)
-    north_atlantic_sea_surface_salinity_west = partial(
-        north_atlantic_sea_surface_salinity_west
+    western_north_atlantic_sea_surface_salinity = partial(
+        western_north_atlantic_sea_surface_salinity
     )
-    north_atlantic_sea_surface_salinity_east = partial(
-        north_atlantic_sea_surface_salinity_east
+    eastern_north_atlantic_sea_surface_salinity = partial(
+        eastern_north_atlantic_sea_surface_salinity
     )
     south_atlantic_sea_surface_salinity = partial(south_atlantic_sea_surface_salinity)
     atlantic_multidecadal_oscillation = partial(atlantic_multidecadal_oscillation)
-    sea_air_surface_temperature_anomaly_north_all = partial(
-        sea_air_surface_temperature_anomaly_north_all
-    )
-    sea_air_surface_temperature_anomaly_north_ocean = partial(
-        sea_air_surface_temperature_anomaly_north_ocean
-    )
-    sea_air_surface_temperature_anomaly_north_land = partial(
-        sea_air_surface_temperature_anomaly_north_land
-    )
-    sea_air_surface_temperature_anomaly_south_all = partial(
-        sea_air_surface_temperature_anomaly_south_all
-    )
-    sea_air_surface_temperature_anomaly_south_ocean = partial(
-        sea_air_surface_temperature_anomaly_south_ocean
-    )
-    sea_air_surface_temperature_anomaly_south_land = partial(
-        sea_air_surface_temperature_anomaly_south_land
-    )
-    sahel_precipitation_anomaly = partial(sahel_precipitation_anomaly)
+    sea_air_temperature_north_all = partial(sea_air_temperature_north_all)
+    sea_air_temperature_north_ocean = partial(sea_air_temperature_north_ocean)
+    sea_air_temperature_north_land = partial(sea_air_temperature_north_land)
+    sea_air_temperature_south_all = partial(sea_air_temperature_south_all)
+    sea_air_temperature_south_ocean = partial(sea_air_temperature_south_ocean)
+    sea_air_temperature_south_land = partial(sea_air_temperature_south_land)
+    sahel_precipitation = partial(sahel_precipitation)
     pacific_decadal_oscillation_pc = partial(pacific_decadal_oscillation_pc)
     north_pacific = partial(north_pacific)
 

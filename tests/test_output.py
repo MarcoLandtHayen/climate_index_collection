@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cftime
 import numpy as np
 import pandas as pd
 import pytest
@@ -7,8 +8,8 @@ import xarray as xr
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
-    north_atlantic_oscillation,
-    southern_annular_mode,
+    north_atlantic_oscillation_station,
+    southern_annular_mode_zonal_mean,
 )
 from climate_index_collection.output import (
     compute_index,
@@ -27,11 +28,25 @@ from climate_index_collection.output import (
 
 @pytest.fixture
 def example_data_array():
+
     data = xr.DataArray(
         [0.5, 1, -0.3, -0.7],
         dims=("time"),
+        attrs={"long_name": "southern_annular_mode"},
         name="SAM",
     )
+
+    time_axis = np.array(
+        [
+            cftime.DatetimeProlepticGregorian(2350, 1, 15, 12),
+            cftime.DatetimeProlepticGregorian(2350, 2, 15, 12),
+            cftime.DatetimeProlepticGregorian(2350, 3, 15, 12),
+            cftime.DatetimeProlepticGregorian(2350, 4, 15, 12),
+        ]
+    )
+
+    data = data.assign_coords({"time": time_axis})
+
     return data
 
 
@@ -45,7 +60,7 @@ def test_returntype_of_compute_index(source_name):
     SAM_data_array = compute_index(
         data_path=TEST_DATA_PATH,
         data_source_name=source_name,
-        index_function=southern_annular_mode,
+        index_function=southern_annular_mode_zonal_mean,
     )
 
     # Check, if calculated SAM index has type xarray.DataArray
@@ -56,20 +71,39 @@ def test_conversion_to_dataframe(example_data_array):
     """Ensure that function index_dataarray_to_dataframe correctly converts given xarray DataArray to pandas dataframe. Use default model name FOCI."""
 
     assert all(
-        index_dataarray_to_dataframe(index_data_array=example_data_array)["time"].values
-        == np.array([0, 1, 2, 3])
-    )
-    assert all(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
             "model"
         ].values
         == np.array(["FOCI", "FOCI", "FOCI", "FOCI"])
     )
     assert all(
+        index_dataarray_to_dataframe(index_data_array=example_data_array)["year"].values
+        == np.array([1, 1, 1, 1])
+    )
+    assert all(
+        index_dataarray_to_dataframe(index_data_array=example_data_array)[
+            "month"
+        ].values
+        == np.array([1, 2, 3, 4])
+    )
+    assert all(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
             "index"
         ].values
         == np.array(["SAM", "SAM", "SAM", "SAM"])
+    )
+    assert all(
+        index_dataarray_to_dataframe(index_data_array=example_data_array)[
+            "long_name"
+        ].values
+        == np.array(
+            [
+                "southern_annular_mode",
+                "southern_annular_mode",
+                "southern_annular_mode",
+                "southern_annular_mode",
+            ]
+        )
     )
     np.testing.assert_allclose(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
@@ -89,7 +123,7 @@ def test_returntype_of_conversion_to_dataframe(source_name):
     SAM_data_array = compute_index(
         data_path=TEST_DATA_PATH,
         data_source_name=source_name,
-        index_function=southern_annular_mode,
+        index_function=southern_annular_mode_zonal_mean,
     )
 
     # Convert to pandas DataFrame
@@ -108,7 +142,10 @@ def test_concat_indices():
     df = concat_indices(
         data_path=TEST_DATA_PATH,
         data_source_names=["FOCI", "CESM"],
-        index_functions=[southern_annular_mode, north_atlantic_oscillation],
+        index_functions=[
+            southern_annular_mode_zonal_mean,
+            north_atlantic_oscillation_station,
+        ],
     )
 
     # Check, if resulting dataframe has unique index
@@ -116,6 +153,26 @@ def test_concat_indices():
 
     # Check, if resulting dataframe has NO duplicate rows
     assert not (any(df.duplicated()))
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_conversion_of_time_axis(source_name):
+    """Ensure that time axis starts in year 1."""
+    # Path to test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+
+    # Compute indices from sources and concatenate resulting dataframes
+    df = concat_indices(
+        data_path=TEST_DATA_PATH,
+        data_source_names=["FOCI", "CESM"],
+        index_functions=[
+            southern_annular_mode_zonal_mean,
+            north_atlantic_oscillation_station,
+        ],
+    )
+
+    # Check, if time axis of resulting dataframe starts at 1 for both models
+    assert df[df["model"] == source_name]["year"].iloc[0] == 1
 
 
 def test_run_full_workflow_csv(tmp_path):
@@ -131,7 +188,10 @@ def test_run_full_workflow_csv(tmp_path):
         data_path=TEST_DATA_PATH,
         file_name=outfile,
         data_source_names=["FOCI", "CESM"],
-        index_functions=[southern_annular_mode, north_atlantic_oscillation],
+        index_functions=[
+            southern_annular_mode_zonal_mean,
+            north_atlantic_oscillation_station,
+        ],
     )
 
     # Check, if csv output file exists
