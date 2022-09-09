@@ -71,20 +71,39 @@ def test_conversion_to_dataframe(example_data_array):
     """Ensure that function index_dataarray_to_dataframe correctly converts given xarray DataArray to pandas dataframe. Use default model name FOCI."""
 
     assert all(
-        index_dataarray_to_dataframe(index_data_array=example_data_array)["time"].values
-        == np.array([0, 1, 2, 3])
-    )
-    assert all(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
             "model"
         ].values
         == np.array(["FOCI", "FOCI", "FOCI", "FOCI"])
     )
     assert all(
+        index_dataarray_to_dataframe(index_data_array=example_data_array)["year"].values
+        == np.array([1, 1, 1, 1])
+    )
+    assert all(
+        index_dataarray_to_dataframe(index_data_array=example_data_array)[
+            "month"
+        ].values
+        == np.array([1, 2, 3, 4])
+    )
+    assert all(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
             "index"
         ].values
         == np.array(["SAM", "SAM", "SAM", "SAM"])
+    )
+    assert all(
+        index_dataarray_to_dataframe(index_data_array=example_data_array)[
+            "long_name"
+        ].values
+        == np.array(
+            [
+                "southern_annular_mode",
+                "southern_annular_mode",
+                "southern_annular_mode",
+                "southern_annular_mode",
+            ]
+        )
     )
     np.testing.assert_allclose(
         index_dataarray_to_dataframe(index_data_array=example_data_array)[
