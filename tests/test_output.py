@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cftime
 import numpy as np
 import pandas as pd
 import pytest
