@@ -27,11 +27,25 @@ from climate_index_collection.output import (
 
 @pytest.fixture
 def example_data_array():
+
     data = xr.DataArray(
         [0.5, 1, -0.3, -0.7],
         dims=("time"),
+        attrs={"long_name": "southern_annular_mode"},
         name="SAM",
     )
+
+    time_axis = np.array(
+        [
+            cftime.DatetimeProlepticGregorian(2350, 1, 15, 12),
+            cftime.DatetimeProlepticGregorian(2350, 2, 15, 12),
+            cftime.DatetimeProlepticGregorian(2350, 3, 15, 12),
+            cftime.DatetimeProlepticGregorian(2350, 4, 15, 12),
+        ]
+    )
+
+    data = data.assign_coords({"time": time_axis})
+
     return data
 
 
@@ -119,6 +133,26 @@ def test_concat_indices():
 
     # Check, if resulting dataframe has NO duplicate rows
     assert not (any(df.duplicated()))
+
+
+@pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
+def test_conversion_of_time_axis(source_name):
+    """Ensure that time axis starts in year 1."""
+    # Path to test data
+    TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
+
+    # Compute indices from sources and concatenate resulting dataframes
+    df = concat_indices(
+        data_path=TEST_DATA_PATH,
+        data_source_names=["FOCI", "CESM"],
+        index_functions=[
+            southern_annular_mode_zonal_mean,
+            north_atlantic_oscillation_station,
+        ],
+    )
+
+    # Check, if time axis of resulting dataframe starts at 1 for both models
+    assert df[df["model"] == source_name]["year"].iloc[0] == 1
 
 
 def test_run_full_workflow_csv(tmp_path):

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cftime
 import numpy as np
 import pytest
 import scipy as sp
@@ -951,7 +952,7 @@ def test_AMO_naming(source_name):
         sea_air_temperature_south_ocean,
     ],
 )
-def test_SASTAI_metadata(source_name, index_function):
+def test_SAT_metadata(source_name, index_function):
     """Ensure that index of the index only contains time dimension."""
     # Load test data
     TEST_DATA_PATH = Path(__file__).parent / "../data/test_data/"
