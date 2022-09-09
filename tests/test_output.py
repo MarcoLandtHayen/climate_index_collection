@@ -7,8 +7,8 @@ import xarray as xr
 
 from climate_index_collection.data_loading import VARNAME_MAPPING, load_data_set
 from climate_index_collection.indices import (
-    north_atlantic_oscillation,
-    southern_annular_mode,
+    north_atlantic_oscillation_station,
+    southern_annular_mode_zonal_mean,
 )
 from climate_index_collection.output import (
     compute_index,
@@ -45,7 +45,7 @@ def test_returntype_of_compute_index(source_name):
     SAM_data_array = compute_index(
         data_path=TEST_DATA_PATH,
         data_source_name=source_name,
-        index_function=southern_annular_mode,
+        index_function=southern_annular_mode_zonal_mean,
     )
 
     # Check, if calculated SAM index has type xarray.DataArray
@@ -89,7 +89,7 @@ def test_returntype_of_conversion_to_dataframe(source_name):
     SAM_data_array = compute_index(
         data_path=TEST_DATA_PATH,
         data_source_name=source_name,
-        index_function=southern_annular_mode,
+        index_function=southern_annular_mode_zonal_mean,
     )
 
     # Convert to pandas DataFrame
@@ -108,7 +108,10 @@ def test_concat_indices():
     df = concat_indices(
         data_path=TEST_DATA_PATH,
         data_source_names=["FOCI", "CESM"],
-        index_functions=[southern_annular_mode, north_atlantic_oscillation],
+        index_functions=[
+            southern_annular_mode_zonal_mean,
+            north_atlantic_oscillation_station,
+        ],
     )
 
     # Check, if resulting dataframe has unique index
@@ -131,7 +134,10 @@ def test_run_full_workflow_csv(tmp_path):
         data_path=TEST_DATA_PATH,
         file_name=outfile,
         data_source_names=["FOCI", "CESM"],
-        index_functions=[southern_annular_mode, north_atlantic_oscillation],
+        index_functions=[
+            southern_annular_mode_zonal_mean,
+            north_atlantic_oscillation_station,
+        ],
     )
 
     # Check, if csv output file exists

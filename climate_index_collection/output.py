@@ -4,13 +4,13 @@ import pandas as pd
 import xarray as xr
 
 from climate_index_collection.data_loading import load_data_set
-from climate_index_collection.indices import southern_annular_mode
+from climate_index_collection.indices import southern_annular_mode_zonal_mean
 
 
 def compute_index(
     data_path="../data/test_data/",
     data_source_name="FOCI",
-    index_function=southern_annular_mode,
+    index_function=southern_annular_mode_zonal_mean,
 ):
     """Compute index from data source and return xarray DataArray.
 
@@ -21,7 +21,7 @@ def compute_index(
     data_source_name: str
         Name of the model dataset. Defaults to "FOCI".
     index_function: function
-        Index function. Defaults to southern_annular_mode.
+        Index function. Defaults to southern_annular_mode_zonal_mean.
 
     Returns
     -------
