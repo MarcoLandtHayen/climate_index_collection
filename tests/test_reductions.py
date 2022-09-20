@@ -556,7 +556,10 @@ def test_polygon_split_arbitrary_notdefault2():
     assert type(result) is MultiPolygon
 
 
-def test_polygon2mask_across_dateline():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_across_dateline(polygon_mask_function):
     """Check case where lon W/E bounds are ordered in interval [0,360)."""
     data_set = xr.Dataset(
         coords={
@@ -571,12 +574,15 @@ def test_polygon2mask_across_dateline():
         }
     )
     pg = Polygon([(30, 90), (270, 90), (270, -90), (30, -90)])
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip([False, True, True], mask.squeeze().data))
 
 
-def test_polygon2mask_across_zero_meridian():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_across_zero_meridian(polygon_mask_function):
     """Check case where lon W/E bounds are ordered in interval [-180, 180)."""
     data_set = xr.Dataset(
         coords={
@@ -591,12 +597,15 @@ def test_polygon2mask_across_zero_meridian():
         }
     )
     pg = Polygon([(30, 90), (-180, 90), (-180, -90), (30, -90)])
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip([True, False, True], mask.squeeze().data))
 
 
-def test_polygon2mask_point_on_boundary():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_point_on_boundary(polygon_mask_function):
     """Check case where a point lies on the boundary of the polygon.
     Here it is the Point (0, 0) is situated on the boundary."""
     data_set = xr.Dataset(
@@ -614,7 +623,7 @@ def test_polygon2mask_point_on_boundary():
     )
     pg = Polygon([(0, 0), (5, 0), (5, 5), (0, 5)])
 
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
 
     mask_should = np.array([[True, False, False], [False, False, False]])
 
@@ -622,7 +631,10 @@ def test_polygon2mask_point_on_boundary():
     assert all(m == mt for m, mt in zip(mask_should.flatten(), mask.data.flatten()))
 
 
-def test_polygon2mask_multipolygon():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_multipolygon(polygon_mask_function):
     """Check case where a point lies on the boundary of the polygon.
     Here it is the Point (0, 0) is situated on the boundary."""
     data_set = xr.Dataset(
@@ -641,7 +653,7 @@ def test_polygon2mask_multipolygon():
     pg1 = Polygon([(0, 0), (5, 0), (5, 5), (0, 5)])
     pg2 = Polygon([(110, -10), (130, -10), (130, -15), (110, -15)])
     pg = unary_union([pg1, pg2])
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
     mask_should = np.array([[True, False, False], [False, True, False]])
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip(mask_should.flatten(), mask.data.flatten()))
