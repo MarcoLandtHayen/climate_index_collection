@@ -14,6 +14,7 @@ from climate_index_collection.reductions import (
     mean_unweighted,
     mean_weighted,
     polygon2mask,
+    polygon2mask_only_primemeridian,
     polygon_prime_meridian,
     polygon_split_arbitrary,
     spatial_mask,
