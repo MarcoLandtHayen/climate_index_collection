@@ -553,6 +553,137 @@ def polygon_prime_meridian(pg):
         return result
 
 
+def polygon_split_arbitrary(
+    pg,
+    lon_min=0,
+    lon_max=360,
+    lat_min=-90,
+    lat_max=90,
+    max_iteration=1e3,
+    max_extend=1e6,
+):
+    """
+    Transforms shapely Polygons or MultiPolygons defined in arbitrary coords into
+    other arbitrary coords bound by latitude and longitude boundaries.
+    If necessary, the polygon is split and the splitted part will be transformed along the corresponding dimension to fit into the boundaries.
+    Polygon points are expected be (lon, lat) tuples.
+
+
+
+    Parameters
+    ----------
+    pg: shaply Polygon or shapely MultiPolygon
+        Polygon including the area wanted.
+    lon_min : float
+        Minimum boundary of the longitude bounds
+        Default to 0.
+    lon_max :
+        Maximum boundary of the longitude bounds.
+        Default to 360.
+    lat_min : float
+        Minimum boundary of the longitude bounds
+        Default to -90.
+    lat_max :
+        Maximum boundary of the longitude bounds.
+        Default to 90.
+    max_iteration : int
+        Sets upper limit of splitting iterations across all longitude bounds.
+    max_extend : int or float
+        Maximum extend allowed for lat and lon.
+
+    Returns
+    -------
+    shapely MultPolygon
+        shaply MultiPolygon containing at least one Polygon.
+    """
+    check_bounds = lambda pg: pg.bounds[0] >= lon_min and pg.bounds[2] <= lon_max
+
+    diff_lon = lon_max - lon_min
+    diff_lat = lat_max - lat_min
+    # handle empty Polygons and MultiPolygons
+    if pg.is_empty:
+        return MultiPolygon([pg])
+
+    # create cutting lines at lon_min and lon_max to eventually split the polygon there.
+    left_splitter = LineString(
+        [(lon_min, max_extend), (lon_min, 0), (lon_min, -max_extend)]
+    )
+    right_splitter = LineString(
+        [(lon_max, max_extend), (lon_max, 0), (lon_max, -max_extend)]
+    )
+
+    # create cutting lines at lat_min and lat_max to eventually split the polygon there.
+    lower_splitter = LineString(
+        [(-max_extend, lat_min), (0, lat_min), (max_extend, lat_min)]
+    )
+    upper_splitter = LineString(
+        [(-max_extend, lat_max), (0, lat_max), (max_extend, lat_max)]
+    )
+
+    i = 0
+
+    # LONGITUDE HANDLING
+    # handle all polygon parts with longitude smaller than lon_min
+    while not pg.bounds[0] >= lon_min and i < max_iteration:
+        i += 1
+        pg_list = []
+        # while not split_done :
+        pg_split = split(pg, left_splitter)
+        for temp_pg in pg_split.geoms:
+            # check if the polygons minx is negative and add 360 to it.
+            if temp_pg.bounds[0] < lon_min:
+                temp_pg = translate(temp_pg, xoff=diff_lon)
+            pg_list += [temp_pg]
+        pg = unary_union(pg_list)
+
+    # handle all polygon parts with longitude greater than lon_max
+    while not pg.bounds[2] <= lon_max and i < max_iteration:
+        i += 1
+        pg_list = []
+        pg_split = split(pg, right_splitter)
+        for temp_pg in pg_split.geoms:
+            # check if the polygons minx is negative and add 360 to it.
+            if temp_pg.bounds[2] > lon_max:
+                temp_pg = translate(temp_pg, xoff=-diff_lon)
+            pg_list += [temp_pg]
+        pg = unary_union(pg_list)
+
+    # LATUTUDE HANDLING
+    # handle all polygon parts with latitude smaller than lon_min
+    while not pg.bounds[1] >= lat_min and i < max_iteration:
+        i += 1
+        pg_list = []
+        # while not split_done :
+        pg_split = split(pg, lower_splitter)
+        for temp_pg in pg_split.geoms:
+            # check if the polygons minx is negative and add 360 to it.
+            if temp_pg.bounds[1] < lat_min:
+                temp_pg = translate(temp_pg, yoff=diff_lat)
+            pg_list += [temp_pg]
+        pg = unary_union(pg_list)
+
+    # handle all polygon parts with latitude greater than lon_max
+    while not pg.bounds[3] <= lat_max and i < max_iteration:
+        i += 1
+        pg_list = []
+        pg_split = split(pg, upper_splitter)
+        for temp_pg in pg_split.geoms:
+            # check if the polygons minx is negative and add 360 to it.
+            if temp_pg.bounds[3] > lat_max:
+                temp_pg = translate(temp_pg, yoff=-diff_lat)
+            pg_list += [temp_pg]
+        pg = unary_union(pg_list)
+
+    # create the multipolygon existing in the given boudaries from the list of polygons
+    result = pg
+    # for consistency always return MultiPolygon
+    if type(result) is not MultiPolygon:
+        # convert Polygon to MultiPolygon
+        return MultiPolygon([result])
+    else:
+        return result
+
+
 def polygon2mask(dobj, pg, lat_name="lat", lon_name="lon"):
     """
     This funciton creates a mask for a given DataArray or DataSet based on a shapely Polygon or MultiPolygon.
