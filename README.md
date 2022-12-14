@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/MarcoLandtHayen/climate_index_collection/branch/main/graph/badge.svg)](https://codecov.io/gh/MarcoLandtHayen/climate_index_collection)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/mlandthayen/climate_index_collection?label=DockerHub)](https://hub.docker.com/r/mlandthayen/climate_index_collection/tags)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7436161.svg)](https://doi.org/10.5281/zenodo.7436161)
 
 
 Collection of climate indices derived from climate model outputs.
