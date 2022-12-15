@@ -1004,7 +1004,7 @@ def atlantic_multidecadal_oscillation(data_set, sst_name="sea-surface-temperatur
     return AMO
 
 
-def sea_air_temperature_north_all(data_set, sat_name="sea-air-temperature"):
+def surface_air_temperature_north_all(data_set, sat_name="surface-air-temperature"):
     """Calculate the Sea Air Temperature Anomaly (SAT_N_ALL) index, for the complete northern hemisphere.
 
     Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
@@ -1021,7 +1021,7 @@ def sea_air_temperature_north_all(data_set, sat_name="sea-air-temperature"):
     data_set: xarray.DataSet
         Dataset containing a SAT field.
     slp_name: str
-        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+        Name of the surface air temperature field. Defaults to "surface-air-temperature".
 
     Returns
     -------
@@ -1036,12 +1036,12 @@ def sea_air_temperature_north_all(data_set, sat_name="sea-air-temperature"):
 
     SAT_N_ALL = monthly_anomalies_unweighted(sat_mean)
     SAT_N_ALL = SAT_N_ALL.rename("SAT_N_ALL")
-    SAT_N_ALL.attrs["long_name"] = "sea_air_temperature_north_all"
+    SAT_N_ALL.attrs["long_name"] = "surface_air_temperature_north_all"
 
     return SAT_N_ALL
 
 
-def sea_air_temperature_north_ocean(data_set, sat_name="sea-air-temperature"):
+def surface_air_temperature_north_ocean(data_set, sat_name="surface-air-temperature"):
     """Calculate the Sea Air Temperature Anomaly (SAT_N_OCEAN) index, for the northern hemisphere Ocean.
 
     Only data over the Ocean is used for the calculation. The anomalies are relative to a monthly climatology
@@ -1058,7 +1058,7 @@ def sea_air_temperature_north_ocean(data_set, sat_name="sea-air-temperature"):
     data_set: xarray.DataSet
         Dataset containing a SAT field.
     slp_name: str
-        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+        Name of the surface air temperature field. Defaults to "surface-air-temperature".
 
     Returns
     -------
@@ -1074,12 +1074,12 @@ def sea_air_temperature_north_ocean(data_set, sat_name="sea-air-temperature"):
 
     SAT_N_OCEAN = monthly_anomalies_unweighted(sat_mean)
     SAT_N_OCEAN = SAT_N_OCEAN.rename("SAT_N_OCEAN")
-    SAT_N_OCEAN.attrs["long_name"] = "sea_air_temperature_north_ocean"
+    SAT_N_OCEAN.attrs["long_name"] = "surface_air_temperature_north_ocean"
 
     return SAT_N_OCEAN
 
 
-def sea_air_temperature_north_land(data_set, sat_name="sea-air-temperature"):
+def surface_air_temperature_north_land(data_set, sat_name="surface-air-temperature"):
     """Calculate the Sea Air Temperature Anomaly (SAT_N_LAND) index, for the northern hemisphere land.
 
     Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
@@ -1096,7 +1096,7 @@ def sea_air_temperature_north_land(data_set, sat_name="sea-air-temperature"):
     data_set: xarray.DataSet
         Dataset containing a SAT field.
     slp_name: str
-        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+        Name of the surface air temperature field. Defaults to "surface-air-temperature".
 
     Returns
     -------
@@ -1112,12 +1112,12 @@ def sea_air_temperature_north_land(data_set, sat_name="sea-air-temperature"):
 
     SAT_N_LAND = monthly_anomalies_unweighted(sat_mean)
     SAT_N_LAND = SAT_N_LAND.rename("SAT_N_LAND")
-    SAT_N_LAND.attrs["long_name"] = "sea_air_temperature_north_land"
+    SAT_N_LAND.attrs["long_name"] = "surface_air_temperature_north_land"
 
     return SAT_N_LAND
 
 
-def sea_air_temperature_south_all(data_set, sat_name="sea-air-temperature"):
+def surface_air_temperature_south_all(data_set, sat_name="surface-air-temperature"):
     """Calculate the Sea Air Temperature Anomaly (SAT_S_ALL) index, for the complete southern hemisphere.
 
     Land and Ocean data is used for the calculation. The anomalies are relative to a monthly climatology
@@ -1134,7 +1134,7 @@ def sea_air_temperature_south_all(data_set, sat_name="sea-air-temperature"):
     data_set: xarray.DataSet
         Dataset containing a SAT field.
     slp_name: str
-        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+        Name of the surface air temperature field. Defaults to "surface-air-temperature".
 
     Returns
     -------
@@ -1149,12 +1149,12 @@ def sea_air_temperature_south_all(data_set, sat_name="sea-air-temperature"):
 
     SAT_S_ALL = monthly_anomalies_unweighted(sat_mean)
     SAT_S_ALL = SAT_S_ALL.rename("SAT_S_ALL")
-    SAT_S_ALL.attrs["long_name"] = "sea_air_temperature_south_all"
+    SAT_S_ALL.attrs["long_name"] = "surface_air_temperature_south_all"
 
     return SAT_S_ALL
 
 
-def sea_air_temperature_south_ocean(data_set, sat_name="sea-air-temperature"):
+def surface_air_temperature_south_ocean(data_set, sat_name="surface-air-temperature"):
     """Calculate the Sea Air Temperature Anomaly (SAT_S_OCEAN) index, for the southern hemisphere Ocean.
 
     Only data over the Ocean is used for the calculation. The anomalies are relative to a monthly climatology
@@ -1171,7 +1171,7 @@ def sea_air_temperature_south_ocean(data_set, sat_name="sea-air-temperature"):
     data_set: xarray.DataSet
         Dataset containing a SAT field.
     slp_name: str
-        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+        Name of the surface air temperature field. Defaults to "surface-air-temperature".
 
     Returns
     -------
@@ -1187,12 +1187,12 @@ def sea_air_temperature_south_ocean(data_set, sat_name="sea-air-temperature"):
 
     SAT_S_OCEAN = monthly_anomalies_unweighted(sat_mean)
     SAT_S_OCEAN = SAT_S_OCEAN.rename("SAT_S_OCEAN")
-    SAT_S_OCEAN.attrs["long_name"] = "sea_air_temperature_south_ocean"
+    SAT_S_OCEAN.attrs["long_name"] = "surface_air_temperature_south_ocean"
 
     return SAT_S_OCEAN
 
 
-def sea_air_temperature_south_land(data_set, sat_name="sea-air-temperature"):
+def surface_air_temperature_south_land(data_set, sat_name="surface-air-temperature"):
     """Calculate the Sea Air Temperature Anomaly (SAT_S_LAND) index, for the southern hemisphere land.
 
     Only data over land is used for the calculation. The anomalies are relative to a monthly climatology
@@ -1209,7 +1209,7 @@ def sea_air_temperature_south_land(data_set, sat_name="sea-air-temperature"):
     data_set: xarray.DataSet
         Dataset containing a SAT field.
     slp_name: str
-        Name of the Sea-Air Temperature field. Defaults to "sea-air-temperature".
+        Name of the surface air temperature field. Defaults to "surface-air-temperature".
 
     Returns
     -------
@@ -1225,7 +1225,7 @@ def sea_air_temperature_south_land(data_set, sat_name="sea-air-temperature"):
 
     SAT_S_LAND = monthly_anomalies_unweighted(sat_mean)
     SAT_S_LAND = SAT_S_LAND.rename("SAT_S_LAND")
-    SAT_S_LAND.attrs["long_name"] = "sea_air_temperature_south_land"
+    SAT_S_LAND.attrs["long_name"] = "surface_air_temperature_south_land"
 
     return SAT_S_LAND
 
@@ -1457,12 +1457,12 @@ class ClimateIndexFunctions(Enum):
     )
     south_atlantic_sea_surface_salinity = partial(south_atlantic_sea_surface_salinity)
     atlantic_multidecadal_oscillation = partial(atlantic_multidecadal_oscillation)
-    sea_air_temperature_north_all = partial(sea_air_temperature_north_all)
-    sea_air_temperature_north_ocean = partial(sea_air_temperature_north_ocean)
-    sea_air_temperature_north_land = partial(sea_air_temperature_north_land)
-    sea_air_temperature_south_all = partial(sea_air_temperature_south_all)
-    sea_air_temperature_south_ocean = partial(sea_air_temperature_south_ocean)
-    sea_air_temperature_south_land = partial(sea_air_temperature_south_land)
+    surface_air_temperature_north_all = partial(surface_air_temperature_north_all)
+    surface_air_temperature_north_ocean = partial(surface_air_temperature_north_ocean)
+    surface_air_temperature_north_land = partial(surface_air_temperature_north_land)
+    surface_air_temperature_south_all = partial(surface_air_temperature_south_all)
+    surface_air_temperature_south_ocean = partial(surface_air_temperature_south_ocean)
+    surface_air_temperature_south_land = partial(surface_air_temperature_south_land)
     sahel_precipitation = partial(sahel_precipitation)
     pacific_decadal_oscillation_pc = partial(pacific_decadal_oscillation_pc)
     north_pacific = partial(north_pacific)
