@@ -14,7 +14,9 @@ from climate_index_collection.reductions import (
     mean_unweighted,
     mean_weighted,
     polygon2mask,
+    polygon2mask_only_primemeridian,
     polygon_prime_meridian,
+    polygon_split_arbitrary,
     spatial_mask,
     stddev_unweighted,
     stddev_weighted,
@@ -253,7 +255,10 @@ def test_spatial_mask_no_bounds():
     assert all(list(mask.data.flatten()))
 
 
-def test_polygon_prime_meridian_no_crossing_polygon():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_no_crossing_polygon(polygon_split_function):
     """
     Check case where input is a
     - Polygon which
@@ -264,13 +269,16 @@ def test_polygon_prime_meridian_no_crossing_polygon():
     """
 
     pg = Polygon([(10, 50), (5, 50), (5, -50), (10, -50)])
-    result = polygon_prime_meridian(pg)
+    result = polygon_split_function(pg)
     should_result = Polygon([(10, 50), (5, 50), (5, -50), (10, -50)])
     assert result.equals(should_result)
     assert type(result) is MultiPolygon
 
 
-def test_polygon_prime_meridian_no_crossing_multipolygon():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_no_crossing_multipolygon(polygon_split_function):
     """
     Check case where input is a
     - MultiPolygon which
@@ -286,7 +294,7 @@ def test_polygon_prime_meridian_no_crossing_multipolygon():
             Polygon([(10, -10), (5, -10), (5, -50), (5, -50)]),
         ]
     )
-    result = polygon_prime_meridian(pg)
+    result = polygon_split_function(pg)
     should_result = MultiPolygon(
         [
             Polygon([(10, 50), (5, 50), (5, 10), (10, 10)]),
@@ -297,7 +305,10 @@ def test_polygon_prime_meridian_no_crossing_multipolygon():
     assert type(result) is MultiPolygon
 
 
-def test_polygon_prime_meridian_crossing_polygon():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_crossing_polygon(polygon_split_function):
     """
     Check case where input is a
     - Polygon which
@@ -308,7 +319,7 @@ def test_polygon_prime_meridian_crossing_polygon():
     """
 
     pg = Polygon([(10, 50), (-10, 50), (-10, -50), (10, -50)])
-    result = polygon_prime_meridian(pg)
+    result = polygon_split_function(pg)
     should_result = unary_union(
         [
             Polygon([(360, 50), (350, 50), (350, -50), (360, -50)]),
@@ -319,7 +330,10 @@ def test_polygon_prime_meridian_crossing_polygon():
     assert type(result) is MultiPolygon
 
 
-def test_polygon_prime_meridian_crossing_multipolygon():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_crossing_multipolygon(polygon_split_function):
     """
     Check case where input is a
     - MultiPolygon which
@@ -335,7 +349,7 @@ def test_polygon_prime_meridian_crossing_multipolygon():
             Polygon([(50, -10), (180, -10), (180, -50), (50, -50)]),
         ]
     )
-    result = polygon_prime_meridian(pg)
+    result = polygon_split_function(pg)
     should_result = MultiPolygon(
         [
             Polygon([(10, 50), (0, 50), (0, -50), (10, -50)]),
@@ -347,7 +361,10 @@ def test_polygon_prime_meridian_crossing_multipolygon():
     assert type(result) is MultiPolygon
 
 
-def test_polygon_prime_meridian_crossing_multipolygon_overlap():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_crossing_multipolygon_overlap(polygon_split_function):
     """
     Check case where input is a
     - MultiPolygon which
@@ -366,7 +383,7 @@ def test_polygon_prime_meridian_crossing_multipolygon_overlap():
             Polygon([(50, -10), (355, -10), (355, -50), (50, -50)]),
         ]
     )
-    result = polygon_prime_meridian(pg)
+    result = polygon_split_function(pg)
     should_result = MultiPolygon(
         [
             Polygon([(10, 50), (0, 50), (0, -50), (10, -50)]),
@@ -386,7 +403,10 @@ def test_polygon_prime_meridian_crossing_multipolygon_overlap():
     assert type(result) is MultiPolygon
 
 
-def test_polygon_prime_meridian_whole_earth():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_whole_earth(polygon_split_function):
     """
     Check case where input is a Polygon which cointains the whole earth.
     The result needs to be
@@ -396,13 +416,16 @@ def test_polygon_prime_meridian_whole_earth():
     """
     pg = Polygon([(-180, 90), (180, 90), (180, -90), (-180, -90)])
     should_result = Polygon([(0, 90), (360, 90), (360, -90), (0, -90)])
-    result = polygon_prime_meridian(pg)
+    result = polygon_split_function(pg)
     assert pg.area == result.area
     assert result.equals(should_result)
     assert type(result) is MultiPolygon
 
 
-def test_polygon_prime_meridian_empty():
+@pytest.mark.parametrize(
+    "polygon_split_function", [polygon_prime_meridian, polygon_split_arbitrary]
+)
+def test_polygon_split_functions_empty(polygon_split_function):
     """
     Check case where input is an empty Polygon or Multipolygon.
     The result needs to be
@@ -411,13 +434,133 @@ def test_polygon_prime_meridian_empty():
     """
     pg = Polygon()
     mpg = MultiPolygon()
-    pg_result = polygon_prime_meridian(pg)
+    pg_result = polygon_split_function(pg)
     mpg_result = polygon_prime_meridian(mpg)
     assert all(result.is_empty for result in [pg_result, mpg_result])
     assert all(type(result) is MultiPolygon for result in [pg_result, mpg_result])
 
 
-def test_polygon2mask_across_dateline():
+def test_polygon_split_arbitrary_ulr():
+    """
+    Check case a rectangle Polygon needs to be split along upper, left and right boundary.
+    """
+    pg = Polygon(
+        [
+            (-10, 100),
+            (10, 100),
+            (10, 80),
+            (-10, 80),
+        ]
+    )
+    should_result = MultiPolygon(
+        [
+            Polygon([(0, 90), (10, 90), (10, 80), (0, 80)]),
+            Polygon([(0, -90), (10, -90), (10, -80), (0, -80)]),
+            Polygon([(350, 90), (360, 90), (360, 80), (350, 80)]),
+            Polygon([(350, -90), (360, -90), (360, -80), (350, -80)]),
+        ]
+    )
+    result = polygon_split_arbitrary(pg)
+    assert pg.area == result.area
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_split_arbitrary_default():
+    """
+    Check case a rectangle Polygon needs to be split along all boundaries.
+
+    In the following explanation the input MultiPolygon (iMP) and result MultiPolygon (rMP) is sketched.
+    x : inside one of the Polygons.
+    0 : not inside one of the Polygons.
+    | : lon bounds
+    - : lat bounds
+    Input MultiPolygon looks like this
+    x x o o o o
+     ---------
+    x|x o o o|o
+    o|o o o o|o
+    o|o o o o|o
+    o|o o o x|x
+     ---------
+    o o o o x x
+
+    the result will then be
+    o o o o o o
+     ---------
+    o|x o o x|o
+    o|o o o o|o
+    o|o o o o|o
+    o|x o o x|o
+     ---------
+    o o o o o o
+    """
+    pg = MultiPolygon(
+        [
+            Polygon([(-10, 100), (10, 100), (10, 80), (-10, 80)]),
+            Polygon([(370, -100), (350, -100), (350, -80), (370, -80)]),
+        ]
+    )
+
+    should_result = MultiPolygon(
+        [
+            Polygon([(0, 90), (10, 90), (10, 80), (0, 80)]),
+            Polygon([(0, -90), (10, -90), (10, -80), (0, -80)]),
+            Polygon([(350, 90), (360, 90), (360, 80), (350, 80)]),
+            Polygon([(350, -90), (360, -90), (360, -80), (350, -80)]),
+        ]
+    )
+    result = polygon_split_arbitrary(pg)
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_split_arbitrary_notdefault():
+    """
+    Same as in test_polygon_split_arbitrary_default but bounds and polygon input values divided by 10.
+    """
+    pg = MultiPolygon(
+        [
+            Polygon([(-1, 10), (1, 10), (1, 8), (-1, 8)]),
+            Polygon([(37, -10), (35, -10), (35, -8), (37, -8)]),
+        ]
+    )
+
+    should_result = MultiPolygon(
+        [
+            Polygon([(0, 9), (1, 9), (1, 8), (0, 8)]),
+            Polygon([(0, -9), (1, -9), (1, -8), (0, -8)]),
+            Polygon([(35, 9), (36, 9), (36, 8), (35, 8)]),
+            Polygon([(35, -9), (36, -9), (36, -8), (35, -8)]),
+        ]
+    )
+    result = polygon_split_arbitrary(pg, lon_min=0, lon_max=36, lat_min=-9, lat_max=9)
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+def test_polygon_split_arbitrary_notdefault2():
+    """
+    Same test_polygon_split_arbitrary_notdefault but with bounds
+    lon_min=-1, lon_max=0, lat_min=9, lat_max=10
+    """
+    pg = MultiPolygon(
+        [
+            Polygon([(-1, 10), (1, 10), (1, 8), (-1, 8)]),
+            Polygon([(37, -10), (35, -10), (35, -8), (37, -8)]),
+        ]
+    )
+
+    should_result = Polygon([(0, 10), (-1, 10), (-1, 9), (0, 9)])
+    result = polygon_split_arbitrary(pg, lon_min=-1, lon_max=0, lat_min=9, lat_max=10)
+    assert result.equals(should_result)
+    assert type(result) is MultiPolygon
+
+
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_across_dateline(polygon_mask_function):
     """Check case where lon W/E bounds are ordered in interval [0,360)."""
     data_set = xr.Dataset(
         coords={
@@ -432,12 +575,15 @@ def test_polygon2mask_across_dateline():
         }
     )
     pg = Polygon([(30, 90), (270, 90), (270, -90), (30, -90)])
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip([False, True, True], mask.squeeze().data))
 
 
-def test_polygon2mask_across_zero_meridian():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_across_zero_meridian(polygon_mask_function):
     """Check case where lon W/E bounds are ordered in interval [-180, 180)."""
     data_set = xr.Dataset(
         coords={
@@ -452,12 +598,15 @@ def test_polygon2mask_across_zero_meridian():
         }
     )
     pg = Polygon([(30, 90), (-180, 90), (-180, -90), (30, -90)])
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip([True, False, True], mask.squeeze().data))
 
 
-def test_polygon2mask_point_on_boundary():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_point_on_boundary(polygon_mask_function):
     """Check case where a point lies on the boundary of the polygon.
     Here it is the Point (0, 0) is situated on the boundary."""
     data_set = xr.Dataset(
@@ -475,7 +624,7 @@ def test_polygon2mask_point_on_boundary():
     )
     pg = Polygon([(0, 0), (5, 0), (5, 5), (0, 5)])
 
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
 
     mask_should = np.array([[True, False, False], [False, False, False]])
 
@@ -483,7 +632,10 @@ def test_polygon2mask_point_on_boundary():
     assert all(m == mt for m, mt in zip(mask_should.flatten(), mask.data.flatten()))
 
 
-def test_polygon2mask_multipolygon():
+@pytest.mark.parametrize(
+    "polygon_mask_function", [polygon2mask, polygon2mask_only_primemeridian]
+)
+def test_polygon2mask_multipolygon(polygon_mask_function):
     """Check case where a point lies on the boundary of the polygon.
     Here it is the Point (0, 0) is situated on the boundary."""
     data_set = xr.Dataset(
@@ -502,7 +654,7 @@ def test_polygon2mask_multipolygon():
     pg1 = Polygon([(0, 0), (5, 0), (5, 5), (0, 5)])
     pg2 = Polygon([(110, -10), (130, -10), (130, -15), (110, -15)])
     pg = unary_union([pg1, pg2])
-    mask = polygon2mask(data_set, pg)
+    mask = polygon_mask_function(data_set, pg)
     mask_should = np.array([[True, False, False], [False, True, False]])
     assert mask.astype(int).sum().data[()] == 2
     assert all(m == mt for m, mt in zip(mask_should.flatten(), mask.data.flatten()))
