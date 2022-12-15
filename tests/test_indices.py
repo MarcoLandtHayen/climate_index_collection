@@ -25,12 +25,12 @@ from climate_index_collection.indices import (
     north_pacific,
     pacific_decadal_oscillation_pc,
     sahel_precipitation,
-    sea_air_temperature_north_all,
-    sea_air_temperature_north_land,
-    sea_air_temperature_north_ocean,
-    sea_air_temperature_south_all,
-    sea_air_temperature_south_land,
-    sea_air_temperature_south_ocean,
+    surface_air_temperature_north_all,
+    surface_air_temperature_north_land,
+    surface_air_temperature_north_ocean,
+    surface_air_temperature_south_all,
+    surface_air_temperature_south_land,
+    surface_air_temperature_south_ocean,
     south_atlantic_sea_surface_salinity,
     southern_annular_mode_pc,
     southern_annular_mode_zonal_mean,
@@ -944,12 +944,12 @@ def test_AMO_naming(source_name):
 @pytest.mark.parametrize(
     "index_function",
     [
-        sea_air_temperature_north_all,
-        sea_air_temperature_north_land,
-        sea_air_temperature_north_ocean,
-        sea_air_temperature_south_all,
-        sea_air_temperature_south_land,
-        sea_air_temperature_south_ocean,
+        surface_air_temperature_north_all,
+        surface_air_temperature_north_land,
+        surface_air_temperature_north_ocean,
+        surface_air_temperature_south_all,
+        surface_air_temperature_south_land,
+        surface_air_temperature_south_ocean,
     ],
 )
 def test_SAT_metadata(source_name, index_function):
@@ -970,12 +970,12 @@ def test_SAT_metadata(source_name, index_function):
 @pytest.mark.parametrize(
     "index_function",
     [
-        sea_air_temperature_north_all,
-        sea_air_temperature_north_land,
-        sea_air_temperature_north_ocean,
-        sea_air_temperature_south_all,
-        sea_air_temperature_south_land,
-        sea_air_temperature_south_ocean,
+        surface_air_temperature_north_all,
+        surface_air_temperature_north_land,
+        surface_air_temperature_north_ocean,
+        surface_air_temperature_south_all,
+        surface_air_temperature_south_land,
+        surface_air_temperature_south_ocean,
     ],
 )
 def test_SAT_zeromean(source_name, index_function):
@@ -994,12 +994,12 @@ def test_SAT_zeromean(source_name, index_function):
 @pytest.mark.parametrize(
     "index_function",
     [
-        sea_air_temperature_north_all,
-        sea_air_temperature_north_land,
-        sea_air_temperature_north_ocean,
-        sea_air_temperature_south_all,
-        sea_air_temperature_south_land,
-        sea_air_temperature_south_ocean,
+        surface_air_temperature_north_all,
+        surface_air_temperature_north_land,
+        surface_air_temperature_north_ocean,
+        surface_air_temperature_south_all,
+        surface_air_temperature_south_land,
+        surface_air_temperature_south_ocean,
     ],
 )
 def test_SAT_naming(source_name, index_function):
@@ -1012,7 +1012,7 @@ def test_SAT_naming(source_name, index_function):
     SAT = index_function(data_set)
 
     assert SAT.name.startswith("SAT")
-    assert SAT.long_name.startswith("sea_air_temperature")
+    assert SAT.long_name.startswith("surface_air_temperature")
 
 
 @pytest.mark.parametrize("source_name", list(VARNAME_MAPPING.keys()))
