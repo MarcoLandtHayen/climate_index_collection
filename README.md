@@ -15,7 +15,7 @@ _See [notebooks/Tutorial.ipynb](notebooks/Tutorial.ipynb) for details._
 
 ## Development
 
-For now, we're developing in the Pangeo notebook containter. More details: https://github.com/pangeo-data/pangeo-docker-images
+For now, we're developing in the Pangeo notebook container. More details: https://github.com/pangeo-data/pangeo-docker-images
 
 To start a JupyterLab within this container, run
 ```shell
