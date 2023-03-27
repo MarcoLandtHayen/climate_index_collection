@@ -28,7 +28,6 @@ from climate_index_collection.output import (
 
 @pytest.fixture
 def example_data_array():
-
     data = xr.DataArray(
         [0.5, 1, -0.3, -0.7],
         dims=("time"),
