@@ -29,7 +29,7 @@ jobs:
       - name: Checkout Github repository
         uses: actions/checkout@v3
       - name: Build Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           load: true # publish as local Docker image
           tags: "${{env.CALVER_TARGET}}, ${{env.LATEST_TARGET}}"
@@ -42,7 +42,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push the Docker images
         if: ${{ startsWith(github.ref, 'refs/heads/main')}}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           tags: "${{env.CALVER_TARGET}}, ${{env.LATEST_TARGET}}"
           build-args: "SETUPTOOLS_SCM_PRETEND_VERSION=${{env.CALVER}}"
