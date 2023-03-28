@@ -10,7 +10,87 @@
 Collection of climate indices derived from climate model outputs.
 
 
-_See [notebooks/Tutorial.ipynb](notebooks/Tutorial.ipynb) for details._
+## Quickstart: Using the climate indices
+
+The resulting climate-index time series are published to Zenodo under the DOI [10.5281/zenodo.7436144](https://doi.org/10.5281/zenodo.7436144) and you can obtain the index timeseries by manually downloading the file `climate_indices.csv` from this dataset.
+
+You can also use [pooch](https://www.fatiando.org/pooch/latest/) to obtain the published index time series programmatically:
+```python
+import pooch
+
+climate_indices_file = pooch.retrieve(
+    url="doi:10.5281/zenodo.7436144/climate_indices.csv",
+    known_hash=None,
+)
+```
+With `climate_indices_file` containing the path to the CSV file either resulting from the code above or from manually setting it to the location of the manually downloaded data, we recommend using [Pandas](https://pandas.pydata.org/docs/) for reading the data: 
+```python
+import pandas as pd
+
+climate_indices = pd.read_csv(climate_indices_file)
+```
+This results in a dataframe with the following structure:
+```python
+print(climate_indices)
+```
+```
+       model  year  month   index                         long_name     value
+0       FOCI     1      1  SAM_ZM  southern_annular_mode_zonal_mean -0.295492
+1       FOCI     1      2  SAM_ZM  southern_annular_mode_zonal_mean  0.530890
+2       FOCI     1      3  SAM_ZM  southern_annular_mode_zonal_mean  1.684005
+3       FOCI     1      4  SAM_ZM  southern_annular_mode_zonal_mean  1.409169
+4       FOCI     1      5  SAM_ZM  southern_annular_mode_zonal_mean  0.984511
+...      ...   ...    ...     ...                               ...       ...
+695647  CESM   999      8      NP                     north_pacific -0.210202
+695648  CESM   999      9      NP                     north_pacific  0.206541
+695649  CESM   999     10      NP                     north_pacific -0.331067
+695650  CESM   999     11      NP                     north_pacific  0.487844
+695651  CESM   999     12      NP                     north_pacific -0.782657
+
+[695652 rows x 6 columns]
+```
+To apply statistics or to plot all indices, you can apply standard modifications provided by Pandas. Calculating, e.g., the standard deviation of all indices amounts to
+```python
+print(climate_indices.groupby(["model", "index"])[["value"]].std())
+```
+```
+model  index      
+CESM   AMO            0.109084
+       ENSO_12        0.603481
+       ENSO_3         0.881938
+       ENSO_34        0.933544
+       ENSO_4         0.909434
+       NAO_PC         1.000042
+       NAO_ST         1.554596
+       NP             0.569459
+       PDO_PC         1.000042
+...    ...            ...
+FOCI   AMO            0.128715
+       ENSO_12        0.342368
+       ENSO_3         0.600242
+       ENSO_34        0.759405
+       ENSO_4         0.923854
+       NAO_PC         1.000042
+       NAO_ST         1.459676
+       NP             0.644014
+       PDO_PC         1.000042
+...    ...            ...
+Name: value, dtype: float64
+```
+
+## Quickstart: Reproducing the dataset
+
+The Python package in this repository can be installed using [`pip`](https://pip.pypa.io/en/stable/getting-started/#install-a-package-from-github):
+```shell
+$ python -m pip install git+https://github.com/MarcoLandtHayen/climate_index_collection.git@v2022.12.15.1
+```
+The data from which the indices have been calculated are published under the DOI [10.5281/zenodo.7060385](https://doi.org/10.5281/zenodo.7060385). After downloading the data to, e.g., `./cicmod_data/`, you can run the command line version of this package by
+```shell
+$ climate_index_collection_run --input-path ./cicmod_data/ --output-path . 
+```
+which will create a file `climate_indices.csv`.
+
+Please see either `$ climate_index_collection_run --help` on the command line, or the tutorial notebook in [notebooks/Tutorial.ipynb](notebooks/Tutorial.ipynb) for more details.
 
 
 ## Development
