@@ -23,7 +23,7 @@ climate_indices_file = pooch.retrieve(
     known_hash=None,
 )
 ```
-With `climate_indices_file` containing the path to the CSV file either resulting from the code above or from manually setting it to the location of the manually downloaded data, we recommend using [Pandas](https://pandas.pydata.org/docs/) for reading the data: 
+With `climate_indices_file` containing the path to the CSV file either resulting from the code above or from manually setting it to the location of the manually downloaded data, we recommend using [Pandas](https://pandas.pydata.org/docs/) for reading the data:
 ```python
 import pandas as pd
 
@@ -54,7 +54,7 @@ To apply statistics or to plot all indices, you can apply standard modifications
 print(climate_indices.groupby(["model", "index"])[["value"]].std())
 ```
 ```
-model  index      
+model  index
 CESM   AMO            0.109084
        ENSO_12        0.603481
        ENSO_3         0.881938
@@ -86,7 +86,7 @@ $ python -m pip install git+https://github.com/MarcoLandtHayen/climate_index_col
 ```
 The data from which the indices have been calculated are published under the DOI [10.5281/zenodo.7060385](https://doi.org/10.5281/zenodo.7060385). After downloading the data to, e.g., `./cicmod_data/`, you can run the command line version of this package by
 ```shell
-$ climate_index_collection_run --input-path ./cicmod_data/ --output-path . 
+$ climate_index_collection_run --input-path ./cicmod_data/ --output-path .
 ```
 which will create a file `climate_indices.csv`.
 
