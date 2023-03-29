@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/MarcoLandtHayen/climate_index_collection/branch/main/graph/badge.svg)](https://codecov.io/gh/MarcoLandtHayen/climate_index_collection)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/mlandthayen/climate_index_collection?label=DockerHub)](https://hub.docker.com/r/mlandthayen/climate_index_collection/tags)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7440574.svg)](https://doi.org/10.5281/zenodo.7440574)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7779883.svg)](https://doi.org/10.5281/zenodo.7779883)
 
 
 Collection of climate indices derived from climate model outputs.
@@ -12,14 +12,14 @@ Collection of climate indices derived from climate model outputs.
 
 ## Quickstart: Using the climate indices
 
-The resulting climate-index time series are published to Zenodo under the DOI [10.5281/zenodo.7436144](https://doi.org/10.5281/zenodo.7436144) and you can obtain the index timeseries by manually downloading the file `climate_indices.csv` from this dataset.
+The resulting climate-index time series are published to Zenodo under the DOI [10.5281/zenodo.7779883](https://doi.org/10.5281/zenodo.7779883) and you can obtain the index timeseries by manually downloading the file `climate_indices.csv` from this dataset.
 
 You can also use [pooch](https://www.fatiando.org/pooch/latest/) to obtain the published index time series programmatically:
 ```python
 import pooch
 
 climate_indices_file = pooch.retrieve(
-    url="doi:10.5281/zenodo.7436144/climate_indices.csv",
+    url="doi:10.5281/zenodo.7779883/climate_indices.csv",
     known_hash=None,
 )
 ```
@@ -82,7 +82,7 @@ Name: value, dtype: float64
 
 The Python package in this repository can be installed using [`pip`](https://pip.pypa.io/en/stable/getting-started/#install-a-package-from-github):
 ```shell
-$ python -m pip install git+https://github.com/MarcoLandtHayen/climate_index_collection.git@v2022.12.15.1
+$ python -m pip install git+https://github.com/MarcoLandtHayen/climate_index_collection.git@v2023.03.29.1
 ```
 The data from which the indices have been calculated are published under the DOI [10.5281/zenodo.7060385](https://doi.org/10.5281/zenodo.7060385). After downloading the data to, e.g., `./cicmod_data/`, you can run the command line version of this package by
 ```shell
